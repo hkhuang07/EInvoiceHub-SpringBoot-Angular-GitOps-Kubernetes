@@ -11,7 +11,8 @@ spring:
 
   data:       #Config MongoDB for no-sql database
     mongodb:
-        uri: mongodb://localhost:27017/einvoice_logs
+        uri: 'mongodb+srv://huykyunhk:HuyKyunH.K07@cluster0.17bgl.mongodb.net/einvoicehub'
+
 
   jpa:
     hibernate:
