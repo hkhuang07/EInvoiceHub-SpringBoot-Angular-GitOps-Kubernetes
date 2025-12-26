@@ -4,9 +4,9 @@ spring:
       enabled: true
 
   datasource: #Config MySQL for relationship database
-    url: jdbc:mysql://localhost:3306/einvoice_db?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/einvoicehub?createDatabaseIfNotExist=true
     username: root
-    password: HK040103
+    password:
     drive-class-name: com.mysql.cj.jdbc.Driver
 
   data:       #Config MongoDB for no-sql database
@@ -16,7 +16,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update #Auto create table from Entity Class
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
