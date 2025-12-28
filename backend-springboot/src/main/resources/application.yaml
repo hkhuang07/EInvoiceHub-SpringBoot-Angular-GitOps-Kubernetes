@@ -72,6 +72,12 @@ app:
     default-timeout-ms: 30000
     max-retry-attempts: 3
     retry-delay-ms: 1000
+    vnpt:
+      base-url: https://api.vnptinvoice.com.vn/v1
+      timeout-ms: 30000
+    viettel:
+      base-url: https://ebill.vietteltelecom.vn/api/v1
+      timeout-ms: 30000
 
 # Logging Configuration
 logging:
