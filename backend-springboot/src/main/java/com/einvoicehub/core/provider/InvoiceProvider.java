@@ -14,16 +14,8 @@ public interface InvoiceProvider {
      */
     String getProviderCode();
 
-    /**
-     * Lấy tên hiển thị của Provider
-     * @return Tên Provider
-     */
     String getProviderName();
 
-    /**
-     * Kiểm tra Provider có đang hoạt động không
-     * @return true nếu Provider khả dụng
-     */
     boolean isAvailable();
 
     /**

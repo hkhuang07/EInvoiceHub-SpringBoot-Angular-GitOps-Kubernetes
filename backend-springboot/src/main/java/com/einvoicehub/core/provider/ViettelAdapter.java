@@ -338,9 +338,10 @@ public class ViettelAdapter implements InvoiceProvider {
                 .amount(item.getAmount())
                 .discountAmount(item.getDiscountAmount() != null ? item.getDiscountAmount() : BigDecimal.ZERO)
                 .vatRate(item.getTaxRate())
-                .vatAmount(item.getTaxAmount() != null ? item.getTaxAmount() : BigDecimal.ZERO)
                 .description(item.getDescription())
                 .build();
+                //.vatAmount(item.getTaxAmount() != null ? item.getTaxAmount() : BigDecimal.ZERO)
+
     }
 
     private InvoiceResponse convertToInvoiceResponse(ViettelApiResponse viettelResponse,
@@ -370,14 +371,15 @@ public class ViettelAdapter implements InvoiceProvider {
                 .build();
     }
 
-    private InvoiceStatus mapViettelStatus(String viettelStatus) {
+    private InvoiceStatus mapViettelStatus(ViettelApiResponse response) {
+        String viettelStatus = (response != null && response.getData() != null)
+                ? response.getData().getStatus() : null;
+
         if (viettelStatus == null) return InvoiceStatus.FAILED;
 
         return switch (viettelStatus.toUpperCase()) {
-            case "DA_PHAT_HANH", "SIGNED", "COMPLETED" -> InvoiceStatus.SUCCESS;
-            case "CHO_PHAT_HANH", "PENDING" -> InvoiceStatus.SENT_TO_PROVIDER;
-            case "DA_HUY", "CANCELLED" -> InvoiceStatus.CANCELLED;
-            case "THAY_THE", "REPLACED" -> InvoiceStatus.REPLACED;
+            case "DA_PHAT_HANH", "SIGNED" -> InvoiceStatus.SUCCESS;
+            case "DA_HUY" -> InvoiceStatus.CANCELLED;
             default -> InvoiceStatus.FAILED;
         };
     }
