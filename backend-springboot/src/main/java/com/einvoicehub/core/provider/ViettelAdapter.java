@@ -134,9 +134,9 @@ public class ViettelAdapter implements InvoiceProvider {
                     .timeout(Duration.ofMillis(timeoutMs))
                     .block();
 
-            if (response != null) {
+            /*if (response != null) {
                 return mapViettelStatus(response.getStatus());
-            }
+            }*/
 
         } catch (Exception e) {
             log.error("Viettel: Error getting invoice status", e);
