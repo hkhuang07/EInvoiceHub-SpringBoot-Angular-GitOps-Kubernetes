@@ -78,7 +78,15 @@ app:
     viettel:
       base-url: https://ebill.vietteltelecom.vn/api/v1
       timeout-ms: 30000
-
+    bkav:
+      base-url: https://einvoice.bkav.com/api/v1
+      test-base-url: https://demo.ehoadon.vn/api/v1
+      timeout-ms: 30000
+      encryption-key: ${BKAV_ENCRYPTION_KEY:}  # AES-256 key từ BKAV
+    misa:
+      base-url: https://api.meinvoice.vn/api/integration
+      test-base-url: https://testapi.meinvoice.vn/api/integration
+      timeout-ms: 30000
 # Logging Configuration
 logging:
   level:
