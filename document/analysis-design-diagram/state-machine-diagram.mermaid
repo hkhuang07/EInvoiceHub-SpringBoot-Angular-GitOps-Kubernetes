@@ -1,0 +1,26 @@
+stateDiagram-v2
+    [*] --> DRAFT: Tạo mới
+    
+    DRAFT --> PENDING: Gửi yêu cầu\nxuất hóa đơn
+    PENDING --> PROCESSING: Provider nhận\nyêu cầu
+    
+    PROCESSING --> ISSUED: Xuất hóa đơn\nthành công
+    PROCESSING --> FAILED: Lỗi từ Provider
+    
+    ISSUED --> CANCELLED: Yêu cầu hủy (Trong ngày)
+    ISSUED --> [*]
+    
+    FAILED --> DRAFT: Sửa lỗi\nvà gửi lại
+    FAILED --> CANCELLED: Hủy bỏ
+    
+    CANCELLED --> [*]
+    
+    note right of ISSUED
+        Hóa đơn đã được ký
+        số và gửi đến cơ quan thuế
+    end note
+    
+    note right of PROCESSING
+        Đang chờ phản hồi
+        từ nhà cung cấp
+    end note
