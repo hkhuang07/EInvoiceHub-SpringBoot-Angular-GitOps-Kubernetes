@@ -40,8 +40,8 @@ public class VnptAdapter implements InvoiceProvider {
 
     public VnptAdapter(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
         this.webClient = webClientBuilder
-                .baseUrl .defaultHeader(Http(baseUrl)
-                        Headers.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) // Dùng HttpHeaders class
                 .build();
         this.objectMapper = objectMapper;
     }
