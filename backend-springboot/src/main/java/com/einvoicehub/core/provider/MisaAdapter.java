@@ -13,6 +13,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.math.BigDecimal;
+
+//Lỗi: Cannot resolve symbol 'RoundingMode'
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -152,13 +154,14 @@ public class MisaAdapter implements InvoiceProvider {
             params.put("invoiceWithCode", true);
             params.put("invoiceCalcu", false);
             params.put("inputType", 1); // Lấy theo TransactionID
-
+            //Lỗi : Incompatible types. Found: 'java.util.List<java.lang.String>', required: 'java.util.Map<java.lang.String,java.lang.Object>'
             Map<String, Object> requestBody = Collections.singletonList(transactionId);
 
             MisaApiResponse response = webClient
                     .post()
                     .uri(uriBuilder -> uriBuilder
                             .path("/invoice/status")
+                            //Lỗi: 'queryParams(org.springframework.util.MultiValueMap<java.lang.String,java.lang.String>)' in 'org.springframework.web.util.UriBuilder' cannot be applied to '(java.util.Map<java.lang.String,java.lang.String>)'
                             .queryParams(toQueryParams(params))
                             .build())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -218,6 +221,7 @@ public class MisaAdapter implements InvoiceProvider {
             MisaInvoicePayload payload = buildMisaPayload(newRequest);
             payload.setReferenceType(1); // 1: Thay thế
             payload.setOrgInvNo(oldTransactionId); // TransactionID của hóa đơn cũ
+            //Lỗi : Cannot resolve symbol 'reason'
             payload.setInvoiceNote("Thay thế hóa đơn: " + reason);
 
             Map<String, Object> requestBody = new LinkedHashMap<>();
@@ -258,13 +262,14 @@ public class MisaAdapter implements InvoiceProvider {
             params.put("invoiceWithCode", true);
             params.put("invoiceCalcu", false);
             params.put("downloadDataType", "pdf");
-
+            //Lỗi: Incompatible types. Found: 'java.util.List<java.lang.String>', required: 'java.util.Map<java.lang.String,java.lang.Object>'
             Map<String, Object> requestBody = Collections.singletonList(transactionId);
 
             MisaApiResponse response = webClient
                     .post()
                     .uri(uriBuilder -> uriBuilder
                             .path("/invoice/download")
+                            // Lỗi: 'queryParams(org.springframework.util.MultiValueMap<java.lang.String,java.lang.String>)' in 'org.springframework.web.util.UriBuilder' cannot be applied to '(java.util.Map<java.lang.String,java.lang.String>)'
                             .queryParams(toQueryParams(params))
                             .build())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
@@ -381,6 +386,7 @@ public class MisaAdapter implements InvoiceProvider {
                 .currencyCode(request.getSummary() != null &&
                         StringUtils.hasText(request.getSummary().getCurrencyCode()) ?
                         request.getSummary().getCurrencyCode() : "VND")
+                //Lỗi 'exchangeRate(java.math.BigDecimal)' in 'com.einvoicehub.core.provider.MisaAdapter.MisaInvoicePayload.MisaInvoicePayloadBuilder' cannot be applied to '(double)'
                 .exchangeRate(1.0)
                 .paymentMethodName("TM/CK")
                 .isInvoiceSummary(false)
@@ -420,6 +426,7 @@ public class MisaAdapter implements InvoiceProvider {
         for (MisaInvoiceDetail detail : payload.getOriginalInvoiceDetail()) {
             BigDecimal amountOC = detail.getAmountOC() != null ? detail.getAmountOC() : BigDecimal.ZERO;
             BigDecimal discountAmountOC = detail.getDiscountAmountOC() != null ? detail.getDiscountAmountOC() : BigDecimal.ZERO;
+            //Lỗi: Cannot resolve method 'getVATAmountOC' in 'MisaInvoiceDetail'
             BigDecimal vatAmountOC = detail.getVATAmountOC() != null ? detail.getVATAmountOC() : BigDecimal.ZERO;
 
             totalSaleAmountOC = totalSaleAmountOC.add(amountOC);
@@ -429,7 +436,7 @@ public class MisaAdapter implements InvoiceProvider {
 
         BigDecimal totalAmountWithoutVATOC = totalSaleAmountOC.subtract(totalDiscountAmountOC);
         BigDecimal totalAmountOC = totalAmountWithoutVATOC.add(totalVATAmountOC);
-
+        //Lỗi: Cannot resolve symbol 'RoundingMode'
         payload.setTotalSaleAmountOC(totalSaleAmountOC.setScale(2, RoundingMode.HALF_UP));
         payload.setTotalSaleAmount(totalSaleAmountOC.setScale(2, RoundingMode.HALF_UP));
         payload.setTotalDiscountAmountOC(totalDiscountAmountOC.setScale(2, RoundingMode.HALF_UP));

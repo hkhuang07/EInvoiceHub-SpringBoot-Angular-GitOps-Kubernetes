@@ -1,0 +1,290 @@
+# EInvoiceHub Kubernetes Ingress Manifest
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: einvoicehub-ingress
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    version: v1
+  annotations:
+    # NGINX Ingress Controller Annotations
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+
+    # Rate Limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+
+    # CORS Configuration
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type, Authorization, X-API-KEY, X-CLIENT-ID"
+
+    # Security Headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Custom Error Pages
+    nginx.ingress.kubernetes.io/custom-http-errors: "404,500,503";
+
+    # Rewrite Target for API
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+
+    # App Root
+    nginx.ingress.kubernetes.io/app-root: "/actuator/health"
+
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: einvoice.local
+      http:
+        paths:
+          # API Routes
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: einvoicehub
+                port:
+                  number: 80
+
+          # Actuator Endpoints
+          - path: /actuator(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: einvoicehub
+                port:
+                  number: 80
+
+          # Prometheus Metrics (for scraping)
+          - path: /metrics
+            pathType: Exact
+            backend:
+              service:
+                name: einvoicehub-prometheus
+                port:
+                  number: 9090
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: einvoicehub-monitoring-ingress
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    tier: monitoring
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: monitoring.einvoice.local
+      http:
+        paths:
+          # Grafana Dashboard
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: einvoicehub-grafana
+                port:
+                  number: 3000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: einvoicehub-tracing-ingress
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    tier: tracing
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: tracing.einvoice.local
+      http:
+        paths:
+          # Jaeger UI
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: einvoicehub-jaeger
+                port:
+                  number: 16686
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: einvoicehub-network-policy
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+spec:
+  podSelector:
+    matchLabels:
+      app: einvoicehub
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from Ingress Controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # Allow traffic from same namespace
+    - from:
+        - podSelector:
+            matchLabels:
+              app: einvoicehub
+      ports:
+        - protocol: TCP
+          port: 8080
+
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+
+    # Allow traffic to MySQL
+    - to:
+        - podSelector:
+            matchLabels:
+              app: mysql
+      ports:
+        - protocol: TCP
+          port: 3306
+
+    # Allow traffic to MongoDB
+    - to:
+        - podSelector:
+            matchLabels:
+              app: mongodb
+      ports:
+        - protocol: TCP
+          port: 27017
+
+    # Allow traffic to Redis
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+
+    # Allow external API calls
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.0.0.0/8
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: einvoicehub-limit-range
+  namespace: einvoice-dev
+spec:
+  limits:
+    - default:
+        cpu: 1000m
+        memory: 1Gi
+      defaultRequest:
+        cpu: 250m
+        memory: 256Mi
+      type: Container
+
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: einvoicehub-resource-quota
+  namespace: einvoice-dev
+spec:
+  hard:
+    pods: "20"
+    services: "10"
+    secrets: "20"
+    configmaps: "20"
+    persistentvolumeclaims: "10"
+    "limits.cpu": "8"
+    "limits.memory": "8Gi"
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: einvoicehub
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+automountServiceAccountToken: false
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: einvoicehub-role
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: einvoicehub-rolebinding
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+subjects:
+  - kind: ServiceAccount
+    name: einvoicehub
+    namespace: einvoice-dev
+roleRef:
+  kind: Role
+  name: einvoicehub-role
+  apiGroup: rbac.authorization.k8s.io

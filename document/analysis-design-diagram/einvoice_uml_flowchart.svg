@@ -1,0 +1,278 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1250" width="1400" height="1250">
+  <style>
+    .subgraph-label { font-family: sans-serif; font-size: 15px; font-weight: bold; fill: #333; }
+    .node-label { font-family: sans-serif; font-size: 12px; fill: #333; }
+    .edge-label { font-family: sans-serif; font-size: 10px; fill: #555; }
+    .note-box { font-family: sans-serif; font-size: 11px; fill: #555; }
+    .title { font-family: sans-serif; font-size: 20px; font-weight: bold; fill: #333; }
+    .subtitle { font-family: sans-serif; font-size: 14px; fill: #666; }
+  </style>
+  
+  <!-- Background -->
+  <rect width="1400" height="1250" fill="white"/>
+  
+  <!-- Title -->
+  <text x="700" y="40" class="title" text-anchor="middle">Sơ đồ Luồng Xử Lý Xuất Hóa Đơn - EInvoiceHub</text>
+  <text x="700" y="65" class="subtitle" text-anchor="middle">Invoice Issuance Process Flow</text>
+  
+  <!-- Subgraph: Client -->
+  <rect x="30" y="95" width="200" height="70" rx="10" fill="none" stroke="#666" stroke-dasharray="5,5"/>
+  <text x="40" y="120" class="subgraph-label">Ứng Dụng Khách Hàng</text>
+  <rect x="50" y="135" width="160" height="25" rx="5" class="client-node"/>
+  <text x="130" y="152" class="node-label" text-anchor="middle">Frontend Application</text>
+  
+  <!-- Subgraph: Gateway -->
+  <rect x="260" y="95" width="200" height="70" rx="10" fill="none" stroke="#666" stroke-dasharray="5,5"/>
+  <text x="270" y="120" class="subgraph-label">API Gateway Layer</text>
+  <rect x="310" y="135" width="100" height="25" rx="5" fill="#f5f5f5" stroke="#666" stroke-width="1px"/>
+  <text x="360" y="152" class="node-label" text-anchor="middle">Load Balancer</text>
+  
+  <!-- Subgraph: Security -->
+  <rect x="490" y="95" width="250" height="90" rx="10" fill="none" stroke="#666" stroke-dasharray="5,5"/>
+  <text x="500" y="120" class="subgraph-label">Security Layer</text>
+  <rect x="510" y="135" width="210" height="25" rx="5" class="security-node"/>
+  <text x="615" y="152" class="node-label" text-anchor="middle">ApiKeyFilter</text>
+  <rect x="510" y="165" width="210" height="25" rx="5" class="security-node"/>
+  <text x="615" y="182" class="node-label" text-anchor="middle">Authentication Manager</text>
+  
+  <!-- Subgraph: Controller -->
+  <rect x="770" y="95" width="220" height="90" rx="10" fill="none" stroke="#666" stroke-dasharray="5,5"/>
+  <text x="780" y="120" class="subgraph-label">Presentation Layer</text>
+  <rect x="790" y="135" width="180" height="25" rx="5" fill="#fff9c4" stroke="#f57f17" stroke-width="1px"/>
+  <text x="880" y="152" class="node-label" text-anchor="middle">InvoiceController</text>
+  <rect x="790" y="165" width="180" height="25" rx="5" fill="#fff9c4" stroke="#f57f17" stroke-width="1px"/>
+  <text x="880" y="182" class="node-label" text-anchor="middle">Validator</text>
+  
+  <!-- Subgraph: Service -->
+  <rect x="30" y="230" width="350" height="130" rx="10" fill="none" stroke="#666" stroke-dasharray="5,5"/>
+  <text x="40" y="255" class="subgraph-label">Business Logic Layer</text>
+  <rect x="50" y="270" width="310" height="30" rx="5" class="service-node"/>
+  <text x="205" y="290" class="node-label" text-anchor="middle">InvoiceService</text>
+  <rect x="50" y="310" width="310" height="30" rx="5" class="service-node"/>
+  <text x="205" y="330" class="node-label" text-anchor="middle">InvoiceContext Builder</text>
+  <rect x="50" y="350" width="310" height="30" rx="5" class="service-node"/>
+  <text x="205" y="370" class="node-label" text-anchor="middle">ProviderFactory</text>
+  
+  <!-- Subgraph: Provider -->
+  <rect x="410" y="230" width="580" height="160" rx="10" fill="none" stroke="#666" stroke-dasharray="5,5"/>
+  <text x="420" y="255" class="subgraph-label">Provider Adapter Layer</text>
+  
+  <!-- Concrete Adapters inside Provider -->
+  <rect x="420" y="270" width="560" height="110" rx="5" fill="none" stroke="#666" stroke-dasharray="3,3"/>
+  <text x="435" y="290" class="node-label" font-weight="bold">Concrete Adapters</text>
+  
+  <!-- Four adapters in one row -->
+  <rect x="440" y="305" width="125" height="35" rx="5" class="provider-node"/>
+  <text x="502" y="327" class="node-label" text-anchor="middle">VnptAdapter</text>
+  
+  <rect x="585" y="305" width="125" height="35" rx="5" class="provider-node"/>
+  <text x="647" y="327" class="node-label" text-anchor="middle">ViettelAdapter</text>
+  
+  <rect x="730" y="305" width="125" height="35" rx="5" class="provider-node"/>
+  <text x="792" y="327" class="node-label" text-anchor="middle">BkavAdapter</text>
+  
+  <rect x="875" y="305" width="125" height="35" rx="5" class="provider-node"/>
+  <text x="937" y="327" class="node-label" text-anchor="middle">MisaAdapter</text>
+  
+  <!-- InvoiceProvider Interface box below adapters -->
+  <rect x="440" y="355" width="560" height="30" rx="5" fill="#e0e0e0" stroke="#666" stroke-width="1px"/>
+  <text x="720" y="375" class="node-label" text-anchor="middle">InvoiceProvider Interface</text>
+  
+  <!-- Subgraph: DAL -->
+  <rect x="30" y="450" width="350" height="130" rx="10" fill="none" stroke="#666" stroke-dasharray="5,5"/>
+  <text x="40" y="475" class="subgraph-label">Data Access Layer</text>
+  <rect x="50" y="490" width="310" height="30" rx="5" fill="#e0e0e0" stroke="#666" stroke-width="1px"/>
+  <text x="205" y="510" class="node-label" text-anchor="middle">Repository Layer</text>
+  <rect x="50" y="530" width="310" height="30" rx="5" class="database-node"/>
+  <text x="205" y="550" class="node-label" text-anchor="middle">MySQL - Metadata</text>
+  <rect x="50" y="565" width="310" height="30" rx="5" class="database-node"/>
+  <text x="205" y="585" class="node-label" text-anchor="middle">MongoDB - Payloads</text>
+  
+  <!-- Subgraph: External -->
+  <rect x="410" y="450" width="580" height="130" rx="10" fill="none" stroke="#666" stroke-dasharray="5,5"/>
+  <text x="420" y="475" class="subgraph-label">External Providers</text>
+  
+  <rect x="440" y="495" width="160" height="35" rx="5" class="external-node"/>
+  <text x="520" y="517" class="node-label" text-anchor="middle">VNPT API</text>
+  <text x="520" y="532" class="node-label" text-anchor="middle" font-size="9">(REST + JSON)</text>
+  
+  <rect x="620" y="495" width="160" height="35" rx="5" class="external-node"/>
+  <text x="700" y="517" class="node-label" text-anchor="middle">Viettel API</text>
+  <text x="700" y="532" class="node-label" text-anchor="middle" font-size="9">(REST + JSON)</text>
+  
+  <rect x="800" y="495" width="180" height="35" rx="5" class="external-node"/>
+  <text x="890" y="517" class="node-label" text-anchor="middle">BKAV API</text>
+  <text x="890" y="532" class="node-label" text-anchor="middle" font-size="9">(WebService + AES-256)</text>
+  
+  <rect x="440" y="545" width="250" height="35" rx="5" class="external-node"/>
+  <text x="565" y="567" class="node-label" text-anchor="middle">MISA API</text>
+  <text x="565" y="582" class="node-label" text-anchor="middle" font-size="9">(REST + OAuth Token)</text>
+  
+  <!-- Flow arrows - Client to Gateway -->
+  <line x1="130" y1="165" x2="130" y2="230" stroke="#333" stroke-width="2"/>
+  <text x="170" y="200" class="edge-label">HTTP Request</text>
+  
+  <!-- Gateway to Security -->
+  <line x1="360" y1="165" x2="360" y2="230" stroke="#333" stroke-width="2"/>
+  <text x="410" y="200" class="edge-label">Forward Request</text>
+  
+  <!-- Security to Service (via Controller) -->
+  <line x1="615" y1="185" x2="615" y2="230" stroke="#333" stroke-width="2"/>
+  <text x="660" y="215" class="edge-label">Set Security Context</text>
+  
+  <!-- Controller to Service flow -->
+  <line x1="880" y1="190" x2="205" y2="190" stroke="#333" stroke-width="2"/>
+  <line x1="205" y1="190" x2="205" y2="270" stroke="#333" stroke-width="2"/>
+  <text x="540" y="183" class="edge-label" text-anchor="middle">issueInvoice(InvoiceRequest)</text>
+  
+  <!-- Service to ProviderFactory -->
+  <line x1="205" y1="300" x2="700" y2="300" stroke="#333" stroke-width="2"/>
+  <text x="450" y="292" class="edge-label" text-anchor="middle">getProvider(providerCode)</text>
+  
+  <!-- Factory to Service -->
+  <line x1="700" y1="330" x2="205" y2="330" stroke="#333" stroke-width="2"/>
+  <text x="450" y="322" class="edge-label" text-anchor="middle">InvoiceProvider Instance</text>
+  
+  <!-- Service to Adapter -->
+  <line x1="205" y1="350" x2="205" y2="370" stroke="#333" stroke-width="2"/>
+  <line x1="205" y1="370" x2="700" y2="370" stroke="#333" stroke-width="2"/>
+  <line x1="700" y1="370" x2="700" y2="385" stroke="#333" stroke-width="2"/>
+  <text x="450" y="365" class="edge-label" text-anchor="middle">Forward Request to Adapter</text>
+  
+  <!-- Provider routing - horizontal line to all adapters -->
+  <line x1="700" y1="400" x2="502" y2="400" stroke="#333" stroke-width="2"/>
+  <line x1="502" y1="400" x2="502" y2="305" stroke="#333" stroke-width="2"/>
+  
+  <line x1="700" y1="400" x2="647" y2="400" stroke="#333" stroke-width="2"/>
+  <line x1="647" y1="400" x2="647" y2="305" stroke="#333" stroke-width="2"/>
+  
+  <line x1="700" y1="400" x2="792" y2="400" stroke="#333" stroke-width="2"/>
+  <line x1="792" y1="400" x2="792" y2="305" stroke="#333" stroke-width="2"/>
+  
+  <line x1="700" y1="400" x2="937" y2="400" stroke="#333" stroke-width="2"/>
+  <line x1="937" y1="400" x2="937" y2="305" stroke="#333" stroke-width="2"/>
+  
+  <text x="720" y="395" class="edge-label">Route to Adapter</text>
+  
+  <!-- External API calls - downward from adapters -->
+  <!-- VNPT -->
+  <line x1="502" y1="380" x2="520" y2="380" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="520" y1="380" x2="520" y2="495" stroke="#333" stroke-width="2"/>
+  <text x="545" y="435" class="edge-label">REST API</text>
+  
+  <line x1="520" y1="530" x2="520" y2="510" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="545" y="525" class="edge-label">JSON Response</text>
+  
+  <!-- Viettel -->
+  <line x1="647" y1="380" x2="700" y2="380" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="700" y1="380" x2="700" y2="495" stroke="#333" stroke-width="2"/>
+  <text x="725" y="435" class="edge-label">REST API</text>
+  
+  <line x1="700" y1="530" x2="700" y2="510" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="725" y="525" class="edge-label">JSON Response</text>
+  
+  <!-- BKAV -->
+  <line x1="792" y1="380" x2="890" y2="380" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="890" y1="380" x2="890" y2="495" stroke="#333" stroke-width="2"/>
+  <text x="835" y="435" class="edge-label">AES-256 + SOAP</text>
+  
+  <line x1="890" y1="530" x2="890" y2="510" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="915" y="525" class="edge-label">XML + Decrypt</text>
+  
+  <!-- MISA -->
+  <line x1="937" y1="380" x2="565" y2="380" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="565" y1="380" x2="565" y2="500" stroke="#333" stroke-width="2"/>
+  <text x="740" y="375" class="edge-label">Get Token + REST</text>
+  
+  <line x1="565" y1="580" x2="565" y2="560" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="595" y="575" class="edge-label">JSON Response</text>
+  
+  <!-- Adapter responses - upward and leftward -->
+  <!-- VNPT response -->
+  <line x1="520" y1="450" x2="520" y2="430" stroke="#333" stroke-width="2" stroke-dasharray="5,3"/>
+  <line x1="520" y1="430" x2="300" y2="430" stroke="#333" stroke-width="2"/>
+  <line x1="300" y1="430" x2="300" y2="410" stroke="#333" stroke-width="2"/>
+  <line x1="300" y1="410" x2="205" y2="410" stroke="#333" stroke-width="2"/>
+  <text x="400" y="425" class="edge-label">InvoiceResponse</text>
+  
+  <!-- Viettel response -->
+  <line x1="700" y1="450" x2="300" y2="450" stroke="#333" stroke-width="2"/>
+  <line x1="300" y1="450" x2="205" y2="450" stroke="#333" stroke-width="2"/>
+  <text x="450" y="445" class="edge-label">InvoiceResponse</text>
+  
+  <!-- BKAV response -->
+  <line x1="890" y1="450" x2="300" y2="450" stroke="#333" stroke-width="2"/>
+  <text x="580" y="445" class="edge-label">InvoiceResponse</text>
+  
+  <!-- MISA response -->
+  <line x1="565" y1="545" x2="300" y2="545" stroke="#333" stroke-width="2"/>
+  <line x1="300" y1="545" x2="205" y2="545" stroke="#333" stroke-width="2"/>
+  <text x="380" y="540" class="edge-label">InvoiceResponse</text>
+  
+  <!-- Service to Database - Save Metadata -->
+  <line x1="205" y1="300" x2="205" y2="530" stroke="#333" stroke-width="2"/>
+  <text x="225" y="420" class="edge-label">Save Metadata</text>
+  
+  <!-- Service to MongoDB - Save Full Payload -->
+  <line x1="205" y1="310" x2="360" y2="310" stroke="#333" stroke-width="2"/>
+  <line x1="360" y1="310" x2="360" y2="565" stroke="#333" stroke-width="2"/>
+  <text x="280" y="380" class="edge-label">Save Full Payload</text>
+  
+  <!-- Response to Client - upward flow -->
+  <line x1="205" y1="270" x2="205" y2="200" stroke="#333" stroke-width="2"/>
+  <text x="230" y="240" class="edge-label">InvoiceResponse</text>
+  
+  <!-- Response through layers -->
+  <line x1="205" y1="195" x2="880" y2="195" stroke="#333" stroke-width="2"/>
+  <text x="540" y="188" class="edge-label" text-anchor="middle">HTTP 200 OK</text>
+  <line x1="880" y1="195" x2="880" y2="165" stroke="#333" stroke-width="2"/>
+  
+  <line x1="880" y1="160" x2="360" y2="160" stroke="#333" stroke-width="2"/>
+  <text x="620" y="153" class="edge-label" text-anchor="middle">Response</text>
+  
+  <line x1="360" y1="155" x2="130" y2="155" stroke="#333" stroke-width="2"/>
+  <text x="245" y="148" class="edge-label" text-anchor="middle">JSON Response</text>
+  
+  <!-- Authentication failed path -->
+  <line x1="720" y1="180" x2="500" y2="180" stroke="#d32f2f" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="600" y="173" class="edge-label" fill="#d32f2f" font-weight="bold">401 Unauthorized</text>
+  
+  <!-- Legend -->
+  <rect x="30" y="700" width="1340" height="80" rx="5" fill="#f5f5f5" stroke="#9e9e9e" stroke-width="1"/>
+  <text x="50" y="725" class="node-label" font-weight="bold">Chú thích luồng xử lý:</text>
+  <text x="50" y="750" class="node-label">1. Client gửi HTTP Request với headers X-CLIENT-ID, X-API-KEY</text>
+  <text x="50" y="770" class="node-label">2. ApiKeyFilter xác thực với Database, nếu thành công chuyển sang Controller</text>
+  <text x="50" y="790" class="node-label">3. Controller gọi Service, Service chọn Adapter phù hợp qua Factory</text>
+  <text x="550" y="750" class="node-label">4. Adapter giao tiếp với Provider theo giao thức riêng</text>
+  <text x="550" y="770" class="node-label">5. Lưu metadata vào MySQL, payload vào MongoDB, trả kết quả về Client</text>
+  
+  <!-- Provider comparison -->
+  <rect x="30" y="795" width="1340" height="50" rx="5" fill="#fff8e1" stroke="#ffc107" stroke-width="1"/>
+  <text x="50" y="820" class="node-label" font-weight="bold">So sánh Provider:</text>
+  <rect x="180" y="808" width="180" height="28" rx="3" fill="#e3f2fd" stroke="#1976d2"/>
+  <text x="270" y="827" class="node-label" text-anchor="middle">VNPT/Viettel: REST + JSON</text>
+  <rect x="380" y="808" width="220" height="28" rx="3" fill="#fff3e0" stroke="#ef6c00"/>
+  <text x="490" y="827" class="node-label" text-anchor="middle">BKAV: WebService + AES-256</text>
+  <rect x="620" y="808" width="200" height="28" rx="3" fill="#fce4ec" stroke="#c2185b"/>
+  <text x="720" y="827" class="node-label" text-anchor="middle">MISA: REST + OAuth Token</text>
+  
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+    <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#d32f2f"/>
+    </marker>
+  </defs>
+  
+  <!-- Style classes -->
+  <style>
+    .client-node { fill: #e1f5fe; stroke: #01579b; stroke-width: 2px; }
+    .security-node { fill: #ffebee; stroke: #c62828; stroke-width: 2px; }
+    .service-node { fill: #e8f5e9; stroke: #2e7d32; stroke-width: 2px; }
+    .provider-node { fill: #fff3e0; stroke: #ef6c00; stroke-width: 2px; }
+    .database-node { fill: #f3e5f5; stroke: #7b1fa2; stroke-width: 2px; }
+    .external-node { fill: #fce4ec; stroke: #c2185b; stroke-width: 2px; }
+  </style>
+</svg>

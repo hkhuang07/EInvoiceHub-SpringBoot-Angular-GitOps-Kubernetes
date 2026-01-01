@@ -1,0 +1,375 @@
+# EInvoiceHub Kubernetes Deployment Manifest
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: einvoicehub-config
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    version: v1
+data:
+  # Application Settings
+  APP_NAME: "einvoicehub"
+  APP_VERSION: "1.0.0"
+  SERVER_PORT: "8080"
+  SPRING_PROFILES_ACTIVE: "prod"
+
+  # Logging Configuration
+  LOG_LEVEL: "INFO"
+  LOG_FORMAT: "json"
+
+  # Database Configuration
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/einvoicehub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+  SPRING_JPA_SHOW_SQL: "false"
+
+  # MongoDB Configuration
+  SPRING_DATA_MONGODB_URI: "mongodb://admin:einvoice@mongodb:27017/einvoicehub?authSource=admin"
+
+  # Redis Configuration
+  SPRING_REDIS_HOST: "redis"
+  SPRING_REDIS_PORT: "6379"
+
+  # Actuator Endpoints
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics,prometheus"
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "when_authorized"
+  MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
+
+  # Virtual Threads (Java 21)
+  JAVA_THREADS_VIRTUAL_ENABLED: "true"
+
+  # JVM Options
+  JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: einvoicehub-secrets
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+type: Opaque
+stringData:
+  # Database Credentials
+  SPRING_DATASOURCE_USERNAME: "einvoice_user"
+  SPRING_DATASOURCE_PASSWORD: "einvoice_pass"
+  SPRING_DATA_MONGODB_USERNAME: "admin"
+  SPRING_DATA_MONGODB_PASSWORD: "einvoice"
+  SPRING_REDIS_PASSWORD: "einvoice_redis"
+
+  # Encryption Keys
+  ENCRYPTION_KEY_AES256: "dGhpc2lzYXZlcnlsb25nYWVzMjU2a2V5MzI="
+  ENCRYPTION_KEY_IV: "dGhpc2lzYXZlcnlsb25naXZtdGhyZWVl"
+
+  # JWT Configuration
+  JWT_SECRET_KEY: "eW91cnN1cGVyc2VjcmV0a2V5Zm9yand0dG9rZW5zaWduaW5n"
+  JWT_EXPIRATION_MS: "86400000"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: einvoicehub-provider-secrets
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+type: Opaque
+stringData:
+  # Viettel Provider
+  VIETTEL_API_KEY: "viettel_api_key_placeholder"
+  VIETTEL_CLIENT_ID: "viettel_client_id_placeholder"
+
+  # BKAV Provider
+  BKAV_API_KEY: "bkav_api_key_placeholder"
+  BKAV_CLIENT_ID: "bkav_client_id_placeholder"
+
+  # MISA Provider
+  MISA_API_KEY: "misa_api_key_placeholder"
+  MISA_CLIENT_ID: "misa_client_id_placeholder"
+  MISA_CLIENT_SECRET: "misa_client_secret_placeholder"
+
+  # VNPT Provider
+  VNPT_API_KEY: "vnpt_api_key_placeholder"
+  VNPT_CLIENT_ID: "vnpt_client_id_placeholder"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: einvoicehub
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    version: v1
+    tier: backend
+  annotations:
+    description: "EInvoiceHub Backend Application Deployment"
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: einvoicehub
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: einvoicehub
+        version: v1
+        tier: backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      serviceAccountName: einvoicehub
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 30
+      restartPolicy: Always
+
+      # Init Containers
+      initContainers:
+        - name: check-mysql
+          image: busybox:1.36
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              until nc -z mysql 3306; do
+                echo "Waiting for MySQL..."
+                sleep 5
+              done
+              echo "MySQL is ready!"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+
+        - name: check-mongodb
+          image: busybox:1.36
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              until nc -z mongodb 27017; do
+                echo "Waiting for MongoDB..."
+                sleep 5
+              done
+              echo "MongoDB is ready!"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+
+        - name: check-redis
+          image: busybox:1.36
+          command:
+            - 'sh'
+            - '-c'
+            - |
+              until nc -z redis 6379; do
+                echo "Waiting for Redis..."
+                sleep 5
+              done
+              echo "Redis is ready!"
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+
+      # Main Application Container
+      containers:
+        - name: einvoicehub
+          image: einvoicehub/backend:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: einvoicehub-config
+            - secretRef:
+                name: einvoicehub-secrets
+            - secretRef:
+                name: einvoicehub-provider-secrets
+
+          env:
+            - name: JAVA_OPTS
+              value: "-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xms256m -Xmx512m"
+            - name: SPRING_CONFIG_ADDITIONAL_LOCATION
+              value: "/app/config/"
+
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+            successThreshold: 1
+
+          volumeMounts:
+            - name: logs
+              mountPath: /app/logs
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+      volumes:
+        - name: logs
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: einvoicehub-config
+            optional: true
+
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: einvoicehub
+                topologyKey: kubernetes.io/hostname
+
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 50
+              preference:
+                matchExpressions:
+                  - key: node-type
+                    operator: In
+                    values:
+                      - general-purpose
+
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: einvoicehub
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: einvoicehub-hpa
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: einvoicehub
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+      selectPolicy: Max
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: einvoicehub-pdb
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: einvoicehub

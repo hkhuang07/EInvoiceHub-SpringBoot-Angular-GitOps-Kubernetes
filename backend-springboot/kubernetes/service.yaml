@@ -1,0 +1,192 @@
+# EInvoiceHub Kubernetes Service Manifest
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: einvoicehub
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    version: v1
+    tier: backend
+  annotations:
+    description: "EInvoiceHub Backend Service"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+  selector:
+    app: einvoicehub
+    version: v1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: einvoicehub-mysql
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    tier: database
+  annotations:
+    description: "MySQL Database Service"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+  selector:
+    app: mysql
+    tier: database
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: einvoicehub-mongodb
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    tier: database
+  annotations:
+    description: "MongoDB Database Service"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 27017
+      targetPort: 27017
+      protocol: TCP
+  selector:
+    app: mongodb
+    tier: database
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: einvoicehub-redis
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    tier: cache
+  annotations:
+    description: "Redis Cache Service"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6379
+      targetPort: 6379
+      protocol: TCP
+  selector:
+    app: redis
+    tier: cache
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: einvoicehub-prometheus
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    tier: monitoring
+  annotations:
+    description: "Prometheus Metrics Service"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+  selector:
+    app: prometheus
+    tier: monitoring
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: einvoicehub-grafana
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    tier: monitoring
+  annotations:
+    description: "Grafana Dashboard Service"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+  selector:
+    app: grafana
+    tier: monitoring
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: einvoicehub-jaeger
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+    tier: tracing
+  annotations:
+    description: "Jaeger Tracing Service"
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 16686
+      targetPort: 16686
+      protocol: TCP
+    - name: otlp
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+  selector:
+    app: jaeger
+    tier: tracing
+
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: einvoicehub-headless
+  namespace: einvoice-dev
+  labels:
+    app: einvoicehub
+subsets:
+  - addresses:
+      - ip: 10.0.0.1
+        targetRef:
+          kind: Pod
+          name: einvoicehub-0
+          namespace: einvoice-dev
+      - ip: 10.0.0.2
+        targetRef:
+          kind: Pod
+          name: einvoicehub-1
+          namespace: einvoice-dev
+    ports:
+      - port: 8080
+        protocol: TCP
+        name: http

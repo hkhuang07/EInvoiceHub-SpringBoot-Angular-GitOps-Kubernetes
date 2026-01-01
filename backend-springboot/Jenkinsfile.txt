@@ -1,0 +1,390 @@
+// =============================================================================
+// EInvoiceHub Jenkins CI/CD Pipeline
+// =============================================================================
+// Purpose: Automated build, test, and deployment pipeline for EInvoiceHub
+// Author: EInvoiceHub Team
+// =============================================================================
+
+pipeline {
+    agent {
+        label 'docker-build-agent'
+    }
+
+    options {
+        // Timeout for the entire pipeline
+        timeout(time: 60, unit: 'MINUTES')
+
+        // Disable concurrent builds for the same branch
+        disableConcurrentBuilds()
+
+        // Build retention
+        buildDiscarder(logRotator(
+            numToKeepStr: '10',
+            artifactNumToKeepStr: '10'
+        ))
+
+        // Skip default checkout
+        skipDefaultCheckout()
+    }
+
+    environment {
+        // Application Info
+        APP_NAME = 'einvoicehub'
+        APP_VERSION = "${BUILD_NUMBER}"
+
+        // Docker Configuration
+        DOCKER_REGISTRY = 'registry.einvoicehub.io'
+        DOCKER_IMAGE = "${DOCKER_REGISTRY}/${APP_NAME}/backend:${APP_VERSION}"
+        DOCKER_IMAGE_LATEST = "${DOCKER_REGISTRY}/${APP_NAME}/backend:latest"
+
+        // Maven Configuration
+        MAVEN_OPTS = '-Xmx1024m'
+
+        // SonarQube Configuration
+        SONAR_SCANNER_HOME = tool 'sonar-scanner'
+
+        // Environment
+        ENVIRONMENT = 'dev'
+
+        // Kubernetes
+        K8S_NAMESPACE = 'einvoice-dev'
+
+        // Tools
+        JAVA_VERSION = '21'
+    }
+
+    stages {
+        // =====================================================================
+        // Stage 1: Checkout
+        // =====================================================================
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/einvoicehub/backend.git',
+                        credentialsId: 'github-credentials'
+                    ]]
+                ])
+            }
+        }
+
+        // =====================================================================
+        // Stage 2: Build
+        // =====================================================================
+        stage('Build') {
+            parallel {
+                stage('Maven Build') {
+                    steps {
+                        dir('backend') {
+                            withMaven(
+                                maven: 'maven-3.9',
+                                jdk: 'java-21'
+                            ) {
+                                sh 'mvn clean compile -DskipTests -B'
+                            }
+                        }
+                    }
+                }
+
+                stage('Security Scan') {
+                    steps {
+                        dir('backend') {
+                            withMaven(
+                                maven: 'maven-3.9',
+                                jdk: 'java-21'
+                            ) {
+                                sh 'mvn dependency-check:check -B'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 3: Unit Tests
+        // =====================================================================
+        stage('Unit Tests') {
+            steps {
+                dir('backend') {
+                    withMaven(
+                        maven: 'maven-3.9',
+                        jdk: 'java-21'
+                    ) {
+                        sh 'mvn test -B'
+                    }
+                }
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                    cobertura(
+                        coberturaReportFile: '**/target/site/cobertura/coverage.xml',
+                        autoUpdateHealth: false,
+                        autoUpdateStability: false,
+                        onlyStable: false
+                    )
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 4: Code Quality
+        // =====================================================================
+        stage('Code Quality') {
+            steps {
+                dir('backend') {
+                    withMaven(
+                        maven: 'maven-3.9',
+                        jdk: 'java-21'
+                    ) {
+                        sh 'mvn sonar:sonar ' +
+                           '-Dsonar.projectKey=einvoicehub_backend ' +
+                           '-Dsonar.projectName=EInvoiceHub_Backend ' +
+                           '-Dsonar.projectVersion=${BUILD_NUMBER} ' +
+                           '-Dsonar.sourceEncoding=UTF-8 ' +
+                           '-Dsonar.java.binaries=target/classes ' +
+                           '-Dsonar.tests=target/test-classes'
+                    }
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 5: Package
+        // =====================================================================
+        stage('Package') {
+            steps {
+                dir('backend') {
+                    withMaven(
+                        maven: 'maven-3.9',
+                        jdk: 'java-21'
+                    ) {
+                        sh 'mvn package -DskipTests -B'
+                    }
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 6: Build Docker Image
+        // =====================================================================
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build(
+                        "${DOCKER_IMAGE}",
+                        "-f Dockerfile --build-arg APP_VERSION=${BUILD_NUMBER} ./backend"
+                    )
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 7: Push Docker Image
+        // =====================================================================
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry("${DOCKER_REGISTRY}", 'docker-registry-credentials') {
+                        dockerImage.push()
+                        dockerImage.push('latest')
+                    }
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 8: Trivy Vulnerability Scan
+        // =====================================================================
+        stage('Vulnerability Scan') {
+            steps {
+                script {
+                    trivy(
+                        imageRef: "${DOCKER_IMAGE}",
+                        exitCode: '0',
+                        severity: 'HIGH,CRITICAL',
+                        timeout: '300'
+                    )
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 9: Deploy to Development
+        // =====================================================================
+        stage('Deploy to Development') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                script {
+                    // Update Kubernetes manifests with new image tag
+                    sh "sed -i 's|image: ${DOCKER_REGISTRY}/${APP_NAME}/backend:.*|image: ${DOCKER_IMAGE}|g' kubernetes/deployment.yaml"
+
+                    // Deploy to Kubernetes
+                    kubernetesDeploy(
+                        configs: 'kubernetes/*.yaml',
+                        kubeconfigId: 'kubernetes-credentials',
+                        namespace: "${K8S_NAMESPACE}"
+                    )
+
+                    // Wait for deployment
+                    sh "kubectl rollout status deployment/${APP_NAME} -n ${K8S_NAMESPACE} --timeout=300s"
+
+                    // Health check
+                    sh "curl -f http://einvoice.local/actuator/health || exit 1"
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 10: Deploy to Staging
+        // =====================================================================
+        stage('Deploy to Staging') {
+            when {
+                branch 'release/*'
+            }
+            steps {
+                script {
+                    // Tag release image
+                    dockerImage.push("release-${BUILD_NUMBER}")
+
+                    // Update Kubernetes manifests
+                    sh "sed -i 's|image: ${DOCKER_REGISTRY}/${APP_NAME}/backend:.*|image: ${DOCKER_IMAGE}|g' kubernetes/deployment.yaml"
+
+                    // Deploy to staging namespace
+                    kubernetesDeploy(
+                        configs: 'kubernetes/*.yaml',
+                        kubeconfigId: 'kubernetes-credentials',
+                        namespace: 'einvoice-staging'
+                    )
+
+                    // Wait for deployment
+                    sh "kubectl rollout status deployment/${APP_NAME} -n einvoice-staging --timeout=300s"
+
+                    // Run integration tests
+                    sh "mvn verify -B -DskipUnitTests"
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 11: Deploy to Production
+        // =====================================================================
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+                environment name: 'DEPLOY_TO_PROD', value: 'true'
+            }
+            steps {
+                script {
+                    // Approval step
+                    timeout(time: 1, unit: 'HOURS') {
+                        input message: 'Deploy to Production?', ok: 'Deploy'
+                    }
+
+                    // Blue/Green deployment
+                    def blueVersion = 'blue'
+                    def greenVersion = 'green'
+                    def currentVersion = readFile('current-version.txt').trim()
+                    def newVersion = currentVersion == blueVersion ? greenVersion : blueVersion
+
+                    // Deploy new version
+                    sh "sed -i 's|image: ${DOCKER_REGISTRY}/${APP_NAME}/backend:.*|image: ${DOCKER_IMAGE}|g' kubernetes/deployment.yaml"
+
+                    kubernetesDeploy(
+                        configs: 'kubernetes/*.yaml',
+                        kubeconfigId: 'kubernetes-credentials',
+                        namespace: 'einvoice-prod'
+                    )
+
+                    // Wait for deployment
+                    sh "kubectl rollout status deployment/${APP_NAME} -n einvoice-prod --timeout=600s"
+
+                    // Health check
+                    sh "curl -f https://api.einvoicehub.com/actuator/health || exit 1"
+
+                    // Update current version
+                    writeFile file: 'current-version.txt', text: newVersion
+                }
+            }
+        }
+
+        // =====================================================================
+        // Stage 12: Post-Deployment
+        // =====================================================================
+        stage('Post-Deployment') {
+            when {
+                anyOf {
+                    branch 'develop'
+                    branch 'release/*'
+                    branch 'main'
+                }
+            }
+            steps {
+                script {
+                    // Send notification
+                    slackSend(
+                        channel: '#deployments',
+                        color: 'good',
+                        message: "Deployment Successful: ${APP_NAME} v${BUILD_NUMBER} to ${ENVIRONMENT}"
+                    )
+
+                    // Archive artifacts
+                    archiveArtifacts(
+                        artifacts: '**/target/*.jar,**/target/site/**/*.html',
+                        fingerprint: true,
+                        allowEmptyArchive: true
+                    )
+                }
+            }
+        }
+    }
+
+    // =====================================================================
+    // Post Actions
+    // =====================================================================
+    post {
+        success {
+            echo '✓ Pipeline completed successfully'
+            script {
+                if (env.BRANCH_NAME == 'main') {
+                    slackSend(
+                        channel: '#deployments',
+                        color: 'good',
+                        message: "✅ Production deployment successful: ${APP_NAME} v${BUILD_NUMBER}"
+                    )
+                }
+            }
+        }
+
+        failure {
+            echo '✗ Pipeline failed'
+            script {
+                slackSend(
+                    channel: '#deployments',
+                    color: 'danger',
+                    message: "❌ Deployment failed: ${APP_NAME} v${BUILD_NUMBER}\n${env.BUILD_URL}"
+                )
+            }
+        }
+
+        unstable {
+            echo 'Pipeline marked as unstable'
+        }
+
+        cleanup {
+            // Clean up workspace
+            cleanWs(
+                deleteDirs: true,
+                patterns: [
+                    pattern: '.gitignore',
+                    invert: true
+                ]
+            )
+        }
+    }
+}

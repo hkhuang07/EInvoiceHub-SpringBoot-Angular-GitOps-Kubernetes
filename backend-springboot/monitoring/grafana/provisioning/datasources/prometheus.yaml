@@ -1,0 +1,101 @@
+# EInvoiceHub Grafana Datasource Configuration
+
+apiVersion: 1
+
+# Delete all datasources before inserting new ones
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+
+# Insert/update datasources
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus:9090
+    isDefault: true
+    version: 1
+    editable: false
+    jsonData:
+      httpMethod: GET
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.48.0
+      enableLoGS: true
+      loGSRequestToken: ''
+      loGSStartTimeParam: start
+      loGSEndTimeParam: end
+      loGSTimeFormat: RFC3339Nano
+      loGSTimeZone: UTC
+      apiVersion: 1
+      cachedResponseTTLMinutes: 60
+    secureJsonData:
+      httpHeaderValue1: ''
+    cacheTimeout: 30
+
+  - name: Loki
+    type: loki
+    access: proxy
+    orgId: 1
+    url: http://loki:3100
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      maxLines: 5000
+      derivedFields:
+        - matcherRegex: '(?:apikey|client)[=\\s]+([A-Za-z0-9_=-]+)'
+          name: apikey
+          datasourceUid:grafana
+        - matcherRegex: 'trace_id=([A-Za-z0-9_=-]+)'
+          name: trace_id
+          datasourceUid: jaeger
+    secureJsonData:
+      httpHeaderValue1: ''
+
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    orgId: 1
+    url: http://jaeger:16686
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      tracesToLogs:
+        datasourceUid: Loki
+      nodeGraph:
+        enabled: true
+    secureJsonData: {}
+
+  - name: Elasticsearch
+    type: elasticsearch
+    access: proxy
+    orgId: 1
+    url: http://elasticsearch:9200
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      interval: Daily
+      timeField: '@timestamp'
+      logMessageField: message
+      logLevelField: level
+      database: 'einvoicehub-logs'
+    secureJsonData:
+      basicAuthPassword: ''
+
+  - name: MySQL
+    type: mysql
+    access: proxy
+    orgId: 1
+    url: mysql:3306/einvoicehub
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      database: einvoicehub
+      user: grafana
+    secureJsonData:
+      basicAuthPassword: ''

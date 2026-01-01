@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
+import org.springframework.util.Base64Utils; //Lỗi import org.springframework.util.Base64Utils
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -112,6 +112,7 @@ public class BkavAdapter implements InvoiceProvider {
             BkavApiResponse errorResponse = parseErrorResponse(e.getResponseBodyAsString());
             return InvoiceResponse.builder()
                     .status(InvoiceResponse.ResponseStatus.FAILED)
+                    //Lỗi Incompatible types. Found: 'int', required: 'java.lang.String'
                     .errorCode(errorResponse != null ? errorResponse.getStatus() : "HTTP_" + e.getStatusCode().value())
                     .errorMessage(errorResponse != null ? extractErrorMessage(errorResponse) : e.getMessage())
                     .responseTime(LocalDateTime.now())
@@ -217,6 +218,7 @@ public class BkavAdapter implements InvoiceProvider {
             payload.setCmdType(120); // Thay thế hóa đơn (PMKT cấp số)
 
             // Bổ sung thông tin hóa đơn gốc
+            // Lỗi : Cannot resolve method 'isEmpty' in 'Object'
             if (payload.getCommandObject() != null && !payload.getCommandObject().isEmpty()) {
                 Object commandObj = payload.getCommandObject().get(0);
                 if (commandObj instanceof Map) {
@@ -347,6 +349,7 @@ public class BkavAdapter implements InvoiceProvider {
         // Xây dựng thông tin hóa đơn
         Map<String, Object> invoiceData = new LinkedHashMap<>();
         invoiceData.put("InvoiceTypeID", getInvoiceTypeId(request));
+        // Lỗi 'formatDateTime(java.time.LocalDateTime)' in 'com.einvoicehub.core.provider.BkavAdapter' cannot be applied to '(java.time.LocalDate)'
         invoiceData.put("InvoiceDate", formatDateTime(request.getIssueDate()));
         invoiceData.put("BuyerName", request.getBuyer() != null ? request.getBuyer().getName() : "");
         invoiceData.put("BuyerTaxCode", request.getBuyer() != null ?
@@ -425,6 +428,7 @@ public class BkavAdapter implements InvoiceProvider {
         detail.put("Amount", item.getAmount());
         detail.put("TaxRateID", mapTaxRateToBkavId(item.getTaxRate()));
         detail.put("TaxRate", item.getTaxRate());
+        // Lỗi :         detail.put("TaxRateID", mapTaxRateToBkavId(item.getTaxRate()));
         detail.put("TaxAmount", item.getTaxAmount() != null ? item.getTaxAmount() : BigDecimal.ZERO);
         detail.put("DiscountRate", 0.0);
         detail.put("DiscountAmount", "");
@@ -485,6 +489,7 @@ public class BkavAdapter implements InvoiceProvider {
             byte[] encrypted = cipher.doFinal(jsonData.getBytes(StandardCharsets.UTF_8));
 
             // Encode IV + encrypted data sang Base64
+            // Lỗi Cannot resolve symbol 'Base64Utils'
             String ivBase64 = Base64Utils.encodeToString(iv);
             String encryptedBase64 = Base64Utils.encodeToString(encrypted);
 
@@ -513,6 +518,7 @@ public class BkavAdapter implements InvoiceProvider {
         return InvoiceResponse.builder()
                 .status(isSuccess ? InvoiceResponse.ResponseStatus.SUCCESS :
                         InvoiceResponse.ResponseStatus.FAILED)
+                //Lỗi 'errorCode(java.lang.String)' in 'com.einvoicehub.core.provider.InvoiceResponse.InvoiceResponseBuilder' cannot be applied to '(java.lang.Integer)'
                 .errorCode(isSuccess ? null : bkavResponse.getStatus())
                 .errorMessage(isSuccess ? null : extractErrorMessage(bkavResponse))
                 .transactionCode(extractTransactionCode(bkavResponse))
@@ -643,6 +649,7 @@ public class BkavAdapter implements InvoiceProvider {
                     return objectNode.get(0).path("MessLog").asText();
                 }
             }
+            //Lỗi                     return objectNode.get(0).path("MessLog").asText();
             return response.getStatus();
         } catch (Exception e) {
             return response.getStatus();

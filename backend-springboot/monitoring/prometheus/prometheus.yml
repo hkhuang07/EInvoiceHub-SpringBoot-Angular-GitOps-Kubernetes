@@ -1,0 +1,145 @@
+# EInvoiceHub Prometheus Configuration
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'einvoice-cluster'
+    environment: 'dev'
+
+# Alertmanager configuration (optional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - '/etc/prometheus/rules/*.yml'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+    # Prometheus Self-Monitoring
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # =====================================================================
+  # EInvoiceHub Application Metrics
+  # =====================================================================
+  - job_name: 'einvoicehub'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+            - einvoice-dev
+            - einvoice-staging
+            - einvoice-prod
+    relabel_configs:
+      # Only scrape pods with the prometheus.io/scrape annotation
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+
+      # Use the prometheus.io/path annotation to scrape a specific path
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+
+      # Use the prometheus.io/port annotation to scrape a specific port
+      - source_labels: [
+          __address__,
+          __meta_kubernetes_pod_annotation_prometheus_io_port
+        ]
+        action: replace
+        regex: ([^:]+)(?::\\d+)?;(\\d+)
+        replacement: $1:$2
+        target_label: __address__
+
+      # Add environment label
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: namespace
+
+      # Add pod name label
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: pod
+
+      # Add app name label
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: replace
+        target_label: app
+
+  # =====================================================================
+  # Kubernetes Node Exporter (infrastructure metrics)
+  # =====================================================================
+  - job_name: 'node-exporter'
+    kubernetes_sd_configs:
+      - role: node
+    relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+
+  # =====================================================================
+  # MySQL Exporter (database metrics)
+  # =====================================================================
+  - job_name: 'mysql-exporter'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'mysql-primary'
+
+  # =====================================================================
+  # MongoDB Exporter (database metrics)
+  # =====================================================================
+  - job_name: 'mongodb-exporter'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'mongodb-primary'
+
+  # =====================================================================
+  # Redis Exporter (cache metrics)
+  # =====================================================================
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'redis-primary'
+
+  # =====================================================================
+  # Spring Boot Actuator Metrics (via HTTP)
+  # =====================================================================
+  - job_name: 'spring-actuator'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['einvoicehub:8080']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'einvoicehub-backend'
+
+# Remote write configuration (for long-term storage)
+remote_write:
+  - url: 'https://prometheus-remote-write.einvoicehub.io/api/v1/write'
+    basic_auth:
+      username: 'prometheus'
+      password_file: '/etc/prometheus/remote_write_password'
+    queue_config:
+      max_samples_per_send: 10000
+      batch_send_deadline: 30s
+      capacity: 20000
+      max_shards: 30
+    tls_config:
+      insecure_skip_verify: false

@@ -1,0 +1,35 @@
+# EInvoiceHub Grafana Dashboards Configuration
+
+apiVersion: 1
+
+# Dashboard providers
+providers:
+  - name: 'einvoicehub'
+    orgId: 1
+    folder: 'EInvoiceHub'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboards/einvoicehub
+      foldersFromFilesStructure: true
+
+  - name: 'kubernetes'
+    orgId: 1
+    folder: 'Kubernetes'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboards/kubernetes
+      foldersFromFilesStructure: true
+
+  - name: 'infrastructure'
+    orgId: 1
+    folder: 'Infrastructure'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    options:
+      path: /var/lib/grafana/dashboards/infrastructure
+      foldersFromFilesStructure: true

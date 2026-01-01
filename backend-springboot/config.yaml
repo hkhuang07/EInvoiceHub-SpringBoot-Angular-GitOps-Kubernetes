@@ -1,0 +1,119 @@
+spring:
+  application:
+    name: einvoicehub-core
+    
+  # MySQL Configuration
+  datasource:
+    url: jdbc:mysql://${DATABASE_HOST:localhost}:${DATABASE_PORT:3306}/${DATABASE_NAME:einvoicehub}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DATABASE_USERNAME:root}
+    password: ${DATABASE_PASSWORD:password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      pool-name: EInvoiceHubHikariCP
+      max-lifetime: 1200000
+      connection-timeout: 20000
+      register-mbeans: true
+      
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+          
+  # MongoDB Configuration
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_USERNAME:admin}:${MONGODB_PASSWORD:password}@${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DATABASE:einvoicehub}?authSource=admin
+      auto-index-creation: true
+      
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api/v1
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 10
+    accept-count: 100
+    max-connections: 10000
+    
+# Application Custom Configuration
+app:
+  name: EInvoiceHub
+  version: 1.0.0
+  
+  # Virtual Threads Configuration
+  virtual-threads:
+    enabled: true
+    
+  # Security Configuration
+  security:
+    api-key:
+      header-name: X-API-KEY
+      client-id-header: X-CLIENT-ID
+      
+# Provider Configuration
+providers:
+  vnpt:
+    base-url: ${VNPT_BASE_URL:https://api.vnpt-invoice.vn}
+    timeout: 30000
+    retry-count: 3
+    
+  viettel:
+    base-url: ${VIETTEL_BASE_URL:https://einvoice.viettel.vn}
+    timeout: 30000
+    retry-count: 3
+    
+  bkav:
+    base-url: ${BKAV_BASE_URL:https://bkav-invoice.com}
+    timeout: 30000
+    retry-count: 3
+    encryption-key: ${BKAV_ENCRYPTION_KEY:your-256-bit-key}
+    
+  misa:
+    base-url: ${MISA_BASE_URL:https://api.meinvoice.vn}
+    timeout: 30000
+    retry-count: 3
+    app-id: ${MISA_APP_ID:your-app-id}
+    
+# Actuator & Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.einvoicehub: DEBUG
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    
+# OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+  show-actuator: true
