@@ -10,6 +10,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class InvoiceResponse {
 
+    /** Thêm trường này để đồng bộ với yêu cầu từ Mapper */
+    private String clientRequestId;
+
+    /** ID tham chiếu từ hệ thống EInvoiceHub */
+    private Long invoiceMetadataId;
+
     /**Trạng thái xử lý*/
     private ResponseStatus status;
 
@@ -53,21 +59,10 @@ public class InvoiceResponse {
     private Object rawResponse;
 
     public enum ResponseStatus {
-        SUCCESS,
-        PENDING,
-        FAILED,
-        TIMEOUT
+        SUCCESS, PENDING, FAILED, TIMEOUT
     }
 
-    public boolean isSuccessful() {
-        return status == ResponseStatus.SUCCESS;
-    }
-
-    public boolean isFailed() {
-        return status == ResponseStatus.FAILED;
-    }
-
-    public boolean isPending() {
-        return status == ResponseStatus.PENDING;
-    }
+    public boolean isSuccessful() { return status == ResponseStatus.SUCCESS; }
+    public boolean isFailed() { return status == ResponseStatus.FAILED; }
+    public boolean isPending() { return status == ResponseStatus.PENDING; }
 }

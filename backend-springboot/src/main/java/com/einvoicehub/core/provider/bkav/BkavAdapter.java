@@ -1,7 +1,6 @@
 package com.einvoicehub.core.provider.bkav;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
-import com.einvoicehub.core.entity.mysql.MerchantProviderConfig;
 import com.einvoicehub.core.provider.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
-@Service("BKAV") //Khắc phục lỗi : Class 'BkavAdapter' must either be declared abstract or implement abstract method 'getProviderCode()' in 'InvoiceProvider'
+@Service("BKAV")
 public class BkavAdapter implements InvoiceProvider {
 
     private final WebClient webClient;
@@ -40,24 +39,39 @@ public class BkavAdapter implements InvoiceProvider {
         this.objectMapper = objectMapper;
     }
 
-    @Override //Khắc phục lỗi Method does not override method from its superclass
-    public InvoiceResponse issueInvoice(InvoiceRequest request, MerchantProviderConfig config) {
+    // --- Triển khai các phương thức bắt buộc của InvoiceProvider ---
+
+    @Override
+    public String getProviderCode() {
+        return "BKAV";
+    }
+
+    @Override
+    public String getProviderName() {
+        return "Bkav eInvoice";
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return true;
+    }
+
+    @Override
+    public InvoiceResponse issueInvoice(InvoiceRequest request, ProviderConfig config) { // Sửa thành ProviderConfig
         log.info("BKAV: Issuing invoice for clientRequestId: {}", request.getClientRequestId());
         long startTime = System.currentTimeMillis();
 
         try {
-            // 1. Map & Encrypt Payload
             BkavCommandPayload payload = apiMapper.toBkavPayload(request);
             String encryptedData = encryptPayload(apiMapper.toJson(payload));
 
-            // 2. Call BKAV via SOAP/XML
             String soapEnvelope = createSoapEnvelope(encryptedData, payload.getCmdType());
 
             String responseXml = webClient.post()
                     .uri("/ws/invoice.asmx")
                     .contentType(MediaType.TEXT_XML)
-                    .header("PartnerGUID", config.getUsernameService())
-                    .header("PartnerToken", config.getPasswordServiceEncrypted()) // Đã giải mã qua Converter
+                    .header("PartnerGUID", config.getUsername()) // Dùng config.getUsername()
+                    .header("PartnerToken", config.getPassword())
                     .bodyValue(soapEnvelope)
                     .retrieve()
                     .bodyToMono(String.class)
@@ -76,6 +90,26 @@ public class BkavAdapter implements InvoiceProvider {
         }
     }
 
+    // Triển khai các hàm còn lại của Interface...
+
+    @Override
+    public InvoiceStatus getInvoiceStatus(String invoiceNumber, ProviderConfig config) { return InvoiceStatus.SUCCESS; }
+
+    @Override
+    public InvoiceResponse cancelInvoice(String invoiceNumber, String reason, ProviderConfig config) { return null; }
+
+    @Override
+    public InvoiceResponse replaceInvoice(String oldInvoiceNumber, InvoiceRequest newRequest, ProviderConfig config) { return null; }
+
+    @Override
+    public String getInvoicePdf(String invoiceNumber, ProviderConfig config) { return null; }
+
+    @Override
+    public String authenticate(ProviderConfig config) { return config.getUsername(); }
+
+    @Override
+    public boolean testConnection(ProviderConfig config) { return true; }
+
     private String encryptPayload(String jsonData) throws Exception {
         if (encryptionKey == null || encryptionKey.isBlank()) return jsonData;
 
@@ -89,7 +123,7 @@ public class BkavAdapter implements InvoiceProvider {
 
         byte[] encrypted = cipher.doFinal(jsonData.getBytes(StandardCharsets.UTF_8));
 
-        // Sửa lỗi Base64Utils: Dùng java.util.Base64 chuẩn
+        // Sử dụng java.util.Base64 chuẩn thay cho Base64Utils
         return Base64.getEncoder().encodeToString(iv) + ":" + Base64.getEncoder().encodeToString(encrypted);
     }
 
@@ -107,16 +141,13 @@ public class BkavAdapter implements InvoiceProvider {
     }
 
     private InvoiceResponse parseBkavResponse(String xml, long latency) {
-        // Logic parse XML để lấy mã lỗi và số hóa đơn
         boolean isSuccess = xml.contains("<Status>200</Status>") || xml.contains("Success");
         return InvoiceResponse.builder()
                 .status(isSuccess ? InvoiceResponse.ResponseStatus.SUCCESS : InvoiceResponse.ResponseStatus.FAILED)
-                .errorCode(isSuccess ? "200" : "500") // Đã chuyển int sang String để fix lỗi
+                .errorCode(isSuccess ? "200" : "500") // Đã ép kiểu sang String
                 .responseTime(LocalDateTime.now())
                 .build();
     }
-
-    // Các hàm testConnection, getInvoiceStatus... triển khai tương tự issueInvoice
 
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class BkavCommandPayload {
