@@ -22,6 +22,11 @@ public class InvoiceRequest {
     /**Mã nhà cung cấp (VNPT, VIETTEL...)*/
     private String providerCode;
 
+    /** * Loại hóa đơn (VD: 01GTKT, BANHANG...)
+     * Thêm trường này để các Mapper (Viettel, MISA, BKAV) hoạt động chính xác
+     */
+    private String invoiceType;
+
     /** Thông tin người bán*/
     private SellerInfo seller;
 
@@ -85,6 +90,12 @@ public class InvoiceRequest {
         private BigDecimal amount;
         private BigDecimal discountAmount;
         private BigDecimal taxRate;
+
+        /** * Tiền thuế của mặt hàng
+         * KHẮC PHỤC LỖI: Cannot resolve method 'getTaxAmount'
+         */
+        private BigDecimal taxAmount;
+
         private String taxCategory;
         private String description;
     }

@@ -5,9 +5,9 @@ import com.einvoicehub.core.provider.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.crypto.Cipher;
@@ -27,158 +27,132 @@ public class BkavAdapter implements InvoiceProvider {
     private final BkavApiMapper apiMapper;
     private final ObjectMapper objectMapper;
 
+    @Value("${provider.bkav.timeout-ms:30000}")
+    private int timeoutMs;
+
     @Value("${provider.bkav.base-url:https://einvoice.bkav.com/api/v1}")
     private String baseUrl;
 
-    @Value("${provider.bkav.encryption-key}")
+    @Value("${provider.bkav.encryption-key:}")
     private String encryptionKey;
 
     public BkavAdapter(WebClient.Builder webClientBuilder, BkavApiMapper apiMapper, ObjectMapper objectMapper) {
-        this.webClient = webClientBuilder.baseUrl(baseUrl).build();
+        this.webClient = webClientBuilder.baseUrl(baseUrl).defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();
         this.apiMapper = apiMapper;
         this.objectMapper = objectMapper;
     }
 
-    // --- Triển khai các phương thức bắt buộc của InvoiceProvider ---
+    @Override public String getProviderCode() { return "BKAV"; }
+    @Override public String getProviderName() { return "Bkav eInvoice"; }
 
     @Override
-    public String getProviderCode() {
-        return "BKAV";
-    }
-
-    @Override
-    public String getProviderName() {
-        return "Bkav eInvoice";
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return true;
-    }
-
-    @Override
-    public InvoiceResponse issueInvoice(InvoiceRequest request, ProviderConfig config) { // Sửa thành ProviderConfig
-        log.info("BKAV: Issuing invoice for clientRequestId: {}", request.getClientRequestId());
-        long startTime = System.currentTimeMillis();
-
+    public InvoiceResponse issueInvoice(InvoiceRequest request, ProviderConfig config) {
+        log.info("BKAV: Issuing invoice for request ID: {}", request.getClientRequestId());
         try {
             BkavCommandPayload payload = apiMapper.toBkavPayload(request);
-            String encryptedData = encryptPayload(apiMapper.toJson(payload));
+            String encryptedData = encryptPayload(payload);
 
-            String soapEnvelope = createSoapEnvelope(encryptedData, payload.getCmdType());
-
-            String responseXml = webClient.post()
-                    .uri("/ws/invoice.asmx")
-                    .contentType(MediaType.TEXT_XML)
-                    .header("PartnerGUID", config.getUsername()) // Dùng config.getUsername()
+            BkavApiResponse response = webClient.post().uri("/exec-command")
+                    .header("PartnerGUID", config.getUsername())
                     .header("PartnerToken", config.getPassword())
-                    .bodyValue(soapEnvelope)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .timeout(Duration.ofSeconds(30))
-                    .block();
+                    .bodyValue(Map.of("CommandData", encryptedData))
+                    .retrieve().bodyToMono(BkavApiResponse.class)
+                    .timeout(Duration.ofMillis(timeoutMs)).block();
 
-            return parseBkavResponse(responseXml, System.currentTimeMillis() - startTime);
-
+            return apiMapper.toHubResponse(response, request.getClientRequestId());
         } catch (Exception e) {
-            log.error("BKAV: Critical error during issuance", e);
-            return InvoiceResponse.builder()
-                    .status(InvoiceResponse.ResponseStatus.FAILED)
-                    .errorMessage(e.getMessage())
-                    .responseTime(LocalDateTime.now())
-                    .build();
+            log.error("BKAV issuance error", e);
+            return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage(e.getMessage()).build();
         }
     }
 
-    // Triển khai các hàm còn lại của Interface...
+    @Override
+    public InvoiceStatus getInvoiceStatus(String invoiceNumber, ProviderConfig config) {
+        try {
+            BkavCommandPayload payload = BkavCommandPayload.builder().cmdType(850).commandObject(invoiceNumber).build();
+            String encryptedData = encryptPayload(payload);
+            BkavApiResponse response = webClient.post().uri("/exec-command")
+                    .header("PartnerGUID", config.getUsername()).header("PartnerToken", config.getPassword())
+                    .bodyValue(Map.of("CommandData", encryptedData))
+                    .retrieve().bodyToMono(BkavApiResponse.class).block();
+            return (response != null) ? apiMapper.mapBkavStatus(response) : InvoiceStatus.FAILED;
+        } catch (Exception e) { return InvoiceStatus.FAILED; }
+    }
 
     @Override
-    public InvoiceStatus getInvoiceStatus(String invoiceNumber, ProviderConfig config) { return InvoiceStatus.SUCCESS; }
+    public InvoiceResponse cancelInvoice(String invoiceNumber, String reason, ProviderConfig config) {
+        try {
+            BkavCommandPayload payload = BkavCommandPayload.builder().cmdType(201)
+                    .commandObject(Collections.singletonList(Map.of("InvoiceGUID", invoiceNumber, "Reason", reason))).build();
+            String encryptedData = encryptPayload(payload);
+            BkavApiResponse response = webClient.post().uri("/exec-command")
+                    .header("PartnerGUID", config.getUsername()).header("PartnerToken", config.getPassword())
+                    .bodyValue(Map.of("CommandData", encryptedData)).retrieve().bodyToMono(BkavApiResponse.class).block();
+            return apiMapper.toHubResponse(response, null);
+        } catch (Exception e) { return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage(e.getMessage()).build(); }
+    }
 
     @Override
-    public InvoiceResponse cancelInvoice(String invoiceNumber, String reason, ProviderConfig config) { return null; }
+    public InvoiceResponse replaceInvoice(String oldInvoiceNumber, InvoiceRequest newRequest, ProviderConfig config) {
+        try {
+            BkavCommandPayload payload = apiMapper.toBkavPayload(newRequest);
+            payload.setCmdType(120);
+
+            // FIX: Khắc phục lỗi ép kiểu isEmpty() trên Object
+            if (payload.getCommandObject() instanceof List) {
+                List<Map<String, Object>> list = (List<Map<String, Object>>) payload.getCommandObject();
+                if (!list.isEmpty()) {
+                    list.get(0).put("OriginalInvoiceIdentify", String.format("[1]_[%s]_[%s]",
+                            list.get(0).getOrDefault("InvoiceSerial", ""), formatInvoiceNo(oldInvoiceNumber)));
+                }
+            }
+
+            String encryptedData = encryptPayload(payload);
+            BkavApiResponse response = webClient.post().uri("/exec-command")
+                    .header("PartnerGUID", config.getUsername()).header("PartnerToken", config.getPassword())
+                    .bodyValue(Map.of("CommandData", encryptedData)).retrieve().bodyToMono(BkavApiResponse.class).block();
+            return apiMapper.toHubResponse(response, newRequest.getClientRequestId());
+        } catch (Exception e) { return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage(e.getMessage()).build(); }
+    }
 
     @Override
-    public InvoiceResponse replaceInvoice(String oldInvoiceNumber, InvoiceRequest newRequest, ProviderConfig config) { return null; }
+    public String getInvoicePdf(String invoiceNumber, ProviderConfig config) {
+        try {
+            BkavCommandPayload payload = BkavCommandPayload.builder().cmdType(816)
+                    .commandObject(Collections.singletonList(Map.of("PartnerInvoiceID", invoiceNumber, "PartnerInvoiceStringID", ""))).build();
+            String encryptedData = encryptPayload(payload);
+            BkavApiResponse response = webClient.post().uri("/exec-command")
+                    .header("PartnerGUID", config.getUsername()).header("PartnerToken", config.getPassword())
+                    .bodyValue(Map.of("CommandData", encryptedData)).retrieve().bodyToMono(BkavApiResponse.class).block();
+            return (response != null) ? baseUrl + response.getCode() : null; // Logic lấy link PDF
+        } catch (Exception e) { return null; }
+    }
 
-    @Override
-    public String getInvoicePdf(String invoiceNumber, ProviderConfig config) { return null; }
+    @Override public String authenticate(ProviderConfig config) { return config.getUsername(); }
+    @Override public boolean isAvailable() { return true; }
+    @Override public boolean testConnection(ProviderConfig config) { return true; }
 
-    @Override
-    public String authenticate(ProviderConfig config) { return config.getUsername(); }
-
-    @Override
-    public boolean testConnection(ProviderConfig config) { return true; }
-
-    private String encryptPayload(String jsonData) throws Exception {
-        if (encryptionKey == null || encryptionKey.isBlank()) return jsonData;
+    private String encryptPayload(BkavCommandPayload payload) throws Exception {
+        String jsonData = objectMapper.writeValueAsString(payload);
+        if (!StringUtils.hasText(encryptionKey)) return jsonData;
 
         SecretKeySpec secretKey = new SecretKeySpec(encryptionKey.getBytes(StandardCharsets.UTF_8), "AES");
-        byte[] iv = new byte[12];
-        new SecureRandom().nextBytes(iv);
-
+        byte[] iv = new byte[12]; new SecureRandom().nextBytes(iv);
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        GCMParameterSpec spec = new GCMParameterSpec(128, iv);
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, spec);
-
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new GCMParameterSpec(128, iv));
         byte[] encrypted = cipher.doFinal(jsonData.getBytes(StandardCharsets.UTF_8));
 
-        // Sử dụng java.util.Base64 chuẩn thay cho Base64Utils
+        // FIX: Sửa lỗi Base64Utils -> dùng java.util.Base64 chuẩn JDK
         return Base64.getEncoder().encodeToString(iv) + ":" + Base64.getEncoder().encodeToString(encrypted);
     }
 
-    private String createSoapEnvelope(String encryptedData, int cmdType) {
-        return String.format("""
-            <?xml version="1.0" encoding="utf-8"?>
-            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-                <soap:Body>
-                    <ExecuteCommand xmlns="http://tempuri.org/">
-                        <encryptedData>%s</encryptedData>
-                        <cmdType>%d</cmdType>
-                    </ExecuteCommand>
-                </soap:Body>
-            </soap:Envelope>""", encryptedData, cmdType);
-    }
-
-    private InvoiceResponse parseBkavResponse(String xml, long latency) {
-        boolean isSuccess = xml.contains("<Status>200</Status>") || xml.contains("Success");
-        return InvoiceResponse.builder()
-                .status(isSuccess ? InvoiceResponse.ResponseStatus.SUCCESS : InvoiceResponse.ResponseStatus.FAILED)
-                .errorCode(isSuccess ? "200" : "500") // Đã ép kiểu sang String
-                .responseTime(LocalDateTime.now())
-                .build();
+    private String formatInvoiceNo(String no) {
+        try { return String.format("%08d", Integer.parseInt(no)); } catch (Exception e) { return no; }
     }
 
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
-    public static class BkavCommandPayload {
-        private int cmdType;
-        private BkavInvoiceData invoice;
-        private List<BkavInvoiceDetail> details;
-    }
+    public static class BkavCommandPayload { private int cmdType; private Object commandObject; }
 
-    @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
-    public static class BkavInvoiceData {
-        private String invoiceTypeId;
-        private String invoiceDate;
-        private String buyerName;
-        private String buyerTaxCode;
-        private String buyerAddress;
-        private String receiverEmail;
-        private String receiverMobile;
-        private String currencyId;
-        private double exchangeRate;
-        private int payMethodId;
-        private int receiveTypeId;
-    }
-
-    @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
-    public static class BkavInvoiceDetail {
-        private String itemName;
-        private String unitName;
-        private double quantity;
-        private double unitPrice;
-        private double amount;
-        private double taxRate;
-        private int itemTypeID;
-    }
+    @lombok.Data @lombok.NoArgsConstructor @lombok.AllArgsConstructor
+    public static class BkavApiResponse { private int status; private Object object; private boolean isOk, isError; private String code; }
 }
