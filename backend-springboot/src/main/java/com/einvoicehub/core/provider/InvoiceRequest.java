@@ -91,9 +91,6 @@ public class InvoiceRequest {
         private BigDecimal discountAmount;
         private BigDecimal taxRate;
 
-        /** * Tiền thuế của mặt hàng
-         * KHẮC PHỤC LỖI: Cannot resolve method 'getTaxAmount'
-         */
         private BigDecimal taxAmount;
 
         private String taxCategory;

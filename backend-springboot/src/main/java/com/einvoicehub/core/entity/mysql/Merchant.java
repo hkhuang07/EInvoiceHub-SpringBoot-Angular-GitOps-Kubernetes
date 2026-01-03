@@ -45,6 +45,12 @@ public class Merchant {
     @Column(length = 20)
     private String phone;
 
+    @Column(name = "invoice_quota")
+    private Integer invoiceQuota = 0; // Tổng hạn mức được cấp
+
+    @Column(name = "current_invoice_count")
+    private Integer currentInvoiceCount = 0; // Số lượng đã sử dụng
+
     @Column(name = "representative_name", length = 100)
     private String representativeName;
 

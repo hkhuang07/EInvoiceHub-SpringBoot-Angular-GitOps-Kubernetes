@@ -35,6 +35,9 @@ public class InvoiceMetadata {
     @Column(name = "client_request_id", length = 100)
     private String clientRequestId;
 
+    @Column(name = "provider_code", length = 20)
+    private String providerCode;
+
     // Thông tin hóa đơn
     @Column(name = "invoice_number", length = 20)
     private String invoiceNumber;

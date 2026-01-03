@@ -48,6 +48,12 @@ public class InvoicePayload {
     @Field("metadata")
     private Map<String, Object> metadata;
 
+    @Field("responseRaw")
+    private String responseRaw;
+
+    @Field("status")
+    private String status;
+
     @Field("createdAt")
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

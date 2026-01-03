@@ -14,6 +14,12 @@ import java.util.Optional;
 @Repository
 public interface InvoicePayloadRepository extends MongoRepository<InvoicePayload, String> {
 
+    // THÊM: Phương thức tìm kiếm theo Client Request ID để Service gọi được
+    Optional<InvoicePayload> findByClientRequestId(String clientRequestId);
+
+    // THÊM: Phương thức tìm kiếm theo Transaction ID để đồng bộ logic Service
+    Optional<InvoicePayload> findByTransactionId(String transactionId);
+
     Page<InvoicePayload> findByMerchantIdOrderByCreatedAtDesc(Long merchantId, Pageable pageable);
 
     List<InvoicePayload> findByMerchantId(Long merchantId);
