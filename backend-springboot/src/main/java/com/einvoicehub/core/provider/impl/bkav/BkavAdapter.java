@@ -1,7 +1,9 @@
-package com.einvoicehub.core.provider.bkav;
+package com.einvoicehub.core.provider.impl.bkav;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
 import com.einvoicehub.core.provider.*;
+import com.einvoicehub.core.provider.model.InvoiceRequest;
+import com.einvoicehub.core.provider.model.InvoiceResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +18,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -98,7 +99,6 @@ public class BkavAdapter implements InvoiceProvider {
             BkavCommandPayload payload = apiMapper.toBkavPayload(newRequest);
             payload.setCmdType(120);
 
-            // FIX: Khắc phục lỗi ép kiểu isEmpty() trên Object
             if (payload.getCommandObject() instanceof List) {
                 List<Map<String, Object>> list = (List<Map<String, Object>>) payload.getCommandObject();
                 if (!list.isEmpty()) {
@@ -124,8 +124,34 @@ public class BkavAdapter implements InvoiceProvider {
             BkavApiResponse response = webClient.post().uri("/exec-command")
                     .header("PartnerGUID", config.getUsername()).header("PartnerToken", config.getPassword())
                     .bodyValue(Map.of("CommandData", encryptedData)).retrieve().bodyToMono(BkavApiResponse.class).block();
-            return (response != null) ? baseUrl + response.getCode() : null; // Logic lấy link PDF
+            return (response != null) ? baseUrl + response.getCode() : null;
         } catch (Exception e) { return null; }
+    }
+
+    /**
+     * KHẮC PHỤC LỖI: Implement phương thức lấy XML cho BKAV
+     * BKAV thường dùng command tương tự tải PDF nhưng trả về dữ liệu XML thô hoặc Base64.
+     */
+    @Override
+    public String getInvoiceXml(String invoiceNumber, ProviderConfig config) {
+        log.info("BKAV: Getting XML for invoice: {}", invoiceNumber);
+        try {
+            // Sử dụng command 817 (ví dụ) để lấy dữ liệu XML thô từ BKAV
+            BkavCommandPayload payload = BkavCommandPayload.builder().cmdType(817)
+                    .commandObject(Collections.singletonList(Map.of("PartnerInvoiceID", invoiceNumber, "PartnerInvoiceStringID", ""))).build();
+            String encryptedData = encryptPayload(payload);
+
+            BkavApiResponse response = webClient.post().uri("/exec-command")
+                    .header("PartnerGUID", config.getUsername()).header("PartnerToken", config.getPassword())
+                    .bodyValue(Map.of("CommandData", encryptedData))
+                    .retrieve().bodyToMono(BkavApiResponse.class).block();
+
+            // Trả về dữ liệu XML nằm trong trường object của response
+            return (response != null && response.getObject() != null) ? response.getObject().toString() : null;
+        } catch (Exception e) {
+            log.error("BKAV: Error fetching XML for invoice {}", invoiceNumber, e);
+            return null;
+        }
     }
 
     @Override public String authenticate(ProviderConfig config) { return config.getUsername(); }
@@ -142,7 +168,6 @@ public class BkavAdapter implements InvoiceProvider {
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, new GCMParameterSpec(128, iv));
         byte[] encrypted = cipher.doFinal(jsonData.getBytes(StandardCharsets.UTF_8));
 
-        // FIX: Sửa lỗi Base64Utils -> dùng java.util.Base64 chuẩn JDK
         return Base64.getEncoder().encodeToString(iv) + ":" + Base64.getEncoder().encodeToString(encrypted);
     }
 

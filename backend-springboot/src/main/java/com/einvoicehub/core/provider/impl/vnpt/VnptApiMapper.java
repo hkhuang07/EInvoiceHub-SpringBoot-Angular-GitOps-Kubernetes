@@ -1,12 +1,12 @@
-package com.einvoicehub.core.provider.vnpt;
+package com.einvoicehub.core.provider.impl.vnpt;
 
-import com.einvoicehub.core.provider.InvoiceRequest;
-import com.einvoicehub.core.provider.InvoiceResponse;
+import com.einvoicehub.core.entity.enums.InvoiceStatus;
+import com.einvoicehub.core.provider.model.InvoiceRequest;
+import com.einvoicehub.core.provider.model.InvoiceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -20,6 +20,38 @@ public class VnptApiMapper {
     /**
      * Chuyển đổi InvoiceRequest sang Payload cho API VNPT
      */
+    public InvoiceResponse toHubResponse(VnptAdapter.VnptApiResponse vnptResponse, String requestId) {
+        if (vnptResponse == null) {
+            return InvoiceResponse.builder()
+                    .status(InvoiceResponse.ResponseStatus.FAILED)
+                    .errorMessage("No response from VNPT")
+                    .responseTime(LocalDateTime.now())
+                    .build();
+        }
+
+        // VNPT trả về success là boolean
+        boolean isSuccess = vnptResponse.isSuccess();
+
+        return InvoiceResponse.builder()
+                .clientRequestId(requestId)
+                .status(isSuccess ? InvoiceResponse.ResponseStatus.SUCCESS :
+                        InvoiceResponse.ResponseStatus.FAILED)
+                .errorCode(vnptResponse.getErrorCode())
+                .errorMessage(vnptResponse.getMessage())
+                .transactionCode(vnptResponse.getTransactionId())
+                .invoiceNumber(vnptResponse.getInvoiceNumber())
+                // fkey của VNPT thường chứa thông tin ký hiệu và mẫu số
+                .symbolCode(vnptResponse.getFkey() != null && vnptResponse.getFkey().length() > 10 ?
+                        vnptResponse.getFkey().substring(0, 10) : vnptResponse.getFkey())
+                .templateCode(vnptResponse.getFkey())
+                .lookupCode(vnptResponse.getLookupCode())
+                .securityCode(vnptResponse.getSecurityCode())
+                .pdfUrl(vnptResponse.getPdfUrl())
+                .responseTime(LocalDateTime.now())
+                .rawResponse(vnptResponse)
+                .build();
+    }
+
     public VnptAdapter.VnptInvoicePayload toVnptPayload(InvoiceRequest request) {
         List<VnptAdapter.VnptInvoiceDetail> details = request.getItems().stream()
                 .map(this::convertToVnptDetail)
@@ -38,9 +70,6 @@ public class VnptApiMapper {
                         .address(request.getSeller().getAddress())
                         .phone(request.getSeller().getPhone())
                         .email(request.getSeller().getEmail())
-                        .bankAccount(request.getSeller().getBankAccount())
-                        .bankName(request.getSeller().getBankName())
-                        .representativeName(request.getSeller().getRepresentativeName())
                         .build())
                 .buyer(VnptAdapter.VnptParty.builder()
                         .taxCode(request.getBuyer().getTaxCode())
@@ -68,25 +97,18 @@ public class VnptApiMapper {
                 .amount(item.getAmount())
                 .discountAmount(item.getDiscountAmount())
                 .taxRate(item.getTaxRate())
-                // Sử dụng taxAmount đã được thêm vào InvoiceRequest
                 .taxCategory(item.getTaxCategory() != null ? item.getTaxCategory() : "5")
                 .description(item.getDescription())
                 .build();
     }
 
-    public InvoiceResponse toInvoiceResponse(VnptAdapter.VnptApiResponse vnptResponse, String clientRequestId) {
-        boolean isSuccess = vnptResponse != null && vnptResponse.isSuccess();
-
-        return InvoiceResponse.builder()
-                .clientRequestId(clientRequestId)
-                .status(isSuccess ? InvoiceResponse.ResponseStatus.SUCCESS : InvoiceResponse.ResponseStatus.FAILED)
-                .errorCode(vnptResponse != null ? vnptResponse.getErrorCode() : "NULL_RESPONSE")
-                .errorMessage(vnptResponse != null ? vnptResponse.getMessage() : "No response from VNPT")
-                .transactionCode(isSuccess ? vnptResponse.getTransactionId() : null)
-                .invoiceNumber(isSuccess ? vnptResponse.getInvoiceNumber() : null)
-                .pdfUrl(isSuccess ? vnptResponse.getPdfUrl() : null)
-                .responseTime(LocalDateTime.now())
-                .rawResponse(vnptResponse)
-                .build();
+    public InvoiceStatus mapVnptStatus(String vnptStatus) {
+        if (vnptStatus == null) return InvoiceStatus.FAILED;
+        return switch (vnptStatus.toUpperCase()) {
+            case "ISSUED", "SUCCESS" -> InvoiceStatus.SUCCESS;
+            case "CANCELLED" -> InvoiceStatus.CANCELLED;
+            case "REPLACED" -> InvoiceStatus.REPLACED;
+            default -> InvoiceStatus.FAILED;
+        };
     }
 }

@@ -1,8 +1,9 @@
-package com.einvoicehub.core.provider.misa;
+package com.einvoicehub.core.provider.impl.misa;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
 import com.einvoicehub.core.provider.*;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.einvoicehub.core.provider.model.InvoiceRequest;
+import com.einvoicehub.core.provider.model.InvoiceResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,7 @@ public class MisaAdapter implements InvoiceProvider {
     private LocalDateTime tokenExpiry;
 
     public MisaAdapter(WebClient.Builder webClientBuilder, MisaApiMapper apiMapper, ObjectMapper objectMapper) {
+        // Trong môi trường dev, chúng ta dùng testBaseUrl
         this.webClient = webClientBuilder.baseUrl(testBaseUrl).build();
         this.apiMapper = apiMapper;
         this.objectMapper = objectMapper;
@@ -74,7 +76,6 @@ public class MisaAdapter implements InvoiceProvider {
             queryParams.add("invoiceWithCode", "true");
             queryParams.add("inputType", "1");
 
-            // Fix: MISA status API yêu cầu body là List<String>
             List<String> requestBody = Collections.singletonList(transactionId);
 
             MisaApiResponse response = webClient.post()
@@ -93,11 +94,19 @@ public class MisaAdapter implements InvoiceProvider {
 
     @Override
     public String authenticate(ProviderConfig config) {
-        Map<String, Object> authReq = Map.of("appid", config.getUsername(), "taxcode", config.getUsername(), "username", config.getUsername(), "password", config.getPassword());
+        Map<String, Object> authReq = Map.of(
+                "appid", config.getAppId() != null ? config.getAppId() : config.getUsername(),
+                "taxcode", config.getUsername(),
+                "username", config.getUsername(),
+                "password", config.getPassword()
+        );
         try {
             Map res = webClient.post().uri("/auth/token").bodyValue(authReq).retrieve().bodyToMono(Map.class).block();
             return (res != null && res.get("Data") != null) ? res.get("Data").toString() : null;
-        } catch (Exception e) { return null; }
+        } catch (Exception e) {
+            log.error("MISA Authentication failed", e);
+            return null;
+        }
     }
 
     private String getOrRefreshToken(ProviderConfig config) {
@@ -107,14 +116,39 @@ public class MisaAdapter implements InvoiceProvider {
         throw new RuntimeException("MISA Auth Failed");
     }
 
+    /**
+     * KHẮC PHỤC LỖI: Triển khai phương thức lấy XML cho MISA
+     */
+    @Override
+    public String getInvoiceXml(String invoiceNumber, ProviderConfig config) {
+        log.info("MISA: Fetching XML for invoice: {}", invoiceNumber);
+        try {
+            String token = getOrRefreshToken(config);
+            // MISA API thường yêu cầu InvoiceGUID (transactionId) để lấy dữ liệu XML
+            Map<String, String> requestBody = Map.of("InvoiceGUID", invoiceNumber);
+
+            MisaApiResponse response = webClient.post()
+                    .uri("/invoice/export-xml")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(MisaApiResponse.class)
+                    .block();
+
+            return (response != null && response.getData() != null) ? response.getData().toString() : null;
+        } catch (Exception e) {
+            log.error("MISA: Error fetching XML for invoice {}", invoiceNumber, e);
+            return null;
+        }
+    }
+
     @Override public InvoiceResponse cancelInvoice(String no, String r, ProviderConfig c) { return null; }
     @Override public InvoiceResponse replaceInvoice(String o, InvoiceRequest n, ProviderConfig c) { return null; }
     @Override public String getInvoicePdf(String n, ProviderConfig c) { return null; }
     @Override public boolean isAvailable() { return true; }
     @Override public boolean testConnection(ProviderConfig c) { return authenticate(c) != null; }
 
-    // --- Inner Classes với đầy đủ Lombok khôi phục từ file gốc ---
-
+    // --- Inner Classes ---
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class MisaInvoicePayload {
         private String refId, invSeries, invDate, currencyCode, paymentMethodName, buyerLegalName, buyerTaxCode, buyerAddress, buyerFullName, buyerPhoneNumber, buyerEmail, totalAmountInWords;
@@ -128,7 +162,7 @@ public class MisaAdapter implements InvoiceProvider {
     public static class MisaInvoiceDetail {
         private Integer itemType, sortOrder, lineNumber;
         private String itemName, unitName, vatRateName;
-        private BigDecimal quantity, unitPrice, amountOC, amount, discountAmountOC, vatAmountOC;
+        private BigDecimal quantity, unitPrice, amountOC, amount, discountAmountOC, discountAmount, vatAmountOC, vatAmount;
     }
 
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor

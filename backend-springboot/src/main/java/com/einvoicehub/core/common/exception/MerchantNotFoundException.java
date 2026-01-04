@@ -1,26 +1,17 @@
 package com.einvoicehub.core.common.exception;
 
-/**
- * Exception được ném ra khi không tìm thấy merchant trong hệ thống.
- * Đây là một unchecked exception kế thừa từ RuntimeException.
- */
-public class MerchantNotFoundException extends RuntimeException {
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
-    /**
-     * Constructor nhận vào mã merchant không tìm thấy.
-     *
-     * @param merchantCode mã của merchant không tìm thấy trong hệ thống
-     */
+/**
+ * Exception khi không tìm thấy Merchant.
+ */
+@Getter
+public class MerchantNotFoundException extends RuntimeException {
+    private final String errorCode = "MERCHANT_NOT_FOUND";
+    private final HttpStatus status = HttpStatus.NOT_FOUND;
+
     public MerchantNotFoundException(String merchantCode) {
         super("Không tìm thấy merchant với mã: " + merchantCode);
-    }
-
-    /**
-     * Constructor nhận vào thông báo lỗi tùy chỉnh.
-     *
-     * @param message thông báo lỗi mô tả chi tiết
-     */
-    public MerchantNotFoundException(String message, Throwable cause) {
-        super(message, cause);
     }
 }

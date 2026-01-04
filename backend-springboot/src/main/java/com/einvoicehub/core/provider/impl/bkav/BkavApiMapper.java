@@ -1,8 +1,8 @@
-package com.einvoicehub.core.provider.bkav;
+package com.einvoicehub.core.provider.impl.bkav;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
-import com.einvoicehub.core.provider.InvoiceRequest;
-import com.einvoicehub.core.provider.InvoiceResponse;
+import com.einvoicehub.core.provider.model.InvoiceRequest;
+import com.einvoicehub.core.provider.model.InvoiceResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

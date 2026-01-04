@@ -1,7 +1,9 @@
-package com.einvoicehub.core.provider.viettel;
+package com.einvoicehub.core.provider.impl.viettel;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
 import com.einvoicehub.core.provider.*;
+import com.einvoicehub.core.provider.model.InvoiceRequest;
+import com.einvoicehub.core.provider.model.InvoiceResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +15,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -118,6 +119,29 @@ public class ViettelAdapter implements InvoiceProvider {
         } catch (Exception e) { return null; }
     }
 
+    /**
+     * KHẮC PHỤC LỖI: Triển khai phương thức lấy XML cho Viettel
+     */
+    @Override
+    public String getInvoiceXml(String invoiceNumber, ProviderConfig config) {
+        log.info("Viettel: Fetching XML for invoice: {}", invoiceNumber);
+        try {
+            // Viettel cung cấp dữ liệu XML qua endpoint tương tự PDF nhưng định dạng khác
+            ViettelXmlResponse response = webClient.get()
+                    .uri("/invoices/{invoiceNumber}/xml", invoiceNumber)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAccessToken())
+                    .retrieve()
+                    .bodyToMono(ViettelXmlResponse.class)
+                    .timeout(Duration.ofMillis(timeoutMs))
+                    .block();
+
+            return (response != null) ? response.getXmlData() : null;
+        } catch (Exception e) {
+            log.error("Viettel: Error fetching XML for invoice {}", invoiceNumber, e);
+            return null;
+        }
+    }
+
     @Override
     public String authenticate(ProviderConfig config) {
         try {
@@ -134,9 +158,7 @@ public class ViettelAdapter implements InvoiceProvider {
         try { return objectMapper.readValue(body, ViettelApiResponse.class); } catch (Exception e) { return null; }
     }
 
-    private ProviderConfig buildTestConfig() { return ProviderConfig.builder().username("test").password("test").build(); }
-
-    // --- Khôi phục TOÀN BỘ Inner Classes từ file gốc của Huy ---
+    // --- Inner Classes ---
 
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class ViettelInvoicePayload {
@@ -178,4 +200,8 @@ public class ViettelAdapter implements InvoiceProvider {
 
     @lombok.Data @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class ViettelPdfResponse { private String downloadUrl; }
+
+    /** Bổ sung class cho phản hồi XML */
+    @lombok.Data @lombok.NoArgsConstructor @lombok.AllArgsConstructor
+    public static class ViettelXmlResponse { private String xmlData; }
 }

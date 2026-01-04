@@ -3,47 +3,44 @@ package com.einvoicehub.core.provider;
 import lombok.*;
 import java.time.LocalDateTime;
 
-/**Cấu hình kết nối Provider cho Merchant*/
+/**
+ * Cấu hình kết nối Provider - Tối ưu bảo mật và đa dụng
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProviderConfig {
 
-    /**ID cấu hình*/
     private Long configId;
-
-    /**Mã Provider*/
     private String providerCode;
-
-    /**Tên Provider*/
     private String providerName;
 
-    /**Tài khoản API*/
     private String username;
 
-    /**Mật khẩu API (đã giải mã)*/
+    @ToString.Exclude // KHÔNG in mật khẩu ra log
     private String password;
 
-    /**URL API tùy chỉnh (nếu có)*/
+    /** Bổ sung cho các Provider dùng AppId/SecretKey (MISA, Viettel...) */
+    private String appId;
+
+    @ToString.Exclude // KHÔNG in secretKey ra log
+    private String secretKey;
+
     private String customApiUrl;
 
-    /**Serial chứng thư số*/
+    /** Quản lý chứng thư số (HSM hoặc Token) */
     private String certificateSerial;
 
-    /**Dữ liệu chứng thư số (đã giải mã)*/
+    @ToString.Exclude
     private String certificateData;
-
-    /**Hạn chứng thư số*/
     private LocalDateTime certificateExpiredAt;
 
-    /**Cấu hình bổ sung (JSON)*/
+    /** Cấu hình đặc thù cho từng hãng (dạng JSON) */
     private String extraConfigJson;
 
-    /**Token xác thực (nếu Provider dùng OAuth)*/
+    @ToString.Exclude // KHÔNG in token ra log
     private String accessToken;
-
-    /**Thời điểm hết hạn token*/
     private LocalDateTime tokenExpiredAt;
 
     public boolean hasValidCertificate() {
@@ -51,8 +48,12 @@ public class ProviderConfig {
                 (certificateExpiredAt == null || certificateExpiredAt.isAfter(LocalDateTime.now()));
     }
 
+    /**
+     * Kiểm tra Token với khoảng đệm 5 phút để đảm bảo giao dịch không bị ngắt quãng
+     */
     public boolean hasValidToken() {
-        return accessToken != null && !accessToken.isEmpty() &&
-                (tokenExpiredAt == null || tokenExpiredAt.isAfter(LocalDateTime.now()));
+        if (accessToken == null || accessToken.isEmpty()) return false;
+        if (tokenExpiredAt == null) return true;
+        return tokenExpiredAt.isAfter(LocalDateTime.now().plusMinutes(5));
     }
 }

@@ -1,8 +1,8 @@
-package com.einvoicehub.core.provider.misa;
+package com.einvoicehub.core.provider.impl.misa;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
-import com.einvoicehub.core.provider.InvoiceRequest;
-import com.einvoicehub.core.provider.InvoiceResponse;
+import com.einvoicehub.core.provider.model.InvoiceRequest;
+import com.einvoicehub.core.provider.model.InvoiceResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

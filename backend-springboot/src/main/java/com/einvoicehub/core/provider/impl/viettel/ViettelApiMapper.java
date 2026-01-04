@@ -1,14 +1,13 @@
-package com.einvoicehub.core.provider.viettel;
+package com.einvoicehub.core.provider.impl.viettel;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
-import com.einvoicehub.core.provider.InvoiceRequest;
-import com.einvoicehub.core.provider.InvoiceResponse;
+import com.einvoicehub.core.provider.model.InvoiceRequest;
+import com.einvoicehub.core.provider.model.InvoiceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode; // Đã fix vị trí import chuẩn
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;

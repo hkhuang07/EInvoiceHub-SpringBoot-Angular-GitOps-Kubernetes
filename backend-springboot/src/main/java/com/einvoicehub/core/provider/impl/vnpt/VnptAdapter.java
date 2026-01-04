@@ -1,7 +1,9 @@
-package com.einvoicehub.core.provider.vnpt;
+package com.einvoicehub.core.provider.impl.vnpt;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
 import com.einvoicehub.core.provider.*;
+import com.einvoicehub.core.provider.model.InvoiceRequest;
+import com.einvoicehub.core.provider.model.InvoiceResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +15,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -110,6 +111,29 @@ public class VnptAdapter implements InvoiceProvider {
         } catch (Exception e) { return null; }
     }
 
+    /**
+     * KHẮC PHỤC LỖI: Triển khai phương thức lấy XML cho VNPT
+     */
+    @Override
+    public String getInvoiceXml(String invoiceNumber, ProviderConfig config) {
+        log.info("VNPT: Fetching XML for invoice: {}", invoiceNumber);
+        try {
+            // VNPT thường cung cấp dữ liệu XML qua endpoint tra cứu
+            VnptXmlResponse response = webClient.get()
+                    .uri("/invoices/{invoiceNumber}/xml", invoiceNumber)
+                    .header("Authorization", "Bearer " + config.getAccessToken())
+                    .retrieve()
+                    .bodyToMono(VnptXmlResponse.class)
+                    .timeout(Duration.ofMillis(timeoutMs))
+                    .block();
+
+            return (response != null) ? response.getXmlData() : null;
+        } catch (Exception e) {
+            log.error("VNPT: Error fetching XML for invoice {}", invoiceNumber, e);
+            return null;
+        }
+    }
+
     @Override
     public String authenticate(ProviderConfig config) {
         try {
@@ -128,7 +152,7 @@ public class VnptAdapter implements InvoiceProvider {
 
     private ProviderConfig buildTestConfig() { return ProviderConfig.builder().username("test").password("test").build(); }
 
-    // --- Khôi phục TOÀN BỘ Inner Classes từ file gốc của Huy ---
+    // --- Inner Classes ---
 
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class VnptInvoicePayload {
@@ -174,4 +198,8 @@ public class VnptAdapter implements InvoiceProvider {
 
     @lombok.Data @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class VnptPdfResponse { private String pdfUrl; }
+
+    /** Thêm Class cho phản hồi XML */
+    @lombok.Data @lombok.NoArgsConstructor @lombok.AllArgsConstructor
+    public static class VnptXmlResponse { private String xmlData; }
 }

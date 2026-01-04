@@ -1,5 +1,6 @@
 package com.einvoicehub.core.provider;
 
+import com.einvoicehub.core.provider.exception.ProviderException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
