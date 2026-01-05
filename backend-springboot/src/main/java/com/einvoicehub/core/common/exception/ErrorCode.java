@@ -4,23 +4,27 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 public enum ErrorCode {
-    SUCCESS(1000, "Thành công", HttpStatus.OK),
-    UNCATEGORIZED_EXCEPTION(9999, "Lỗi hệ thống không xác định", HttpStatus.INTERNAL_SERVER_ERROR),
-    MERCHANT_NOT_FOUND(1001, "Không tìm thấy Merchant", HttpStatus.NOT_FOUND),
-    INSUFFICIENT_QUOTA(1002, "Merchant đã vượt quá hạn mức hóa đơn", HttpStatus.FORBIDDEN),
-    VALIDATION_ERROR(1003, "Dữ liệu đầu vào không hợp lệ", HttpStatus.BAD_REQUEST),
-    PROVIDER_ERROR(1004, "Lỗi từ nhà cung cấp hóa đơn", HttpStatus.BAD_GATEWAY),
-    API_KEY_INVALID(1005, "API Key không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED);
+    SUCCESS(1000, "Success", HttpStatus.OK),
+    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized system error", HttpStatus.INTERNAL_SERVER_ERROR),
+    MERCHANT_NOT_FOUND(1001, "Merchant not found", HttpStatus.NOT_FOUND),
+    INSUFFICIENT_QUOTA(1002, "Merchant has exceeded invoice quota", HttpStatus.FORBIDDEN),
+    VALIDATION_ERROR(1003, "Invalid input data", HttpStatus.BAD_REQUEST),
+    PROVIDER_ERROR(1004, "Service provider error", HttpStatus.BAD_GATEWAY),
+    API_KEY_INVALID(1005, "Invalid or expired API Key", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(403, "Access denied", HttpStatus.FORBIDDEN),
+    UNAUTHENTICATED(401, "Authentication failed", HttpStatus.UNAUTHORIZED);
 
-    /**
-     * @JsonValue: Giúp trả về số (1000, 1001...) khi serialize ra JSON
-     * nhưng trong code Java vẫn dùng kiểu ErrorCode.
-     */
+    private static final Map<Integer, ErrorCode> CACHE = Stream.of(values())
+            .collect(Collectors.toMap(ErrorCode::getCode, Function.identity()));
+
     @JsonValue
     private final int code;
     private final String message;
@@ -33,8 +37,6 @@ public enum ErrorCode {
     }
 
     public static Optional<ErrorCode> findByCode(int code) {
-        return Arrays.stream(ErrorCode.values())
-                .filter(errorCode -> errorCode.code == code)
-                .findFirst();
+        return Optional.ofNullable(CACHE.get(code));
     }
 }

@@ -29,15 +29,11 @@ public class MisaAdapter implements InvoiceProvider {
     @Value("${provider.misa.base-url:https://api.meinvoice.vn/api/integration}")
     private String baseUrl;
 
-    @Value("${provider.misa.test-base-url:https://testapi.meinvoice.vn/api/integration}")
-    private String testBaseUrl;
-
     private String cachedToken;
     private LocalDateTime tokenExpiry;
 
     public MisaAdapter(WebClient.Builder webClientBuilder, MisaApiMapper apiMapper, ObjectMapper objectMapper) {
-        // Trong môi trường dev, chúng ta dùng testBaseUrl
-        this.webClient = webClientBuilder.baseUrl(testBaseUrl).build();
+        this.webClient = webClientBuilder.build();
         this.apiMapper = apiMapper;
         this.objectMapper = objectMapper;
     }
@@ -47,24 +43,30 @@ public class MisaAdapter implements InvoiceProvider {
 
     @Override
     public InvoiceResponse issueInvoice(InvoiceRequest request, ProviderConfig config) {
-        log.info("MISA: Issuing invoice for request ID: {}", request.getClientRequestId());
+        log.info("MISA: Processing issuance for ClientRequestID: {}", request.getClientRequestId());
         try {
             String token = getOrRefreshToken(config);
             MisaInvoicePayload payload = apiMapper.toMisaPayload(request);
 
-            int signType = 2; // HSM mặc định
-            Map<String, Object> body = Map.of("SignType", signType, "InvoiceData", Collections.singletonList(payload));
+            /* Default SignType: 2 (HSM) */
+            Map<String, Object> body = Map.of("SignType", 2, "InvoiceData", List.of(payload));
 
-            MisaApiResponse response = webClient.post().uri("/invoice")
+            MisaApiResponse response = webClient.post()
+                    .uri(config.getCustomApiUrl() != null ? config.getCustomApiUrl() + "/invoice" : baseUrl + "/invoice")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                     .bodyValue(body)
-                    .retrieve().bodyToMono(MisaApiResponse.class)
-                    .timeout(Duration.ofSeconds(30)).block();
+                    .retrieve()
+                    .bodyToMono(MisaApiResponse.class)
+                    .timeout(Duration.ofSeconds(30))
+                    .block();
 
             return apiMapper.toHubResponse(response, request.getClientRequestId());
         } catch (Exception e) {
-            log.error("MISA: Issuance error", e);
-            return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage(e.getMessage()).build();
+            log.error("MISA: Issuance failed: {}", e.getMessage());
+            return InvoiceResponse.builder()
+                    .status(InvoiceResponse.ResponseStatus.FAILED)
+                    .errorMessage("MISA issuance error: " + e.getMessage())
+                    .build();
         }
     }
 
@@ -72,24 +74,46 @@ public class MisaAdapter implements InvoiceProvider {
     public InvoiceStatus getInvoiceStatus(String transactionId, ProviderConfig config) {
         try {
             String token = getOrRefreshToken(config);
-            MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
-            queryParams.add("invoiceWithCode", "true");
-            queryParams.add("inputType", "1");
-
-            List<String> requestBody = Collections.singletonList(transactionId);
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("invoiceWithCode", "true");
+            params.add("inputType", "1");
 
             MisaApiResponse response = webClient.post()
-                    .uri(uriBuilder -> uriBuilder.path("/invoice/status").queryParams(queryParams).build())
+                    .uri(uriBuilder -> uriBuilder.path(baseUrl + "/invoice/status").queryParams(params).build())
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .bodyValue(requestBody)
-                    .retrieve().bodyToMono(MisaApiResponse.class).block();
+                    .bodyValue(List.of(transactionId))
+                    .retrieve()
+                    .bodyToMono(MisaApiResponse.class)
+                    .block();
 
-            if (response != null && response.getData() instanceof List) {
-                List<Map<String, Object>> data = (List<Map<String, Object>>) response.getData();
-                if (!data.isEmpty()) return apiMapper.mapMisaStatus((int) data.get(0).get("EInvoiceStatus"));
+            if (response != null && response.getData() instanceof List<?> dataList && !dataList.isEmpty()) {
+                Map<?, ?> dataMap = (Map<?, ?>) dataList.get(0);
+                return apiMapper.mapMisaStatus((Integer) dataMap.get("EInvoiceStatus"));
             }
-        } catch (Exception e) { log.error("MISA status check failed", e); }
+        } catch (Exception e) {
+            log.error("MISA: Status check failed for TransactionID {}: {}", transactionId, e.getMessage());
+        }
         return InvoiceStatus.FAILED;
+    }
+
+    @Override
+    public String getInvoiceXml(String invoiceGuid, ProviderConfig config) {
+        log.info("MISA: Requesting XML for InvoiceGUID: {}", invoiceGuid);
+        try {
+            String token = getOrRefreshToken(config);
+            MisaApiResponse response = webClient.post()
+                    .uri(baseUrl + "/invoice/export-xml")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .bodyValue(Map.of("InvoiceGUID", invoiceGuid))
+                    .retrieve()
+                    .bodyToMono(MisaApiResponse.class)
+                    .block();
+
+            return (response != null && response.getData() != null) ? response.getData().toString() : null;
+        } catch (Exception e) {
+            log.error("MISA: XML export failed: {}", e.getMessage());
+            return null;
+        }
     }
 
     @Override
@@ -101,45 +125,31 @@ public class MisaAdapter implements InvoiceProvider {
                 "password", config.getPassword()
         );
         try {
-            Map res = webClient.post().uri("/auth/token").bodyValue(authReq).retrieve().bodyToMono(Map.class).block();
-            return (res != null && res.get("Data") != null) ? res.get("Data").toString() : null;
-        } catch (Exception e) {
-            log.error("MISA Authentication failed", e);
-            return null;
-        }
-    }
-
-    private String getOrRefreshToken(ProviderConfig config) {
-        if (cachedToken != null && tokenExpiry != null && tokenExpiry.isAfter(LocalDateTime.now().plusMinutes(5))) return cachedToken;
-        String token = authenticate(config);
-        if (token != null) { cachedToken = token; tokenExpiry = LocalDateTime.now().plusDays(7); return token; }
-        throw new RuntimeException("MISA Auth Failed");
-    }
-
-    /**
-     * KHẮC PHỤC LỖI: Triển khai phương thức lấy XML cho MISA
-     */
-    @Override
-    public String getInvoiceXml(String invoiceNumber, ProviderConfig config) {
-        log.info("MISA: Fetching XML for invoice: {}", invoiceNumber);
-        try {
-            String token = getOrRefreshToken(config);
-            // MISA API thường yêu cầu InvoiceGUID (transactionId) để lấy dữ liệu XML
-            Map<String, String> requestBody = Map.of("InvoiceGUID", invoiceNumber);
-
-            MisaApiResponse response = webClient.post()
-                    .uri("/invoice/export-xml")
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .bodyValue(requestBody)
+            Map<?, ?> res = webClient.post()
+                    .uri(baseUrl + "/auth/token")
+                    .bodyValue(authReq)
                     .retrieve()
-                    .bodyToMono(MisaApiResponse.class)
+                    .bodyToMono(Map.class)
                     .block();
 
-            return (response != null && response.getData() != null) ? response.getData().toString() : null;
+            return (res != null && res.get("Data") != null) ? res.get("Data").toString() : null;
         } catch (Exception e) {
-            log.error("MISA: Error fetching XML for invoice {}", invoiceNumber, e);
+            log.error("MISA: Authentication failed for taxcode {}: {}", config.getUsername(), e.getMessage());
             return null;
         }
+    }
+
+    private synchronized String getOrRefreshToken(ProviderConfig config) {
+        if (cachedToken != null && tokenExpiry != null && tokenExpiry.isAfter(LocalDateTime.now().plusMinutes(5))) {
+            return cachedToken;
+        }
+        String token = authenticate(config);
+        if (token != null) {
+            cachedToken = token;
+            tokenExpiry = LocalDateTime.now().plusDays(7);
+            return token;
+        }
+        throw new RuntimeException("MISA: Unable to obtain access token");
     }
 
     @Override public InvoiceResponse cancelInvoice(String no, String r, ProviderConfig c) { return null; }
@@ -148,7 +158,7 @@ public class MisaAdapter implements InvoiceProvider {
     @Override public boolean isAvailable() { return true; }
     @Override public boolean testConnection(ProviderConfig c) { return authenticate(c) != null; }
 
-    // --- Inner Classes ---
+    /* MISA Specific Data Models */
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class MisaInvoicePayload {
         private String refId, invSeries, invDate, currencyCode, paymentMethodName, buyerLegalName, buyerTaxCode, buyerAddress, buyerFullName, buyerPhoneNumber, buyerEmail, totalAmountInWords;

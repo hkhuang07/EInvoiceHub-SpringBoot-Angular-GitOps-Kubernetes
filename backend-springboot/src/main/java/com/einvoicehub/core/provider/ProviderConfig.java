@@ -3,43 +3,34 @@ package com.einvoicehub.core.provider;
 import lombok.*;
 import java.time.LocalDateTime;
 
-/**
- * Cấu hình kết nối Provider - Tối ưu bảo mật và đa dụng
- */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProviderConfig {
-
     private Long configId;
     private String providerCode;
     private String providerName;
-
     private String username;
 
-    @ToString.Exclude // KHÔNG in mật khẩu ra log
+    @ToString.Exclude
     private String password;
 
-    /** Bổ sung cho các Provider dùng AppId/SecretKey (MISA, Viettel...) */
     private String appId;
 
-    @ToString.Exclude // KHÔNG in secretKey ra log
+    @ToString.Exclude
     private String secretKey;
 
     private String customApiUrl;
-
-    /** Quản lý chứng thư số (HSM hoặc Token) */
     private String certificateSerial;
 
     @ToString.Exclude
     private String certificateData;
     private LocalDateTime certificateExpiredAt;
 
-    /** Cấu hình đặc thù cho từng hãng (dạng JSON) */
     private String extraConfigJson;
 
-    @ToString.Exclude // KHÔNG in token ra log
+    @ToString.Exclude
     private String accessToken;
     private LocalDateTime tokenExpiredAt;
 
@@ -48,12 +39,9 @@ public class ProviderConfig {
                 (certificateExpiredAt == null || certificateExpiredAt.isAfter(LocalDateTime.now()));
     }
 
-    /**
-     * Kiểm tra Token với khoảng đệm 5 phút để đảm bảo giao dịch không bị ngắt quãng
-     */
+    /* Check if token is valid with a 5-minute safety buffer */
     public boolean hasValidToken() {
-        if (accessToken == null || accessToken.isEmpty()) return false;
-        if (tokenExpiredAt == null) return true;
-        return tokenExpiredAt.isAfter(LocalDateTime.now().plusMinutes(5));
+        return accessToken != null && !accessToken.isEmpty() &&
+                (tokenExpiredAt == null || tokenExpiredAt.isAfter(LocalDateTime.now().plusMinutes(5)));
     }
 }

@@ -8,10 +8,13 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "merchant_users")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "merchant")
+@EqualsAndHashCode(of = "id")
 public class MerchantUser {
 
     @Id
@@ -28,46 +31,34 @@ public class MerchantUser {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(nullable = false)
     private String passwordHash;
 
-    @Column(name = "full_name", length = 100)
     private String fullName;
-
-    @Column(length = 20)
     private String phone;
-
-    @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     @Builder.Default
     private UserRole role = UserRole.STAFF;
 
-    @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;
 
-    @Column(name = "is_primary", nullable = false)
     @Builder.Default
     private Boolean isPrimary = false;
 
-    @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 
-    @Column(name = "failed_login_attempts", nullable = false)
     @Builder.Default
     private Integer failedLoginAttempts = 0;
 
-    @Column(name = "locked_until")
     private LocalDateTime lockedUntil;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at", nullable = false)
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -76,42 +67,27 @@ public class MerchantUser {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Business methods
+    /* Security Logic */
+
     public boolean isLocked() {
         return lockedUntil != null && lockedUntil.isAfter(LocalDateTime.now());
     }
 
     public void incrementFailedAttempts() {
         this.failedLoginAttempts++;
-        // Lock account after 5 failed attempts for 30 minutes
+        /* Lock account for 30 minutes after 5 failed attempts */
         if (this.failedLoginAttempts >= 5) {
             this.lockedUntil = LocalDateTime.now().plusMinutes(30);
         }
     }
 
-    public void resetFailedAttempts() {
+    public void resetLoginStatus() {
         this.failedLoginAttempts = 0;
         this.lockedUntil = null;
     }
 
-    public void updateLastLogin() {
+    public void recordSuccessfulLogin() {
         this.lastLoginAt = LocalDateTime.now();
-        this.failedLoginAttempts = 0;
-    }
-
-    public boolean canManageUsers() {
-        return role.canManageUsers();
-    }
-
-    public boolean canCreateInvoice() {
-        return role.canCreateInvoice();
-    }
-
-    public boolean canViewReports() {
-        return role.canViewReports();
-    }
-
-    public String getDisplayName() {
-        return fullName != null && !fullName.isEmpty() ? fullName : username;
+        this.resetLoginStatus();
     }
 }

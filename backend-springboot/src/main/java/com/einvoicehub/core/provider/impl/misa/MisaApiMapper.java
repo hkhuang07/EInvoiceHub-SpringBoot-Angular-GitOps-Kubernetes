@@ -3,33 +3,26 @@ package com.einvoicehub.core.provider.impl.misa;
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
 import com.einvoicehub.core.provider.model.InvoiceRequest;
 import com.einvoicehub.core.provider.model.InvoiceResponse;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode; // Đã fix lỗi import
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class MisaApiMapper {
 
-    private final ObjectMapper objectMapper;
-
-    /**
-     * Khôi phục 100% logic buildMisaPayload từ file gốc của Huy
-     */
     public MisaAdapter.MisaInvoicePayload toMisaPayload(InvoiceRequest request) {
         List<MisaAdapter.MisaInvoiceDetail> details = request.getItems().stream()
                 .map(this::convertToMisaDetail)
-                .collect(Collectors.toList());
+                .toList();
 
         MisaAdapter.MisaInvoicePayload payload = MisaAdapter.MisaInvoicePayload.builder()
                 .refId(UUID.randomUUID().toString())
@@ -37,10 +30,8 @@ public class MisaApiMapper {
                 .invDate(request.getIssueDate() != null ?
                         request.getIssueDate().format(DateTimeFormatter.ISO_DATE) :
                         LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
-                .currencyCode(request.getSummary() != null &&
-                        StringUtils.hasText(request.getSummary().getCurrencyCode()) ?
-                        request.getSummary().getCurrencyCode() : "VND")
-                .exchangeRate(BigDecimal.valueOf(1.0)) // Fix lỗi double to BigDecimal
+                .currencyCode(StringUtils.hasText(getCurrency(request)) ? getCurrency(request) : "VND")
+                .exchangeRate(BigDecimal.ONE)
                 .paymentMethodName("TM/CK")
                 .isInvoiceSummary(false)
                 .buyerLegalName(request.getBuyer() != null ? request.getBuyer().getName() : "")
@@ -58,43 +49,39 @@ public class MisaApiMapper {
     }
 
     private void calculateTotals(MisaAdapter.MisaInvoicePayload payload) {
-        BigDecimal totalSaleAmountOC = BigDecimal.ZERO;
-        BigDecimal totalDiscountAmountOC = BigDecimal.ZERO;
-        BigDecimal totalVATAmountOC = BigDecimal.ZERO;
+        BigDecimal totalSaleAmount = BigDecimal.ZERO;
+        BigDecimal totalVatAmount = BigDecimal.ZERO;
 
         for (MisaAdapter.MisaInvoiceDetail detail : payload.getOriginalInvoiceDetail()) {
-            totalSaleAmountOC = totalSaleAmountOC.add(detail.getAmountOC() != null ? detail.getAmountOC() : BigDecimal.ZERO);
-            totalDiscountAmountOC = totalDiscountAmountOC.add(detail.getDiscountAmountOC() != null ? detail.getDiscountAmountOC() : BigDecimal.ZERO);
-            totalVATAmountOC = totalVATAmountOC.add(detail.getVatAmountOC() != null ? detail.getVatAmountOC() : BigDecimal.ZERO);
+            totalSaleAmount = totalSaleAmount.add(detail.getAmountOC() != null ? detail.getAmountOC() : BigDecimal.ZERO);
+            totalVatAmount = totalVatAmount.add(detail.getVatAmountOC() != null ? detail.getVatAmountOC() : BigDecimal.ZERO);
         }
 
-        BigDecimal totalAmountWithoutVATOC = totalSaleAmountOC.subtract(totalDiscountAmountOC);
-        BigDecimal totalAmountOC = totalAmountWithoutVATOC.add(totalVATAmountOC);
+        BigDecimal totalAmount = totalSaleAmount.add(totalVatAmount);
 
-        // Fix RoundingMode: Sử dụng Half_UP theo chuẩn kế toán
-        payload.setTotalSaleAmountOC(totalSaleAmountOC.setScale(2, RoundingMode.HALF_UP));
-        payload.setTotalSaleAmount(totalSaleAmountOC.setScale(2, RoundingMode.HALF_UP));
-        payload.setTotalAmountOC(totalAmountOC.setScale(2, RoundingMode.HALF_UP));
-        payload.setTotalAmount(totalAmountOC.setScale(2, RoundingMode.HALF_UP));
-        payload.setTotalVATAmountOC(totalVATAmountOC.setScale(2, RoundingMode.HALF_UP));
-        payload.setTotalAmountInWords(convertNumberToWords(totalAmountOC));
+        payload.setTotalSaleAmountOC(totalSaleAmount.setScale(2, RoundingMode.HALF_UP));
+        payload.setTotalSaleAmount(totalSaleAmount.setScale(2, RoundingMode.HALF_UP));
+        payload.setTotalAmountOC(totalAmount.setScale(2, RoundingMode.HALF_UP));
+        payload.setTotalAmount(totalAmount.setScale(2, RoundingMode.HALF_UP));
+        payload.setTotalVATAmountOC(totalVatAmount.setScale(2, RoundingMode.HALF_UP));
+        payload.setTotalAmountInWords(convertNumberToWords(totalAmount));
     }
 
     private MisaAdapter.MisaInvoiceDetail convertToMisaDetail(InvoiceRequest.InvoiceItem item) {
-        BigDecimal quantity = item.getQuantity() != null ? item.getQuantity() : BigDecimal.ONE;
-        BigDecimal unitPrice = item.getUnitPrice() != null ? item.getUnitPrice() : BigDecimal.ZERO;
-        BigDecimal amountOC = quantity.multiply(unitPrice).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal qty = item.getQuantity() != null ? item.getQuantity() : BigDecimal.ONE;
+        BigDecimal price = item.getUnitPrice() != null ? item.getUnitPrice() : BigDecimal.ZERO;
+        BigDecimal amount = qty.multiply(price).setScale(2, RoundingMode.HALF_UP);
         BigDecimal taxRate = item.getTaxRate() != null ? item.getTaxRate() : BigDecimal.ZERO;
-        BigDecimal vatAmountOC = amountOC.multiply(taxRate).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal vatAmount = amount.multiply(taxRate).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
         return MisaAdapter.MisaInvoiceDetail.builder()
                 .itemType(1).sortOrder(1).lineNumber(1)
                 .itemName(item.getItemName())
                 .unitName(item.getUnitName() != null ? item.getUnitName() : "")
-                .quantity(quantity.setScale(2, RoundingMode.HALF_UP))
-                .unitPrice(unitPrice.setScale(2, RoundingMode.HALF_UP))
-                .amountOC(amountOC).amount(amountOC)
-                .vatAmountOC(vatAmountOC).vatAmount(vatAmountOC)
+                .quantity(qty.setScale(2, RoundingMode.HALF_UP))
+                .unitPrice(price.setScale(2, RoundingMode.HALF_UP))
+                .amountOC(amount).amount(amount)
+                .vatAmountOC(vatAmount).vatAmount(vatAmount)
                 .vatRateName(taxRate.stripTrailingZeros().toPlainString() + "%")
                 .discountAmountOC(BigDecimal.ZERO).discountAmount(BigDecimal.ZERO)
                 .build();
@@ -112,46 +99,44 @@ public class MisaApiMapper {
         return new ArrayList<>(taxMap.values());
     }
 
-    /**
-     * Khôi phục logic chuyển số thành chữ của Huy
-     */
+    /* Vietnamese Number-to-Words for invoice legality */
     public String convertNumberToWords(BigDecimal amount) {
         try {
             long wholePart = amount.longValue();
             if (wholePart == 0) return "Không đồng.";
             return convertWholeNumberToWords(wholePart) + " đồng.";
-        } catch (Exception e) { return ""; }
+        } catch (Exception e) { return "Invalid amount"; }
     }
 
     private String convertWholeNumberToWords(long number) {
         String[] units = {"", "nghìn", "triệu", "tỷ"};
         String result = "";
-        int unitIndex = 0;
+        int idx = 0;
         while (number > 0) {
             long group = number % 1000;
-            if (group > 0) result = convertGroupToWords((int) group) + " " + units[unitIndex] + " " + result;
+            if (group > 0) result = convertGroupToWords((int) group) + " " + units[idx] + " " + result;
             number /= 1000;
-            unitIndex++;
+            idx++;
         }
         return result.trim();
     }
 
-    private String convertGroupToWords(int number) {
+    private String convertGroupToWords(int n) {
         String[] digits = {"không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín"};
         String[] tens = {"", "mười", "hai mươi", "ba mươi", "bốn mươi", "năm mươi", "sáu mươi", "bảy mươi", "tám mươi", "chín mươi"};
-        int hundreds = number / 100;
-        int remainder = number % 100;
-        String res = (hundreds > 0) ? digits[hundreds] + " trăm " : "";
-        if (remainder > 0) {
-            if (remainder < 10) res += digits[remainder];
-            else if (remainder < 20) res += "mười " + digits[remainder - 10];
-            else res += tens[remainder / 10] + ((remainder % 10 > 0) ? " " + digits[remainder % 10] : "");
+        int h = n / 100, r = n % 100;
+        String res = (h > 0) ? digits[h] + " trăm " : "";
+        if (r > 0) {
+            if (r < 10) res += "lẻ " + digits[r];
+            else if (r < 20) res += "mười " + (r % 10 == 5 ? "lăm" : digits[r % 10]);
+            else res += tens[r / 10] + (r % 10 == 5 ? " lăm" : (r % 10 > 0 ? " " + digits[r % 10] : ""));
         }
         return res.trim();
     }
 
     public InvoiceResponse toHubResponse(MisaAdapter.MisaApiResponse misaResponse, String requestId) {
-        if (misaResponse == null) return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage("No response").build();
+        if (misaResponse == null) return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage("Provider timeout").build();
+
         boolean isSuccess = Boolean.TRUE.equals(misaResponse.getSuccess());
         InvoiceResponse.InvoiceResponseBuilder builder = InvoiceResponse.builder()
                 .clientRequestId(requestId)
@@ -171,16 +156,15 @@ public class MisaApiMapper {
         return builder.build();
     }
 
-    public InvoiceStatus mapMisaStatus(int eInvoiceStatus) {
-        switch (eInvoiceStatus) {
-            case 1: return InvoiceStatus.SUCCESS;
-            case 2: return InvoiceStatus.CANCELLED;
-            case 3: case 7: return InvoiceStatus.REPLACED;
-            default: return InvoiceStatus.FAILED;
-        }
+    public InvoiceStatus mapMisaStatus(int status) {
+        return switch (status) {
+            case 1 -> InvoiceStatus.SUCCESS;
+            case 2 -> InvoiceStatus.CANCELLED;
+            case 3, 7 -> InvoiceStatus.REPLACED;
+            default -> InvoiceStatus.FAILED;
+        };
     }
 
-    private String getInvSeries(InvoiceRequest request) {
-        return (request.getExtraConfig() != null) ? (String) request.getExtraConfig().getOrDefault("InvSeries", "") : "";
-    }
+    private String getInvSeries(InvoiceRequest r) { return (r.getExtraConfig() != null) ? (String) r.getExtraConfig().getOrDefault("InvSeries", "") : ""; }
+    private String getCurrency(InvoiceRequest r) { return (r.getSummary() != null) ? r.getSummary().getCurrencyCode() : "VND"; }
 }

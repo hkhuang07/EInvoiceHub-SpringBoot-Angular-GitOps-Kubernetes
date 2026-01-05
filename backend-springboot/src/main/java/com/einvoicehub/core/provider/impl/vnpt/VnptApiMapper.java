@@ -10,52 +10,39 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class VnptApiMapper {
 
-    /**
-     * Chuyển đổi InvoiceRequest sang Payload cho API VNPT
-     */
-    public InvoiceResponse toHubResponse(VnptAdapter.VnptApiResponse vnptResponse, String requestId) {
-        if (vnptResponse == null) {
-            return InvoiceResponse.builder()
-                    .status(InvoiceResponse.ResponseStatus.FAILED)
-                    .errorMessage("No response from VNPT")
-                    .responseTime(LocalDateTime.now())
-                    .build();
+    public InvoiceResponse toHubResponse(VnptAdapter.VnptApiResponse res, String requestId) {
+        if (res == null) {
+            return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage("No response from provider").build();
         }
-
-        // VNPT trả về success là boolean
-        boolean isSuccess = vnptResponse.isSuccess();
 
         return InvoiceResponse.builder()
                 .clientRequestId(requestId)
-                .status(isSuccess ? InvoiceResponse.ResponseStatus.SUCCESS :
-                        InvoiceResponse.ResponseStatus.FAILED)
-                .errorCode(vnptResponse.getErrorCode())
-                .errorMessage(vnptResponse.getMessage())
-                .transactionCode(vnptResponse.getTransactionId())
-                .invoiceNumber(vnptResponse.getInvoiceNumber())
-                // fkey của VNPT thường chứa thông tin ký hiệu và mẫu số
-                .symbolCode(vnptResponse.getFkey() != null && vnptResponse.getFkey().length() > 10 ?
-                        vnptResponse.getFkey().substring(0, 10) : vnptResponse.getFkey())
-                .templateCode(vnptResponse.getFkey())
-                .lookupCode(vnptResponse.getLookupCode())
-                .securityCode(vnptResponse.getSecurityCode())
-                .pdfUrl(vnptResponse.getPdfUrl())
+                .status(res.isSuccess() ? InvoiceResponse.ResponseStatus.SUCCESS : InvoiceResponse.ResponseStatus.FAILED)
+                .errorCode(res.getErrorCode())
+                .errorMessage(res.getMessage())
+                .transactionCode(res.getTransactionId())
+                .invoiceNumber(res.getInvoiceNumber())
+                /* VNPT fkey typically contains series and template info */
+                .symbolCode(res.getFkey() != null && res.getFkey().length() > 10 ? res.getFkey().substring(0, 10) : res.getFkey())
+                .templateCode(res.getFkey())
+                .lookupCode(res.getLookupCode())
+                .securityCode(res.getSecurityCode())
+                .pdfUrl(res.getPdfUrl())
                 .responseTime(LocalDateTime.now())
-                .rawResponse(vnptResponse)
+                .rawResponse(res)
                 .build();
     }
 
     public VnptAdapter.VnptInvoicePayload toVnptPayload(InvoiceRequest request) {
         List<VnptAdapter.VnptInvoiceDetail> details = request.getItems().stream()
                 .map(this::convertToVnptDetail)
-                .collect(Collectors.toList());
+                .toList();
 
         return VnptAdapter.VnptInvoicePayload.builder()
                 .invoiceType(request.getInvoiceType() != null ? request.getInvoiceType() : "01GTKT")

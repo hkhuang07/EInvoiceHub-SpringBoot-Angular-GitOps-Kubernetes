@@ -1,26 +1,18 @@
 package com.einvoicehub.core.entity.enums;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum SubscriptionPlan {
-    TRIAL("Dùng thử", 100),
-    BASIC("Cơ bản", 1000),
-    PREMIUM("Cao cấp", 10000),
-    ENTERPRISE("Doanh nghiệp", -1); // -1 = không giới hạn
+    TRIAL("Trial", 100),
+    BASIC("Basic", 1000),
+    PREMIUM("Premium", 10000),
+    ENTERPRISE("Enterprise", -1); // -1 indicates unlimited quota
 
     private final String displayName;
     private final int defaultQuota;
-
-    SubscriptionPlan(String displayName, int defaultQuota) {
-        this.displayName = displayName;
-        this.defaultQuota = defaultQuota;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public int getDefaultQuota() {
-        return defaultQuota;
-    }
 
     public boolean isUnlimited() {
         return defaultQuota == -1;

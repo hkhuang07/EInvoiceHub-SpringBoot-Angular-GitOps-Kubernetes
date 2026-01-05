@@ -1,7 +1,9 @@
 package com.einvoicehub.core.entity.mongodb;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,11 +29,27 @@ public class InvoicePayload {
     @Field("merchantId")
     private Long merchantId;
 
+    @Indexed(unique = true)
     @Field("clientRequestId")
     private String clientRequestId;
 
-    @Field("data")
-    private Map<String, Object> data;
+    @Field("rawRequest")
+    private Object rawRequest;
+
+    @Field("responseRaw")
+    private String responseRaw;
+
+    @Field("status")
+    private String status;
+
+    @CreatedDate
+    @Field("createdAt")
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @LastModifiedDate
+    @Field("updatedAt")
+    private LocalDateTime updatedAt;
 
     @Field("buyer")
     private BuyerInfo buyer;
@@ -48,24 +66,10 @@ public class InvoicePayload {
     @Field("metadata")
     private Map<String, Object> metadata;
 
-    @Field("responseRaw")
-    private String responseRaw;
+    @Field("data")
+    private Map<String, Object> data;
 
-    @Field("status")
-    private String status;
-
-    @Field("createdAt")
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Field("updatedAt")
-    private LocalDateTime updatedAt;
-
-    // Nested classes for structured data
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class BuyerInfo {
         private String name;
         private String taxCode;
@@ -76,10 +80,7 @@ public class InvoicePayload {
         private String bankName;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class SellerInfo {
         private String name;
         private String taxCode;
@@ -90,10 +91,7 @@ public class InvoicePayload {
         private String bankName;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class InvoiceItem {
         private String itemCode;
         private String itemName;
@@ -109,10 +107,7 @@ public class InvoicePayload {
         private String description;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class InvoiceSummary {
         private BigDecimal subtotalAmount;
         private BigDecimal totalDiscountAmount;

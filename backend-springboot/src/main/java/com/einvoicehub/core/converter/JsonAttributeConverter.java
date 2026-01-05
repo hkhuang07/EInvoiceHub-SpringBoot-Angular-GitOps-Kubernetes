@@ -10,70 +10,56 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Attribute Converter để chuyển đổi JSON string với Java Object
- */
 @Converter
 @Component
 public class JsonAttributeConverter implements AttributeConverter<Object, String> {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public String convertToDatabaseColumn(Object attribute) {
-        if (attribute == null) {
-            return null;
-        }
+        if (attribute == null) return null;
         try {
-            return objectMapper.writeValueAsString(attribute);
+            return OBJECT_MAPPER.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Failed to convert to JSON", e);
+            throw new IllegalArgumentException("JSON serialization error: " + e.getMessage());
         }
     }
 
     @Override
     public Object convertToEntityAttribute(String dbData) {
-        if (dbData == null || dbData.isEmpty()) {
-            return null;
-        }
+        if (dbData == null || dbData.isEmpty()) return null;
         try {
-            return objectMapper.readValue(dbData, Object.class);
+            return OBJECT_MAPPER.readValue(dbData, Object.class);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Failed to convert from JSON", e);
+            throw new IllegalArgumentException("JSON deserialization error: " + e.getMessage());
         }
     }
 
-    // Utility methods for specific types
-    public static List<String> fromJsonStringToStringList(String json) {
-        if (json == null || json.isEmpty()) {
-            return null;
-        }
+    public static List<String> fromJsonToList(String json) {
+        if (json == null || json.isEmpty()) return List.of();
         try {
-            return objectMapper.readValue(json, new TypeReference<List<String>>() {});
+            return OBJECT_MAPPER.readValue(json, new TypeReference<List<String>>() {});
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Failed to convert from JSON to List<String>", e);
+            throw new IllegalArgumentException("JSON to List conversion error");
         }
     }
 
-    public static Map<String, Object> fromJsonStringToMap(String json) {
-        if (json == null || json.isEmpty()) {
-            return null;
-        }
+    public static Map<String, Object> fromJsonToMap(String json) {
+        if (json == null || json.isEmpty()) return Map.of();
         try {
-            return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+            return OBJECT_MAPPER.readValue(json, new TypeReference<Map<String, Object>>() {});
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Failed to convert from JSON to Map", e);
+            throw new IllegalArgumentException("JSON to Map conversion error");
         }
     }
 
-    public static String toJsonString(Object obj) {
-        if (obj == null) {
-            return null;
-        }
+    public static String toJson(Object obj) {
+        if (obj == null) return null;
         try {
-            return objectMapper.writeValueAsString(obj);
+            return OBJECT_MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Failed to convert to JSON", e);
+            throw new IllegalArgumentException("Object to JSON conversion error");
         }
     }
 }

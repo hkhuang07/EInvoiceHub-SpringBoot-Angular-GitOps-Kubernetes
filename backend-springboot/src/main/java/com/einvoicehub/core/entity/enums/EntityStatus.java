@@ -1,17 +1,14 @@
 package com.einvoicehub.core.entity.enums;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum EntityStatus {
-    ACTIVE("Hoạt động"),
-    INACTIVE("Không hoạt động"),
-    SUSPENDED("Tạm đình chỉ");
+    ACTIVE("Active"),
+    INACTIVE("Inactive"),
+    SUSPENDED("Suspended");
 
     private final String description;
-
-    EntityStatus(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }

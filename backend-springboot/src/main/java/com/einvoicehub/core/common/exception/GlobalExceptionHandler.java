@@ -2,170 +2,103 @@ package com.einvoicehub.core.common.exception;
 
 import com.einvoicehub.core.dto.response.ApiResponse;
 import com.einvoicehub.core.provider.exception.ProviderException;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-/**
- * Global Exception Handler - "Trạm kiểm soát không lưu" đã hợp nhất của EInvoiceHub.
- * Đã sửa lỗi tương thích kiểu dữ liệu (ErrorCode thay vì int).
- */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * 1. Xử lý lỗi từ các Nhà cung cấp hóa đơn (BKAV, MISA, VNPT, VIETTEL)
-     */
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ApiResponse<?>> handleAppException(AppException ex) {
+        log.warn("Business Exception: [{}] - {}", ex.getErrorCode().getCode(), ex.getMessage());
+        return buildResponse(ex.getErrorCode(), ex.getMessage(), null);
+    }
+
     @ExceptionHandler(ProviderException.class)
-    public ResponseEntity<ApiResponse<Map<String, Object>>> handleProviderException(
-            ProviderException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<?>> handleProviderException(ProviderException ex) {
+        log.error("Provider Error [{}]: {} - Status: {}", ex.getProviderCode(), ex.getMessage(), ex.getStatusCode());
 
-        log.error("Provider Error [{}]: {} - Status: {}",
-                ex.getProviderCode(), ex.getMessage(), ex.getStatusCode());
-
-        // FIX: Truyền thẳng đối tượng Enum ErrorCode vào builder
         ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
                 .code(ErrorCode.PROVIDER_ERROR)
                 .message(ex.getMessage())
                 .result(ex.getDetails())
                 .build();
-
         return ResponseEntity.status(ex.getStatusCode()).body(response);
     }
 
-    /**
-     * 2. Xử lý AppException (Lỗi nghiệp vụ đã định nghĩa trong ErrorCode)
-     */
-    @ExceptionHandler(value = AppException.class)
-    public ResponseEntity<ApiResponse<?>> handlingAppException(AppException exception) {
-        ErrorCode errorCode = exception.getErrorCode();
-        log.warn("Business Exception: [{}] - {}", errorCode.getCode(), exception.getMessage());
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
 
-        return ResponseEntity.status(errorCode.getStatusCode())
-                .body(ApiResponse.builder()
-                        .code(errorCode)
-                        .message(errorCode.getMessage())
-                        .build());
-    }
-
-    /**
-     * 3. Xử lý lỗi đặc thù: MerchantNotFound & InsufficientQuota
-     */
-    @ExceptionHandler({MerchantNotFoundException.class, InsufficientQuotaException.class})
-    public ResponseEntity<ApiResponse<?>> handleDomainExceptions(RuntimeException ex) {
-        log.warn("Domain Exception: {}", ex.getMessage());
-
-        ErrorCode errorCode = (ex instanceof MerchantNotFoundException)
-                ? ErrorCode.MERCHANT_NOT_FOUND
-                : ErrorCode.INSUFFICIENT_QUOTA;
-
-        // FIX: Truyền đối tượng Enum errorCode
-        return ResponseEntity.status(errorCode.getStatusCode())
-                .body(ApiResponse.builder()
-                        .code(errorCode)
-                        .message(ex.getMessage())
-                        .build());
-    }
-
-    /**
-     * 4. Xử lý lỗi validation từ @Valid
-     */
-    @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Map<String, String>>> handlingValidation(
-            MethodArgumentNotValidException exception) {
-
-        Map<String, String> validationErrors = exception.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "Invalid value"
-                ));
-
-        log.warn("Validation Error: {}", validationErrors);
-
-        String enumKey = exception.getBindingResult().getFieldError().getDefaultMessage();
         ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
-
         try {
-            if (enumKey != null) errorCode = ErrorCode.valueOf(enumKey);
-        } catch (IllegalArgumentException e) {
-            log.debug("Validation message '{}' không phải là ErrorCode key", enumKey);
-        }
+            String firstMsg = ex.getBindingResult().getFieldError().getDefaultMessage();
+            if (firstMsg != null) errorCode = ErrorCode.valueOf(firstMsg);
+        } catch (Exception ignored) {}
 
-        // FIX: Truyền đối tượng Enum errorCode
-        return ResponseEntity.status(errorCode.getStatusCode())
-                .body(ApiResponse.<Map<String, String>>builder()
-                        .code(errorCode)
-                        .message(errorCode.getMessage())
-                        .result(validationErrors)
-                        .build());
+        log.warn("Validation Failed: {}", errors);
+        return buildResponse(errorCode, errorCode.getMessage(), errors);
     }
 
-    /**
-     * 5. Xử lý lỗi định dạng dữ liệu & Endpoint
-     */
-    @ExceptionHandler(value = HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<?>> handlingHttpMessageNotReadable(HttpMessageNotReadableException exception) {
-        // FIX: Truyền đối tượng Enum ErrorCode
-        return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getStatusCode())
-                .body(ApiResponse.builder()
-                        .code(ErrorCode.VALIDATION_ERROR)
-                        .message("Định dạng JSON không hợp lệ: " + extractRootCause(exception))
-                        .build());
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<?>> handleConstraintViolation(ConstraintViolationException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "Invalid parameter: " + ex.getMessage(), null);
     }
 
-    @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiResponse<?>> handlingTypeMismatch(MethodArgumentTypeMismatchException exception) {
-        String msg = String.format("Tham số '%s' nhận giá trị '%s' không đúng kiểu dữ liệu mong đợi",
-                exception.getName(), exception.getValue());
-
-        // FIX: Truyền đối tượng Enum ErrorCode
-        return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getStatusCode())
-                .body(ApiResponse.builder()
-                        .code(ErrorCode.VALIDATION_ERROR)
-                        .message(msg)
-                        .build());
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAccessDenied(AccessDeniedException ex) {
+        return buildResponse(ErrorCode.UNAUTHORIZED, "Access denied", null);
     }
 
-    @ExceptionHandler(value = NoHandlerFoundException.class)
-    public ResponseEntity<ApiResponse<?>> handlingNotFound(NoHandlerFoundException exception) {
-        // FIX: Truyền đối tượng Enum ErrorCode
-        return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getStatusCode())
-                .body(ApiResponse.builder()
-                        .code(ErrorCode.VALIDATION_ERROR)
-                        .message("API không tồn tại: " + exception.getRequestURL())
-                        .build());
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handleInvalidJson(HttpMessageNotReadableException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "Invalid JSON format", null);
     }
 
-    /**
-     * 6. Fallback - Lưới an toàn cuối cùng cho mọi Exception
-     */
-    @ExceptionHandler(value = {RuntimeException.class, Exception.class})
-    public ResponseEntity<ApiResponse<?>> handlingGenericException(Exception exception) {
-        log.error("Critical System Error: ", exception);
-
-        // FIX: Truyền đối tượng Enum ErrorCode
-        return ResponseEntity.status(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode())
-                .body(ApiResponse.builder()
-                        .code(ErrorCode.UNCATEGORIZED_EXCEPTION)
-                        .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
-                        .build());
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<?>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String msg = String.format("Parameter '%s' has an invalid data type", ex.getName());
+        return buildResponse(ErrorCode.VALIDATION_ERROR, msg, null);
     }
 
-    private String extractRootCause(Exception e) {
-        return (e.getCause() != null && e.getCause().getMessage() != null)
-                ? e.getCause().getMessage() : "Dữ liệu không đúng cấu trúc";
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleNotFound(NoHandlerFoundException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "API endpoint not found: " + ex.getRequestURL(), null);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<?>> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "HTTP method not supported", null);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<?>> handleGenericException(Exception ex) {
+        log.error("CRITICAL SYSTEM ERROR: ", ex);
+        return buildResponse(ErrorCode.UNCATEGORIZED_EXCEPTION, ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage(), null);
+    }
+
+    private ResponseEntity<ApiResponse<?>> buildResponse(ErrorCode errorCode, String message, Object result) {
+        ApiResponse<?> response = ApiResponse.builder()
+                .code(errorCode)
+                .message(message)
+                .result(result)
+                .build();
+        return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }
 }

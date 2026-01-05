@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -23,58 +22,49 @@ public class BkavApiMapper {
 
     private final ObjectMapper objectMapper;
 
-    /**
-     * Khôi phục chính xác logic buildBkavPayload từ file gốc của Huy
-     */
     public BkavAdapter.BkavCommandPayload toBkavPayload(InvoiceRequest request) {
         List<Map<String, Object>> details = request.getItems().stream()
                 .map(this::convertToBkavDetail)
-                .collect(Collectors.toList());
+                .toList();
 
-        Map<String, Object> invoiceData = new LinkedHashMap<>();
-        invoiceData.put("InvoiceTypeID", getInvoiceTypeId(request));
+        Map<String, Object> invoice = new LinkedHashMap<>();
+        invoice.put("InvoiceTypeID", getInvoiceTypeId(request));
 
-        // FIX: Chuyển LocalDate sang LocalDateTime để format không lỗi
-        LocalDateTime issueDateTime = request.getIssueDate() != null ?
+        LocalDateTime issueTime = request.getIssueDate() != null ?
                 request.getIssueDate().atStartOfDay() : LocalDateTime.now();
-        invoiceData.put("InvoiceDate", formatDateTime(issueDateTime));
+        invoice.put("InvoiceDate", issueTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX")));
 
-        invoiceData.put("BuyerName", request.getBuyer() != null ? request.getBuyer().getName() : "");
-        invoiceData.put("BuyerTaxCode", (request.getBuyer() != null && StringUtils.hasText(request.getBuyer().getTaxCode())) ?
+        invoice.put("BuyerName", request.getBuyer() != null ? request.getBuyer().getName() : "");
+        invoice.put("BuyerTaxCode", (request.getBuyer() != null && StringUtils.hasText(request.getBuyer().getTaxCode())) ?
                 request.getBuyer().getTaxCode() : "");
-        invoiceData.put("BuyerUnitName", request.getBuyer() != null ? request.getBuyer().getName() : "");
-        invoiceData.put("BuyerAddress", request.getBuyer() != null ? request.getBuyer().getAddress() : "");
-        invoiceData.put("BuyerBankAccount", request.getBuyer() != null ? request.getBuyer().getBankAccount() : "");
-        invoiceData.put("PayMethodID", 3);
-        invoiceData.put("ReceiveTypeID", 3);
-        invoiceData.put("ReceiverEmail", request.getBuyer() != null ? request.getBuyer().getEmail() : "");
-        invoiceData.put("ReceiverMobile", request.getBuyer() != null ? request.getBuyer().getPhone() : "");
-        invoiceData.put("Note", "");
-        invoiceData.put("BillCode", request.getClientRequestId() != null ? request.getClientRequestId() : "");
-        invoiceData.put("CurrencyID", (request.getSummary() != null && StringUtils.hasText(request.getSummary().getCurrencyCode())) ?
+        invoice.put("BuyerUnitName", request.getBuyer() != null ? request.getBuyer().getName() : "");
+        invoice.put("BuyerAddress", request.getBuyer() != null ? request.getBuyer().getAddress() : "");
+        invoice.put("PayMethodID", 3);
+        invoice.put("ReceiveTypeID", 3);
+        invoice.put("ReceiverEmail", request.getBuyer() != null ? request.getBuyer().getEmail() : "");
+        invoice.put("CurrencyID", (request.getSummary() != null && StringUtils.hasText(request.getSummary().getCurrencyCode())) ?
                 request.getSummary().getCurrencyCode() : "VND");
-        invoiceData.put("ExchangeRate", 1.0);
+        invoice.put("ExchangeRate", 1.0);
 
         if (request.getExtraConfig() != null) {
-            if (request.getExtraConfig().containsKey("InvoiceForm")) invoiceData.put("InvoiceForm", request.getExtraConfig().get("InvoiceForm"));
-            if (request.getExtraConfig().containsKey("InvoiceSerial")) invoiceData.put("InvoiceSerial", request.getExtraConfig().get("InvoiceSerial"));
+            Optional.ofNullable(request.getExtraConfig().get("InvoiceForm")).ifPresent(v -> invoice.put("InvoiceForm", v));
+            Optional.ofNullable(request.getExtraConfig().get("InvoiceSerial")).ifPresent(v -> invoice.put("InvoiceSerial", v));
         }
 
-        invoiceData.put("InvoiceNo", 0);
+        invoice.put("InvoiceNo", 0);
 
-        Map<String, Object> invoiceWrapper = new LinkedHashMap<>();
-        invoiceWrapper.put("Invoice", invoiceData);
-        invoiceWrapper.put("ListInvoiceDetailsWS", details);
-        invoiceWrapper.put("ListInvoiceAttachFileWS", Collections.emptyList());
-        invoiceWrapper.put("PartnerInvoiceID", request.getInvoiceMetadataId() != null ? request.getInvoiceMetadataId() : System.currentTimeMillis());
-        invoiceWrapper.put("PartnerInvoiceStringID", "");
+        Map<String, Object> wrapper = new LinkedHashMap<>();
+        wrapper.put("Invoice", invoice);
+        wrapper.put("ListInvoiceDetailsWS", details);
+        wrapper.put("ListInvoiceAttachFileWS", Collections.emptyList());
+        wrapper.put("PartnerInvoiceID", request.getInvoiceMetadataId() != null ? request.getInvoiceMetadataId() : System.currentTimeMillis());
 
         int cmdType = (request.getExtraConfig() != null && request.getExtraConfig().containsKey("CmdType")) ?
                 (Integer) request.getExtraConfig().get("CmdType") : 111;
 
         return BkavAdapter.BkavCommandPayload.builder()
                 .cmdType(cmdType)
-                .commandObject(Collections.singletonList(invoiceWrapper))
+                .commandObject(List.of(wrapper))
                 .build();
     }
 
@@ -88,29 +78,21 @@ public class BkavApiMapper {
         detail.put("TaxRateID", mapTaxRateToBkavId(item.getTaxRate()));
         detail.put("TaxRate", item.getTaxRate());
         detail.put("TaxAmount", item.getTaxAmount() != null ? item.getTaxAmount() : BigDecimal.ZERO);
-        detail.put("DiscountRate", 0.0);
-        detail.put("DiscountAmount", "");
-        detail.put("IsDiscount", false);
-        detail.put("UserDefineDetails", "");
         detail.put("ItemTypeID", 0);
         return detail;
     }
 
-    /**
-     * Khôi phục chính xác logic convertToInvoiceResponse của Huy
-     */
     public InvoiceResponse toHubResponse(BkavAdapter.BkavApiResponse response, String clientRequestId) {
         if (response == null) {
-            return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage("No response from BKAV").build();
+            return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage("No response from provider").build();
         }
 
         boolean isSuccess = response.isOk() && !response.isError();
         return InvoiceResponse.builder()
                 .clientRequestId(clientRequestId)
                 .status(isSuccess ? InvoiceResponse.ResponseStatus.SUCCESS : InvoiceResponse.ResponseStatus.FAILED)
-                // FIX: Chuyển int sang String để tránh lỗi Incompatible types
                 .errorCode(String.valueOf(response.getStatus()))
-                .errorMessage(isSuccess ? null : extractErrorMessage(response))
+                .errorMessage(isSuccess ? null : extractField(response, "MessLog"))
                 .transactionCode(extractField(response, "InvoiceGUID"))
                 .invoiceNumber(extractField(response, "InvoiceNo"))
                 .symbolCode(extractField(response, "InvoiceSerial"))
@@ -123,22 +105,21 @@ public class BkavApiMapper {
 
     public InvoiceStatus mapBkavStatus(BkavAdapter.BkavApiResponse response) {
         try {
-            if (response.getObject() != null) {
-                JsonNode node = objectMapper.readTree(objectMapper.writeValueAsString(response.getObject()));
-                if (node.isArray() && !node.isEmpty()) {
-                    int bkavStatus = node.get(0).path("BkavStatus").asInt();
-                    int taxStatus = node.get(0).path("TaxStatus").asInt();
+            JsonNode node = objectMapper.readTree(objectMapper.writeValueAsString(response.getObject()));
+            if (node.isArray() && !node.isEmpty()) {
+                int bkavStatus = node.get(0).path("BkavStatus").asInt();
+                int taxStatus = node.get(0).path("TaxStatus").asInt();
 
-                    switch (bkavStatus) {
-                        case 1: case 11: return InvoiceStatus.SIGNING;
-                        case 2: return (taxStatus == 33) ? InvoiceStatus.SUCCESS : InvoiceStatus.SENT_TO_PROVIDER;
-                        case 3: return InvoiceStatus.CANCELLED;
-                        case 6: return InvoiceStatus.REPLACED;
-                        case 8: return InvoiceStatus.SUCCESS;
-                    }
-                }
+                return switch (bkavStatus) {
+                    case 1, 11 -> InvoiceStatus.SIGNING;
+                    case 2 -> (taxStatus == 33) ? InvoiceStatus.SUCCESS : InvoiceStatus.SENT_TO_PROVIDER;
+                    case 3 -> InvoiceStatus.CANCELLED;
+                    case 6 -> InvoiceStatus.REPLACED;
+                    case 8 -> InvoiceStatus.SUCCESS;
+                    default -> InvoiceStatus.FAILED;
+                };
             }
-        } catch (Exception e) { log.error("BKAV status map error", e); }
+        } catch (Exception e) { log.error("BKAV status mapping failed"); }
         return InvoiceStatus.FAILED;
     }
 
@@ -146,32 +127,20 @@ public class BkavApiMapper {
         try {
             JsonNode node = objectMapper.readTree(objectMapper.writeValueAsString(response.getObject()));
             if (node.isArray() && !node.isEmpty()) return node.get(0).path(field).asText();
-        } catch (Exception e) { return null; }
+        } catch (Exception ignored) {}
         return null;
     }
 
-    private String extractErrorMessage(BkavAdapter.BkavApiResponse response) {
-        String msg = extractField(response, "MessLog");
-        return msg != null ? msg : String.valueOf(response.getStatus());
-    }
-
     private int getInvoiceTypeId(InvoiceRequest request) {
-        if (request.getExtraConfig() != null && request.getExtraConfig().containsKey("InvoiceTypeID"))
-            return (Integer) request.getExtraConfig().get("InvoiceTypeID");
-        return 1;
+        return (request.getExtraConfig() != null && request.getExtraConfig().get("InvoiceTypeID") instanceof Integer id) ? id : 1;
     }
 
     private int mapTaxRateToBkavId(BigDecimal taxRate) {
         if (taxRate == null) return 1;
         double rate = taxRate.doubleValue();
-        if (rate == 0) return 1;
         if (rate == 5) return 2;
         if (rate == 10) return 3;
         if (rate == -1) return 4;
-        return 3;
-    }
-
-    private String formatDateTime(LocalDateTime dateTime) {
-        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+        return 1;
     }
 }

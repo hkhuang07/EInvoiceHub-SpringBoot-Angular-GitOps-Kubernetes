@@ -28,10 +28,10 @@ public class ViettelAdapter implements InvoiceProvider {
     @Value("${provider.viettel.timeout-ms:30000}")
     private int timeoutMs;
 
-    @Value("${provider.viettel.base-url:https://ebill.vietteltelecom.vn/api/v1}")
-    private String baseUrl;
-
-    public ViettelAdapter(WebClient.Builder webClientBuilder, ViettelApiMapper apiMapper, ObjectMapper objectMapper) {
+    public ViettelAdapter(WebClient.Builder webClientBuilder,
+                          ViettelApiMapper apiMapper,
+                          ObjectMapper objectMapper,
+                          @Value("${provider.viettel.base-url:https://ebill.vietteltelecom.vn/api/v1}") String baseUrl) {
         this.webClient = webClientBuilder
                 .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -43,23 +43,26 @@ public class ViettelAdapter implements InvoiceProvider {
 
     @Override public String getProviderCode() { return "VIETTEL"; }
     @Override public String getProviderName() { return "Viettel Business Invoice"; }
+    @Override public boolean isAvailable() { return true; }
 
     @Override
     public InvoiceResponse issueInvoice(InvoiceRequest request, ProviderConfig config) {
-        log.info("Viettel: Issuing invoice for request ID: {}", request.getClientRequestId());
+        log.info("Viettel: Issuing invoice for ClientRequestID: {}", request.getClientRequestId());
         try {
             ViettelInvoicePayload payload = apiMapper.toViettelPayload(request);
             ViettelApiResponse response = webClient.post().uri("/invoices/create")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAccessToken())
                     .bodyValue(payload)
-                    .retrieve().bodyToMono(ViettelApiResponse.class)
-                    .timeout(Duration.ofMillis(timeoutMs)).block();
+                    .retrieve()
+                    .bodyToMono(ViettelApiResponse.class)
+                    .timeout(Duration.ofMillis(timeoutMs))
+                    .block();
 
             return apiMapper.toHubResponse(response, request.getClientRequestId());
         } catch (WebClientResponseException e) {
-            ViettelApiResponse errorResponse = parseErrorResponse(e.getResponseBodyAsString());
-            return apiMapper.toHubResponse(errorResponse, request.getClientRequestId());
+            return apiMapper.toHubResponse(parseError(e.getResponseBodyAsString()), request.getClientRequestId());
         } catch (Exception e) {
+            log.error("Viettel: Issuance failed: {}", e.getMessage());
             return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage(e.getMessage()).build();
         }
     }
@@ -68,21 +71,25 @@ public class ViettelAdapter implements InvoiceProvider {
     public InvoiceStatus getInvoiceStatus(String invoiceNumber, ProviderConfig config) {
         try {
             ViettelApiResponse response = webClient.get()
-                    .uri(uriBuilder -> uriBuilder.path("/invoices/{invoiceNumber}").queryParam("includeDetails", false).build(invoiceNumber))
+                    .uri(uri -> uri.path("/invoices/{id}").queryParam("includeDetails", false).build(invoiceNumber))
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAccessToken())
-                    .retrieve().bodyToMono(ViettelApiResponse.class).block();
+                    .retrieve()
+                    .bodyToMono(ViettelApiResponse.class)
+                    .block();
             return apiMapper.mapViettelStatus(response);
-        } catch (Exception e) { return InvoiceStatus.FAILED; }
+        } catch (Exception e) {
+            log.error("Viettel: Status check failed for {}: {}", invoiceNumber, e.getMessage());
+            return InvoiceStatus.FAILED;
+        }
     }
 
     @Override
     public InvoiceResponse cancelInvoice(String invoiceNumber, String reason, ProviderConfig config) {
-        log.info("Viettel: Cancelling invoice: {}", invoiceNumber);
         try {
-            ViettelCancelRequest request = ViettelCancelRequest.builder().invoiceCode(invoiceNumber).note(reason).build();
+            ViettelCancelRequest body = ViettelCancelRequest.builder().invoiceCode(invoiceNumber).note(reason).build();
             ViettelApiResponse response = webClient.post().uri("/invoices/cancel")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAccessToken())
-                    .bodyValue(request)
+                    .bodyValue(body)
                     .retrieve().bodyToMono(ViettelApiResponse.class).block();
             return apiMapper.toHubResponse(response, null);
         } catch (Exception e) {
@@ -91,19 +98,18 @@ public class ViettelAdapter implements InvoiceProvider {
     }
 
     @Override
-    public InvoiceResponse replaceInvoice(String oldInvoiceNumber, InvoiceRequest newRequest, ProviderConfig config) {
-        log.info("Viettel: Replacing invoice: {}", oldInvoiceNumber);
+    public InvoiceResponse replaceInvoice(String oldNo, InvoiceRequest newReq, ProviderConfig config) {
         try {
-            ViettelReplaceRequest request = ViettelReplaceRequest.builder()
-                    .oldInvoiceCode(oldInvoiceNumber)
-                    .newInvoice(apiMapper.toViettelPayload(newRequest))
-                    .reason("Thay thế hóa đơn")
+            ViettelReplaceRequest body = ViettelReplaceRequest.builder()
+                    .oldInvoiceCode(oldNo)
+                    .newInvoice(apiMapper.toViettelPayload(newReq))
+                    .reason("Invoice replacement")
                     .build();
             ViettelApiResponse response = webClient.post().uri("/invoices/replace")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAccessToken())
-                    .bodyValue(request)
+                    .bodyValue(body)
                     .retrieve().bodyToMono(ViettelApiResponse.class).block();
-            return apiMapper.toHubResponse(response, newRequest.getClientRequestId());
+            return apiMapper.toHubResponse(response, newReq.getClientRequestId());
         } catch (Exception e) {
             return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage(e.getMessage()).build();
         }
@@ -112,32 +118,22 @@ public class ViettelAdapter implements InvoiceProvider {
     @Override
     public String getInvoicePdf(String invoiceNumber, ProviderConfig config) {
         try {
-            ViettelPdfResponse response = webClient.get().uri("/invoices/{invoiceNumber}/pdf", invoiceNumber)
+            ViettelPdfResponse res = webClient.get().uri("/invoices/{id}/pdf", invoiceNumber)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAccessToken())
                     .retrieve().bodyToMono(ViettelPdfResponse.class).block();
-            return response != null ? response.getDownloadUrl() : null;
+            return res != null ? res.getDownloadUrl() : null;
         } catch (Exception e) { return null; }
     }
 
-    /**
-     * KHẮC PHỤC LỖI: Triển khai phương thức lấy XML cho Viettel
-     */
     @Override
     public String getInvoiceXml(String invoiceNumber, ProviderConfig config) {
-        log.info("Viettel: Fetching XML for invoice: {}", invoiceNumber);
         try {
-            // Viettel cung cấp dữ liệu XML qua endpoint tương tự PDF nhưng định dạng khác
-            ViettelXmlResponse response = webClient.get()
-                    .uri("/invoices/{invoiceNumber}/xml", invoiceNumber)
+            ViettelXmlResponse res = webClient.get().uri("/invoices/{id}/xml", invoiceNumber)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + config.getAccessToken())
-                    .retrieve()
-                    .bodyToMono(ViettelXmlResponse.class)
-                    .timeout(Duration.ofMillis(timeoutMs))
-                    .block();
-
-            return (response != null) ? response.getXmlData() : null;
+                    .retrieve().bodyToMono(ViettelXmlResponse.class).block();
+            return res != null ? res.getXmlData() : null;
         } catch (Exception e) {
-            log.error("Viettel: Error fetching XML for invoice {}", invoiceNumber, e);
+            log.error("Viettel: XML retrieval failed: {}", e.getMessage());
             return null;
         }
     }
@@ -145,28 +141,26 @@ public class ViettelAdapter implements InvoiceProvider {
     @Override
     public String authenticate(ProviderConfig config) {
         try {
-            ViettelAuthRequest authReq = ViettelAuthRequest.builder().username(config.getUsername()).password(config.getPassword()).grantType("password").build();
-            Map response = webClient.post().uri("/auth/token").bodyValue(authReq).retrieve().bodyToMono(Map.class).block();
-            return (response != null) ? (String) response.get("access_token") : null;
+            ViettelAuthRequest auth = ViettelAuthRequest.builder()
+                    .username(config.getUsername()).password(config.getPassword()).grantType("password").build();
+            Map<?, ?> res = webClient.post().uri("/auth/token").bodyValue(auth).retrieve().bodyToMono(Map.class).block();
+            return res != null ? (String) res.get("access_token") : null;
         } catch (Exception e) { return null; }
     }
 
-    @Override public boolean isAvailable() { return true; }
     @Override public boolean testConnection(ProviderConfig config) { return authenticate(config) != null; }
 
-    private ViettelApiResponse parseErrorResponse(String body) {
+    private ViettelApiResponse parseError(String body) {
         try { return objectMapper.readValue(body, ViettelApiResponse.class); } catch (Exception e) { return null; }
     }
 
-    // --- Inner Classes ---
-
+    /* Inner Data Models */
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class ViettelInvoicePayload {
         private String invoiceType, templateCode, issueDate;
         private ViettelParty seller, buyer;
         private List<ViettelInvoiceItem> items;
         private ViettelPayment payment;
-        private Map<String, Object> metadata;
     }
 
     @lombok.Data @lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor
@@ -201,7 +195,6 @@ public class ViettelAdapter implements InvoiceProvider {
     @lombok.Data @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class ViettelPdfResponse { private String downloadUrl; }
 
-    /** Bổ sung class cho phản hồi XML */
     @lombok.Data @lombok.NoArgsConstructor @lombok.AllArgsConstructor
     public static class ViettelXmlResponse { private String xmlData; }
 }

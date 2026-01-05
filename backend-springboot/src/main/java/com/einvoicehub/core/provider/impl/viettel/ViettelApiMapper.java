@@ -11,20 +11,16 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class ViettelApiMapper {
 
-    /**
-     * Khôi phục 100% logic buildViettelPayload từ file gốc của Huy
-     */
     public ViettelAdapter.ViettelInvoicePayload toViettelPayload(InvoiceRequest request) {
         List<ViettelAdapter.ViettelInvoiceItem> items = request.getItems().stream()
                 .map(this::convertToViettelItem)
-                .collect(Collectors.toList());
+                .toList();
 
         return ViettelAdapter.ViettelInvoicePayload.builder()
                 .invoiceType(getInvoiceTypeCode(request))
@@ -51,7 +47,7 @@ public class ViettelApiMapper {
                         .build())
                 .items(items)
                 .payment(ViettelAdapter.ViettelPayment.builder()
-                        .method(request.getPaymentTerm() != null ? request.getPaymentTerm().getMethod() : "TM/CC")
+                        .method(request.getPaymentTerm() != null ? request.getPaymentTerm().getMethod() : "TM/CK")
                         .totalAmount(request.getSummary().getTotalAmount())
                         .currency(request.getSummary().getCurrencyCode())
                         .build())
@@ -67,7 +63,6 @@ public class ViettelApiMapper {
                 .amount(item.getAmount())
                 .discountAmount(item.getDiscountAmount() != null ? item.getDiscountAmount() : BigDecimal.ZERO)
                 .vatRate(item.getTaxRate())
-                // FIX: Sử dụng taxAmount đã được Huy thêm vào DTO InvoiceRequest
                 .vatAmount(item.getTaxAmount() != null ? item.getTaxAmount() : BigDecimal.ZERO)
                 .description(item.getDescription())
                 .build();
@@ -75,35 +70,24 @@ public class ViettelApiMapper {
 
     private String getInvoiceTypeCode(InvoiceRequest request) {
         if (request.getInvoiceType() != null) return request.getInvoiceType();
-        if (request.getExtraConfig() != null && request.getExtraConfig().containsKey("invoiceType")) {
-            return (String) request.getExtraConfig().get("invoiceType");
-        }
-        return "01";
+        return (request.getExtraConfig() != null && request.getExtraConfig().containsKey("invoiceType")) ?
+                (String) request.getExtraConfig().get("invoiceType") : "01";
     }
 
     private String getTemplateCode(InvoiceRequest request) {
-        if (request.getExtraConfig() != null && request.getExtraConfig().containsKey("templateCode")) {
-            return (String) request.getExtraConfig().get("templateCode");
-        }
-        return "01GTKT0/001";
+        return (request.getExtraConfig() != null && request.getExtraConfig().containsKey("templateCode")) ?
+                (String) request.getExtraConfig().get("templateCode") : "01GTKT0/001";
     }
 
-    /**
-     * Khôi phục 100% logic convertToInvoiceResponse của Huy
-     */
     public InvoiceResponse toHubResponse(ViettelAdapter.ViettelApiResponse res, String requestId) {
         if (res == null) {
-            return InvoiceResponse.builder()
-                    .status(InvoiceResponse.ResponseStatus.FAILED)
-                    .errorMessage("No response from Viettel")
-                    .responseTime(LocalDateTime.now())
-                    .build();
+            return InvoiceResponse.builder().status(InvoiceResponse.ResponseStatus.FAILED).errorMessage("Provider timeout").build();
         }
 
-        boolean isSuccess = "200".equals(res.getCode());
+        boolean success = "200".equals(res.getCode());
         return InvoiceResponse.builder()
                 .clientRequestId(requestId)
-                .status(isSuccess ? InvoiceResponse.ResponseStatus.SUCCESS : InvoiceResponse.ResponseStatus.FAILED)
+                .status(success ? InvoiceResponse.ResponseStatus.SUCCESS : InvoiceResponse.ResponseStatus.FAILED)
                 .errorCode(res.getCode())
                 .errorMessage(res.getMessage())
                 .transactionCode(res.getTransactionId())
@@ -117,12 +101,10 @@ public class ViettelApiMapper {
     }
 
     public InvoiceStatus mapViettelStatus(ViettelAdapter.ViettelApiResponse response) {
-        String viettelStatus = (response != null && response.getData() != null)
-                ? response.getData().getStatus() : null;
+        String status = (response != null && response.getData() != null) ? response.getData().getStatus() : null;
+        if (status == null) return InvoiceStatus.FAILED;
 
-        if (viettelStatus == null) return InvoiceStatus.FAILED;
-
-        return switch (viettelStatus.toUpperCase()) {
+        return switch (status.toUpperCase()) {
             case "DA_PHAT_HANH", "SIGNED" -> InvoiceStatus.SUCCESS;
             case "DA_HUY" -> InvoiceStatus.CANCELLED;
             default -> InvoiceStatus.FAILED;

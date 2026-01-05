@@ -25,11 +25,15 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/actuator/**", "/api/v3/api-docs/**", "/api/swagger-ui/**", "/api/health/**").permitAll()
+                        .requestMatchers(
+                                "/api/actuator/**",
+                                "/api/v3/api-docs/**",
+                                "/api/swagger-ui/**",
+                                "/api/health/**"
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 }

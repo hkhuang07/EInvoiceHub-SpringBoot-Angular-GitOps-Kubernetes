@@ -8,9 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
-/**
- * Custom Authentication Token cho API Key authentication
- */
 @Getter
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
@@ -42,17 +39,5 @@ public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
     public Long getMerchantId() {
         return merchant != null ? merchant.getId() : null;
-    }
-
-    public String getMerchantTaxCode() {
-        return merchant != null ? merchant.getTaxCode() : null;
-    }
-
-    public boolean hasScope(String scope) {
-        return credential != null && credential.hasScope(scope);
-    }
-
-    public boolean isActive() {
-        return credential != null && credential.isValid();
     }
 }

@@ -1,6 +1,7 @@
 package com.einvoicehub.core.entity.mongodb;
 
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -15,6 +16,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@CompoundIndex(name = "merchant_timestamp_idx", def = "{'merchantId': 1, 'timestamp': -1}")
 @CompoundIndex(name = "invoice_timestamp_idx", def = "{'invoiceMetadataId': 1, 'timestamp': -1}")
 public class ProviderTransaction {
 
@@ -29,6 +31,7 @@ public class ProviderTransaction {
     @Field("merchantId")
     private Long merchantId;
 
+    @Indexed
     @Field("providerCode")
     private String providerCode;
 
@@ -54,6 +57,7 @@ public class ProviderTransaction {
     @Field("errorDetails")
     private Map<String, Object> errorDetails;
 
+    @CreatedDate
     @Field("timestamp")
     @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();
@@ -75,10 +79,7 @@ public class ProviderTransaction {
         TIMEOUT
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class TransactionRequest {
         private String url;
         private String httpMethod;
@@ -87,10 +88,7 @@ public class ProviderTransaction {
         private String rawPayload;
     }
 
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
+    @Data @Builder @NoArgsConstructor @AllArgsConstructor
     public static class TransactionResponse {
         private Integer httpStatusCode;
         private String httpStatusMessage;

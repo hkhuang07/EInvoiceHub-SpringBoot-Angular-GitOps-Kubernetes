@@ -10,71 +10,55 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-/**
- * Provider để tạo và validate JWT tokens
- */
 @Slf4j
 @Component
 public class JwtTokenProvider {
 
-    @Value("${app.jwt.secret:YourJWTSecretKeyMustBeAtLeast256BitsLong!}")
-    private String jwtSecret;
+    private final SecretKey signingKey;
+    private final long expirationMs;
 
-    @Value("${app.jwt.expiration-ms:86400000}")
-    private long jwtExpirationMs;
-
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(keyBytes);
+    public JwtTokenProvider(@Value("${app.jwt.secret}") String secret,
+                            @Value("${app.jwt.expiration-ms:86400000}") long expirationMs) {
+        this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expirationMs = expirationMs;
     }
 
-    /**
-     * Tạo JWT token
-     */
     public String generateToken(String username, String role) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+        Date expiryDate = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                 .subject(username)
                 .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(getSigningKey())
+                .signWith(signingKey)
                 .compact();
     }
 
-    /**
-     * Lấy username từ token
-     */
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey())
+        return Jwts.parser()
+                .verifyWith(signingKey)
                 .build()
                 .parseSignedClaims(token)
-                .getPayload();
-
-        return claims.getSubject();
+                .getPayload()
+                .getSubject();
     }
 
-    /**
-     * Validate token
-     */
     public boolean validateToken(String token) {
         try {
-            Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token);
+            Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token);
             return true;
         } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token: {}", e.getMessage());
+            log.error("Invalid JWT token structure");
         } catch (ExpiredJwtException e) {
-            log.error("JWT token is expired: {}", e.getMessage());
+            log.error("JWT token has expired");
         } catch (UnsupportedJwtException e) {
-            log.error("JWT token is unsupported: {}", e.getMessage());
+            log.error("JWT token type is unsupported");
         } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty: {}", e.getMessage());
+            log.error("JWT claims string is empty");
+        } catch (JwtException e) {
+            log.error("JWT validation error: {}", e.getMessage());
         }
         return false;
     }
