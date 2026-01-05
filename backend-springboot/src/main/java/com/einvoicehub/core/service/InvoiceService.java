@@ -153,3 +153,150 @@ public class InvoiceService {
         return provider;
     }
 }
+
+
+/*
+
+File mơới đucợ minimax viếtpackage com.einvoicehub.core.service;
+
+import com.einvoicehub.core.adapter.InvoiceProvider;
+import com.einvoicehub.core.common.exception.AppException;
+import com.einvoicehub.core.common.exception.ErrorCode;
+import com.einvoicehub.core.dto.InvoiceRequest;
+import com.einvoicehub.core.dto.InvoiceResponse;
+import com.einvoicehub.core.entity.InvoiceMetadata;
+import com.einvoicehub.core.entity.Merchant;
+import com.einvoicehub.core.repository.InvoiceMetadataRepository;
+import com.einvoicehub.core.repository.MerchantRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+/**
+ * Service điều phối quy trình tạo hóa đơn điện tử.
+ * Ví dụ minh họa cách sử dụng hệ thống exception management.
+ */
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class InvoiceService {
+
+    private final MerchantRepository merchantRepository;
+    private final InvoiceMetadataRepository invoiceMetadataRepository;
+    private final InvoicePayloadService invoicePayloadService;
+    private final Map<String, InvoiceProvider> invoiceProviderMap;
+
+    /**
+     * Ví dụ 1: Sử dụng AppException với ErrorCode đơn giản.
+     * Phù hợp cho các trường hợp lỗi đã được định nghĩa sẵn.
+     */
+    public Merchant validateMerchant(String merchantCode) {
+        return merchantRepository.findByCode(merchantCode)
+                .orElseThrow(() -> new AppException(ErrorCode.MERCHANT_NOT_FOUND));
+    }
+
+    /**
+     * Ví dụ 2: Sử dụng AppException với message tùy chỉnh.
+     * Phù hợp khi cần thông báo chi tiết hơn.
+     */
+    public void checkQuota(Merchant merchant) {
+        if (merchant.getCurrentInvoiceCount() >= merchant.getInvoiceQuota()) {
+            throw new AppException(
+                    ErrorCode.INSUFFICIENT_QUOTA,
+                    String.format("Merchant %s đã sử dụng %d/%d hóa đơn. " +
+                                    "Vui lòng nâng cấp gói để tiếp tục.",
+                            merchant.getCode(),
+                            merchant.getCurrentInvoiceCount(),
+                            merchant.getInvoiceQuota())
+            );
+        }
+    }
+
+    /**
+     * Ví dụ 3: Sử dụng AppException với cause exception.
+     * Phù hợp khi cần chain exception để debug.
+     */
+    public InvoiceProvider getProvider(String providerCode) {
+        String normalizedCode = providerCode.toUpperCase();
+        InvoiceProvider provider = invoiceProviderMap.get(normalizedCode);
+
+        if (provider == null) {
+            throw new AppException(
+                    ErrorCode.PROVIDER_ERROR,
+                    "Provider không được hỗ trợ: " + providerCode,
+                    new IllegalArgumentException("Unknown provider: " + providerCode)
+            );
+        }
+        return provider;
+    }
+
+    /**
+     * Ví dụ 4: Workflow hoàn chỉnh với exception handling.
+     * Demo cách sử dụng tất cả các pattern trong một method.
+     */
+    @Transactional
+    public InvoiceResponse createInvoice(InvoiceRequest request) {
+        String transactionId = UUID.randomUUID().toString();
+        log.info("Bắt đầu tạo hóa đơn với transactionId: {}", transactionId);
+
+        // Bước 1: Validate merchant
+        Merchant merchant = validateMerchant(request.getMerchantId());
+
+        // Bước 2: Check quota
+        checkQuota(merchant);
+
+        // Bước 3: Lấy provider
+        InvoiceProvider provider = getProvider(request.getProviderCode());
+
+        // Bước 4: Create InvoiceMetadata với trạng thái PENDING
+        InvoiceMetadata metadata = InvoiceMetadata.builder()
+                .transactionId(transactionId)
+                .merchantCode(request.getMerchantId())
+                .providerCode(request.getProviderCode())
+                .status("PENDING")
+                .build();
+        invoiceMetadataRepository.save(metadata);
+
+        try {
+            // Bước 5: Gọi provider
+            InvoiceResponse response = provider.createInvoice(request);
+
+            // Bước 6: Update thành công
+            metadata.setStatus("SUCCESS");
+            metadata.setProviderInvoiceId(response.getInvoiceId());
+            invoiceMetadataRepository.save(metadata);
+
+            // Bước 7: Increment usage
+            merchant.setCurrentInvoiceCount(merchant.getCurrentInvoiceCount() + 1);
+            merchantRepository.save(merchant);
+
+            log.info("Tạo hóa đơn thành công: transactionId={}, invoiceId={}",
+                    transactionId, response.getInvoiceId());
+
+            return response;
+
+        } catch (Exception e) {
+            // Log exception với context
+            log.error("Lỗi khi tạo hóa đơn cho transactionId {}: {}",
+                    transactionId, e.getMessage(), e);
+
+            // Update thất bại
+            metadata.setStatus("FAILED");
+            metadata.setErrorMessage(e.getMessage());
+            invoiceMetadataRepository.save(metadata);
+
+            // Wrap và rethrow để GlobalExceptionHandler xử lý
+            throw new AppException(
+                    ErrorCode.PROVIDER_ERROR,
+                    "Lỗi khi tạo hóa đơn: " + e.getMessage(),
+                    e
+            );
+        }
+    }
+}
+ */

@@ -83,3 +83,97 @@ public class InvoiceItemRequest {
         }
     }
 }
+
+
+/*
+File mới được minimax viết package com.einvoicehub.core.dto.request;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/**
+ * DTO cho từng sản phẩm/dịch vụ trong hóa đơn.
+ */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class InvoiceItemRequest {
+
+    /**
+     * Tên sản phẩm/dịch vụ - bắt buộc.
+     */
+    @NotBlank(message = "VALIDATION_ERROR")
+    @Size(max = 500, message = "VALIDATION_ERROR")
+    private String itemName;
+
+    /**
+     * Mã sản phẩm - tùy chọn.
+     */
+    @Size(max = 100, message = "VALIDATION_ERROR")
+    private String itemCode;
+
+    /**
+     * Đơn vị tính - bắt buộc.
+     */
+    @NotBlank(message = "VALIDATION_ERROR")
+    @Size(max = 50, message = "VALIDATION_ERROR")
+    private String unit;
+
+    /**
+     * Số lượng - bắt buộc, > 0.
+     */
+    @NotNull(message = "VALIDATION_ERROR")
+    @DecimalMin(value = "0.01", inclusive = true, message = "VALIDATION_ERROR")
+    private BigDecimal quantity;
+
+    /**
+     * Đơn giá - bắt buộc, >= 0.
+     */
+    @NotNull(message = "VALIDATION_ERROR")
+    @DecimalMin(value = "0.0", inclusive = true, message = "VALIDATION_ERROR")
+    private BigDecimal unitPrice;
+
+    /**
+     * Tổng tiền = quantity * unitPrice - bắt buộc, >= 0.
+     */
+    @NotNull(message = "VALIDATION_ERROR")
+    @DecimalMin(value = "0.0", inclusive = true, message = "VALIDATION_ERROR")
+    private BigDecimal amount;
+
+    /**
+     * Tỷ lệ thuế GTGT (0%, 5%, 10%) - bắt buộc.
+     */
+    @NotNull(message = "VALIDATION_ERROR")
+    @DecimalMin(value = "0.0", inclusive = true)
+    @DecimalMax(value = "10.0", inclusive = true)
+    @Pattern(regexp = "^(0|5|10)$|^0\\.0$|^5\\.0$|^10\\.0$",
+            message = "VALIDATION_ERROR")
+    private BigDecimal vatRate;
+
+    /**
+     * Tiền thuế GTGT = amount * vatRate - bắt buộc, >= 0.
+     */
+    @NotNull(message = "VALIDATION_ERROR")
+    @DecimalMin(value = "0.0", inclusive = true, message = "VALIDATION_ERROR")
+    private BigDecimal vatAmount;
+
+    /**
+     * Tổng tiền bao gồm thuế = amount + vatAmount - bắt buộc, >= 0.
+     */
+    @NotNull(message = "VALIDATION_ERROR")
+    @DecimalMin(value = "0.0", inclusive = true, message = "VALIDATION_ERROR")
+    private BigDecimal totalAmountWithVat;
+
+    /**
+     * Mã hàng hóa theo quy định - tùy chọn.
+     */
+    @Size(max = 50, message = "VALIDATION_ERROR")
+    private String taxCategoryCode;
+}
+
+ */
