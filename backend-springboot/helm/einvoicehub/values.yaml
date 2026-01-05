@@ -9,9 +9,7 @@ global:
   storageClass: standard
   timezone: Asia/Ho_Chi_Minh
 
-# =============================================================================
 # EInvoiceHub Application Configuration
-# =============================================================================
 replicaCount: 2
 
 image:
@@ -135,9 +133,7 @@ startupProbe:
   failureThreshold: 30
   successThreshold: 1
 
-# =============================================================================
 # Application Environment Variables
-# =============================================================================
 env:
   # Application Settings
   APP_NAME: einvoicehub
@@ -161,9 +157,8 @@ envFrom:
   - secretRef:
       name: einvoicehub-provider-secrets
 
-# =============================================================================
+
 # Database Configuration
-# =============================================================================
 mysql:
   enabled: true
   architecture: standalone
@@ -231,9 +226,7 @@ redis:
         cpu: 250m
         memory: 256Mi
 
-# =============================================================================
 # Monitoring Configuration
-# =============================================================================
 prometheus:
   enabled: true
   prometheus:
@@ -311,9 +304,7 @@ jaeger:
   storage:
     type: memory
 
-# =============================================================================
 # Init Containers Configuration
-# =============================================================================
 initContainers:
   waitForMysql:
     enabled: true
@@ -348,9 +339,7 @@ initContainers:
         cpu: 50m
         memory: 32Mi
 
-# =============================================================================
 # Volume Configuration
-# =============================================================================
 volumes:
   logs:
     enabled: true
@@ -360,9 +349,7 @@ volumes:
     type: configmap
     name: einvoicehub-config
 
-# =============================================================================
 # Topology Spread Configuration
-# =============================================================================
 topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: kubernetes.io/hostname
@@ -371,16 +358,12 @@ topologySpreadConstraints:
       matchLabels:
         app: einvoicehub
 
-# =============================================================================
 # Pod Disruption Budget
-# =============================================================================
 podDisruptionBudget:
   enabled: true
   minAvailable: 1
 
-# =============================================================================
 # Network Policy
-# =============================================================================
 networkPolicy:
   enabled: true
   ingressRules:
@@ -399,14 +382,12 @@ networkPolicy:
         - port: 53
           protocol: UDP
 
-# =============================================================================
+
 # Rollout Strategy
-# =============================================================================
 rollingUpdate:
   maxSurge: 1
   maxUnavailable: 0
 
-# =============================================================================
+
 # Termination Grace Period
-# =============================================================================
 terminationGracePeriodSeconds: 30

@@ -1,11 +1,4 @@
-# =============================================================================
-# Docker Compose configuration for EInvoiceHub local development environment
-# =============================================================================
-
 services:
-  # =============================================================================
-  # MySQL Database - Primary relational database for metadata storage
-  # =============================================================================
   mysql:
     image: mysql:8.0
     container_name: einvoice-mysql
@@ -36,9 +29,7 @@ services:
         reservations:
           memory: 256M
 
-  # =============================================================================
   # MongoDB - Document database for payload and transaction logs
-  # =============================================================================
   mongodb:
     image: mongo:7.0
     container_name: einvoice-mongodb
@@ -68,9 +59,7 @@ services:
         reservations:
           memory: 256M
 
-  # =============================================================================
   # Redis - Cache and session management
-  # =============================================================================
   redis:
     image: redis:7-alpine
     container_name: einvoice-redis
@@ -95,9 +84,7 @@ services:
         reservations:
           memory: 64M
 
-  # =============================================================================
   # Elasticsearch - For audit logs and search functionality
-  # =============================================================================
   elasticsearch:
     image: elasticsearch:8.11.0
     container_name: einvoice-elasticsearch
@@ -125,9 +112,7 @@ services:
         reservations:
           memory: 512M
 
-  # =============================================================================
   # Kibana - Visualization for Elasticsearch
-  # =============================================================================
   kibana:
     image: kibana:8.11.0
     container_name: einvoice-kibana
@@ -153,9 +138,7 @@ services:
         reservations:
           memory: 256M
 
-  # =============================================================================
   # Prometheus - Metrics collection
-  # =============================================================================
   prometheus:
     image: prom/prometheus:v2.48.0
     container_name: einvoice-prometheus
@@ -185,9 +168,7 @@ services:
         reservations:
           memory: 256M
 
-  # =============================================================================
   # Grafana - Metrics visualization
-  # =============================================================================
   grafana:
     image: grafana/grafana:10.2.0
     container_name: einvoice-grafana
@@ -221,7 +202,6 @@ services:
 
   # =============================================================================
   # Jaeger - Distributed tracing
-  # =============================================================================
   jaeger:
     image: jaegertracing/all-in-one:1.52
     container_name: einvoice-jaeger

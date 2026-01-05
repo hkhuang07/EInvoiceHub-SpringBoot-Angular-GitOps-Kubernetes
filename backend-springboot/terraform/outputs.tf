@@ -1,9 +1,4 @@
 # EInvoiceHub Terraform Outputs
-
-# =============================================================================
-# Namespace Outputs
-# =============================================================================
-
 output "namespace_name" {
   description = "Kubernetes namespace name"
   value       = kubernetes_namespace.einvoice_namespace.metadata[0].name
@@ -14,10 +9,7 @@ output "namespace_creation_timestamp" {
   value       = kubernetes_namespace.einvoice_namespace.metadata[0].creation_timestamp
 }
 
-# =============================================================================
 # Application Configuration Outputs
-# =============================================================================
-
 output "app_name" {
   description = "Application name"
   value       = var.app_name
@@ -38,10 +30,7 @@ output "server_port" {
   value       = var.server_port
 }
 
-# =============================================================================
 # Resource Outputs
-# =============================================================================
-
 output "replica_count" {
   description = "Number of pod replicas configured"
   value       = var.replicas
@@ -57,9 +46,7 @@ output "memory_limit" {
   value       = var.limit_range.memory_limit
 }
 
-# =============================================================================
 # Database Configuration Outputs
-# =============================================================================
 
 output "mysql_host" {
   description = "MySQL hostname"
@@ -92,10 +79,7 @@ output "redis_port" {
   value       = var.redis_port
 }
 
-# =============================================================================
 # Secret Names (not values)
-# =============================================================================
-
 output "database_secret_name" {
   description = "Kubernetes secret name for database credentials"
   value       = kubernetes_secret.database_secrets.metadata[0].name
@@ -116,28 +100,19 @@ output "configmap_name" {
   value       = kubernetes_config_map.app_config.metadata[0].name
 }
 
-# =============================================================================
 # Network Policy Outputs
-# =============================================================================
-
 output "network_policy_name" {
   description = "Kubernetes NetworkPolicy name"
   value       = kubernetes_network_policy.einvoice_network_policy.metadata[0].name
 }
 
-# =============================================================================
 # Resource Quota Outputs
-# =============================================================================
-
 output "resource_quota_name" {
   description = "ResourceQuota name"
   value       = kubernetes_resource_quota.namespace_quota.metadata[0].name
 }
 
-# =============================================================================
 # Connection Information
-# =============================================================================
-
 output "application_url" {
   description = "Application URL (if ingress is enabled)"
   value       = var.ingress_enabled ? "http://${var.ingress_host}" : "http://localhost:${var.server_port}"
@@ -153,10 +128,7 @@ output "metrics_endpoint" {
   value       = var.ingress_enabled ? "http://${var.ingress_host}/actuator/prometheus" : "http://localhost:${var.server_port}/actuator/prometheus"
 }
 
-# =============================================================================
 # Monitoring Endpoints (if enabled)
-# =============================================================================
-
 output "grafana_url" {
   description = "Grafana dashboard URL"
   value       = var.monitoring_enabled ? "http://${var.ingress_host}:3000" : "Grafana not enabled"
@@ -172,10 +144,7 @@ output "jaeger_url" {
   value       = var.tracing_enabled ? "http://${var.ingress_host}:16686" : "Jaeger not enabled"
 }
 
-# =============================================================================
 # Kubernetes Context Information
-# =============================================================================
-
 output "kubernetes_context" {
   description = "Kubernetes context used"
   value       = var.kubernetes_context
@@ -186,10 +155,7 @@ output "kubectl_command" {
   value       = "kubectl port-forward -n ${kubernetes_namespace.einvoice_namespace.metadata[0].name} svc/${var.app_name} ${var.server_port}:${var.server_port}"
 }
 
-# =============================================================================
 # Image Information
-# =============================================================================
-
 output "image_repository" {
   description = "Container image repository"
   value       = var.image_repository
@@ -205,10 +171,7 @@ output "full_image_name" {
   value       = "${var.image_repository}:${var.image_tag}"
 }
 
-# =============================================================================
 # Autoscaling Information
-# =============================================================================
-
 output "hpa_min_replicas" {
   description = "HPA minimum replicas"
   value       = var.autoscaling.min_replicas
@@ -229,9 +192,7 @@ output "hpa_memory_target" {
   value       = var.autoscaling.memory_target
 }
 
-# =============================================================================
 # Security Information
-# =============================================================================
 
 output "encryption_enabled" {
   description = "Whether encryption is enabled"
@@ -248,18 +209,14 @@ output "ingress_enabled" {
   value       = var.ingress_enabled
 }
 
-# =============================================================================
 # Provider Information
-# =============================================================================
 
 output "providers_configured" {
   description = "List of invoice providers configured"
   value       = ["viettel", "bkav", "misa", "vnpt"]
 }
 
-# =============================================================================
 # Summary Message
-# =============================================================================
 
 output "deployment_summary" {
   description = "Summary of deployment configuration"

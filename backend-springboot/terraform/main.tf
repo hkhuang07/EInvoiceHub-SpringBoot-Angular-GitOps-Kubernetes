@@ -31,9 +31,7 @@ terraform {
   }
 }
 
-# =============================================================================
 # Kubernetes Provider Configuration
-# =============================================================================
 
 provider "kubernetes" {
   config_path    = "~/.kube/config"
@@ -52,9 +50,7 @@ provider "kubectl" {
   config_context = var.kubernetes_context
 }
 
-# =============================================================================
 # Random Resources for Password Generation
-# =============================================================================
 
 resource "random_string" "mysql_password" {
   length  = 32
@@ -80,9 +76,7 @@ resource "random_id" "session_id" {
   byte_length = 4
 }
 
-# =============================================================================
 # Namespace Creation
-# =============================================================================
 
 resource "kubernetes_namespace" "einvoice_namespace" {
   metadata {
@@ -95,9 +89,7 @@ resource "kubernetes_namespace" "einvoice_namespace" {
   }
 }
 
-# =============================================================================
 # ConfigMap for Application Configuration
-# =============================================================================
 
 resource "kubernetes_config_map" "app_config" {
   metadata {
@@ -139,10 +131,7 @@ resource "kubernetes_config_map" "app_config" {
   }
 }
 
-# =============================================================================
 # Secrets for Sensitive Data
-# =============================================================================
-
 resource "kubernetes_secret" "database_secrets" {
   metadata {
     name      = "${var.app_name}-db-secrets"
@@ -234,9 +223,7 @@ resource "kubernetes_resource_quota" "namespace_quota" {
   }
 }
 
-# =============================================================================
 # Limit Ranges
-# =============================================================================
 
 resource "kubernetes_limit_range" "namespace_limits" {
   metadata {
@@ -271,9 +258,7 @@ resource "kubernetes_limit_range" "namespace_limits" {
   }
 }
 
-# =============================================================================
 # Network Policy
-# =============================================================================
 
 resource "kubernetes_network_policy" "einvoice_network_policy" {
   metadata {

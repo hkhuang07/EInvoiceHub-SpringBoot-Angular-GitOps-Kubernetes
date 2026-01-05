@@ -79,21 +79,21 @@ metadata:
 type: Opaque
 stringData:
   # Viettel Provider
-  VIETTEL_API_KEY: "viettel_api_key_placeholder"
-  VIETTEL_CLIENT_ID: "viettel_client_id_placeholder"
+  VIETTEL_API_KEY: ""
+  VIETTEL_CLIENT_ID: ""
 
   # BKAV Provider
-  BKAV_API_KEY: "bkav_api_key_placeholder"
-  BKAV_CLIENT_ID: "bkav_client_id_placeholder"
+  BKAV_API_KEY: ""
+  BKAV_CLIENT_ID: ""
 
   # MISA Provider
-  MISA_API_KEY: "misa_api_key_placeholder"
-  MISA_CLIENT_ID: "misa_client_id_placeholder"
-  MISA_CLIENT_SECRET: "misa_client_secret_placeholder"
+  MISA_API_KEY: ""
+  MISA_CLIENT_ID: ""
+  MISA_CLIENT_SECRET: ""
 
   # VNPT Provider
-  VNPT_API_KEY: "vnpt_api_key_placeholder"
-  VNPT_CLIENT_ID: "vnpt_client_id_placeholder"
+  VNPT_API_KEY: ""
+  VNPT_CLIENT_ID: ""
 
 ---
 apiVersion: apps/v1
