@@ -49,6 +49,9 @@ public class AppException extends RuntimeException {
         this.details = null;
     }
 
+
+
+
     /**
      * FIX LỖI: Thay đổi kiểu trả về từ int sang ErrorCode.
      * Điều này giúp GlobalExceptionHandler gán trực tiếp vào đối tượng Enum.

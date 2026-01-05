@@ -1,11 +1,13 @@
 package com.einvoicehub.core.service;
 
+import com.einvoicehub.core.common.exception.AppException;
+import com.einvoicehub.core.common.exception.ErrorCode;
+import com.einvoicehub.core.dto.request.InvoiceRequest;  // Public DTO
+import com.einvoicehub.core.dto.response.InvoiceResponse; // Public DTO
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
 import com.einvoicehub.core.entity.mongodb.InvoicePayload;
 import com.einvoicehub.core.entity.mysql.InvoiceMetadata;
 import com.einvoicehub.core.entity.mysql.Merchant;
-import com.einvoicehub.core.dto.request.InvoiceRequest;
-import com.einvoicehub.core.dto.response.InvoiceResponse;
 import com.einvoicehub.core.provider.InvoiceProvider;
 import com.einvoicehub.core.provider.ProviderConfig;
 import com.einvoicehub.core.repository.mysql.InvoiceMetadataRepository;
@@ -19,6 +21,10 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * InvoiceService - Động cơ điều phối chính của EInvoiceHub.
+ * Đã hợp nhất logic nghiệp vụ và hệ thống quản lý Exception chuyên nghiệp.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -29,68 +35,87 @@ public class InvoiceService {
     private final InvoicePayloadService invoicePayloadService;
     private final Map<String, InvoiceProvider> providers;
 
+    /**
+     * Quy trình phát hành hóa đơn hoàn chỉnh (End-to-End Workflow)
+     */
     @Transactional
     public InvoiceResponse createInvoice(InvoiceRequest publicRequest) {
-        String requestId = publicRequest.getInternalReferenceCode(); // Lấy từ DTO Minimax
-        log.info("Bắt đầu tạo hóa đơn cho requestId: {}", requestId);
+        // 1. Lấy mã định danh yêu cầu (Idempotency Key)
+        String requestId = publicRequest.getInternalReferenceCode();
+        log.info("Bắt đầu quy trình phát hành hóa đơn. RequestID: {}", requestId);
 
-        // 1. Xác thực Merchant
+        // 2. Xác thực Merchant (Sử dụng AppException chuyên nghiệp)
         Merchant merchant = merchantRepo.findById(publicRequest.getMerchantId())
-                .orElseThrow(() -> new RuntimeException("Merchant not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.MERCHANT_NOT_FOUND));
 
-        // 2. Kiểm tra Quota
+        // 3. Kiểm tra hạn mức (Quota)
         if (merchant.getCurrentInvoiceCount() >= merchant.getInvoiceQuota()) {
-            throw new RuntimeException("Merchant đã hết hạn mức hóa đơn.");
+            throw new AppException(ErrorCode.INSUFFICIENT_QUOTA,
+                    String.format("Merchant %s đã đạt giới hạn %d/%d hóa đơn.",
+                            merchant.getName(), merchant.getCurrentInvoiceCount(), merchant.getInvoiceQuota()));
         }
 
-        // 3. Khởi tạo Metadata (MySQL)
+        // 4. Khởi tạo bản ghi Metadata (MySQL) ở trạng thái PENDING
+        InvoiceMetadata metadata = initMetadata(merchant, publicRequest, requestId);
+
+        // 5. Lưu trữ Payload thô ban đầu (MongoDB) để phục vụ Audit
+        saveInitialPayload(merchant, publicRequest, requestId);
+
+        try {
+            // 6. Lấy Provider Adapter tương ứng
+            InvoiceProvider provider = getProvider(publicRequest.getProviderCode());
+
+            // 7. Mapping sang Model nội bộ & Chuẩn hóa dữ liệu (Normalize)
+            com.einvoicehub.core.provider.model.InvoiceRequest internalRequest = mapToInternalRequest(publicRequest);
+
+            // 8. TODO: Lấy config thực tế từ MerchantProviderConfig (Tài khoản BKAV/MISA của Merchant)
+            ProviderConfig config = ProviderConfig.builder().build();
+
+            // 9. Gọi Adapter để tương tác với bên thứ ba
+            com.einvoicehub.core.provider.model.InvoiceResponse internalRes = provider.issueInvoice(internalRequest, config);
+
+            // 10. Xử lý kết quả trả về
+            if (internalRes.isSuccessful()) {
+                handleSuccess(metadata, internalRes, merchant, requestId);
+                return mapToPublicResponse(internalRes, true, "Hóa đơn đã được phát hành thành công.");
+            } else {
+                handleFailure(metadata, internalRes.getErrorMessage(), internalRes.getErrorCode(), requestId);
+                return mapToPublicResponse(internalRes, false, "Provider từ chối: " + internalRes.getErrorMessage());
+            }
+
+        } catch (Exception e) {
+            log.error("Lỗi hệ thống khi phát hành hóa đơn cho Request {}: {}", requestId, e.getMessage());
+            handleFailure(metadata, e.getMessage(), "SYSTEM_ERROR", requestId);
+
+            // Re-throw dưới dạng AppException để GlobalExceptionHandler trả về JSON chuẩn cho Client
+            throw new AppException(ErrorCode.PROVIDER_ERROR, "Lỗi kết nối Provider: " + e.getMessage(), e);
+        }
+    }
+
+    // --- CÁC PHƯƠNG THỨC HỖ TRỢ (PRIVATE HELPERS) ---
+
+    private InvoiceMetadata initMetadata(Merchant merchant, InvoiceRequest req, String requestId) {
         InvoiceMetadata metadata = InvoiceMetadata.builder()
                 .merchant(merchant)
                 .clientRequestId(requestId)
-                .providerCode(publicRequest.getProviderCode())
+                .providerCode(req.getProviderCode())
                 .status(InvoiceStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .build();
-        metadata = invoiceMetadataRepo.save(metadata);
+        return invoiceMetadataRepo.save(metadata);
+    }
 
-        // 4. Lưu Payload (MongoDB)
+    private void saveInitialPayload(Merchant merchant, InvoiceRequest req, String requestId) {
         InvoicePayload payload = InvoicePayload.builder()
                 .clientRequestId(requestId)
                 .merchantId(merchant.getId())
                 .status("PENDING")
                 .createdAt(LocalDateTime.now())
+                .rawRequest(req) // Lưu nguyên object request để đối soát
                 .build();
         invoicePayloadService.savePayload(payload);
-
-        try {
-            // 5. Mapping Public DTO sang Internal Provider Request
-            com.einvoicehub.core.provider.model.InvoiceRequest internalRequest = mapToInternalRequest(publicRequest);
-
-            // 6. Gọi Provider Adapter
-            InvoiceProvider provider = getProvider(publicRequest.getProviderCode());
-            ProviderConfig config = ProviderConfig.builder().build(); // TODO: Lấy config từ MerchantProviderConfig
-
-            com.einvoicehub.core.provider.model.InvoiceResponse internalRes = provider.issueInvoice(internalRequest, config);
-
-            // 7. Xử lý kết quả & Mapping ngược lại Public Response
-            if (internalRes.isSuccessful()) {
-                handleSuccess(metadata, internalRes, merchant, requestId);
-                return mapToPublicResponse(internalRes, true, "Hóa đơn đã được tạo thành công");
-            } else {
-                handleFailure(metadata, internalRes.getErrorMessage(), internalRes.getErrorCode(), requestId);
-                return mapToPublicResponse(internalRes, false, internalRes.getErrorMessage());
-            }
-
-        } catch (Exception e) {
-            log.error("Lỗi phát hành hóa đơn: {}", e.getMessage());
-            handleFailure(metadata, e.getMessage(), "SYSTEM_ERROR", requestId);
-            throw e;
-        }
     }
 
-    /**
-     * Mapping từ Public DTO sang Internal Model để Adapter làm việc.
-     */
     private com.einvoicehub.core.provider.model.InvoiceRequest mapToInternalRequest(InvoiceRequest pub) {
         return com.einvoicehub.core.provider.model.InvoiceRequest.builder()
                 .clientRequestId(pub.getInternalReferenceCode())
@@ -102,7 +127,7 @@ public class InvoiceService {
                 .buyer(com.einvoicehub.core.provider.model.InvoiceRequest.BuyerInfo.builder()
                         .name(pub.getBuyerName()).taxCode(pub.getBuyerTaxCode()).address(pub.getBuyerAddress()).build())
                 .items(pub.getItems().stream().map(item -> {
-                    item.normalizeData(); // CHUẨN HÓA DỮ LIỆU TRƯỚC KHI MAP
+                    item.normalizeData(); // CHUẨN HÓA DỮ LIỆU TÀI CHÍNH
                     return com.einvoicehub.core.provider.model.InvoiceRequest.InvoiceItem.builder()
                             .itemName(item.getItemName())
                             .quantity(item.getQuantity())
@@ -110,7 +135,6 @@ public class InvoiceService {
                             .amount(item.getTotalAmount())
                             .taxRate(item.getTaxRate())
                             .taxAmount(item.getTotalTaxAmount())
-                            .description(item.getDescription())
                             .build();
                 }).collect(Collectors.toList()))
                 .summary(com.einvoicehub.core.provider.model.InvoiceRequest.InvoiceSummary.builder()
@@ -136,7 +160,9 @@ public class InvoiceService {
         metadata.markAsSuccess(res.getTransactionCode());
         metadata.setInvoiceNumber(res.getInvoiceNumber());
         invoiceMetadataRepo.save(metadata);
+
         invoicePayloadService.updatePayloadWithResponse(requestId, res.toString(), "SUCCESS");
+
         merchant.setCurrentInvoiceCount(merchant.getCurrentInvoiceCount() + 1);
         merchantRepo.save(merchant);
     }
@@ -149,154 +175,9 @@ public class InvoiceService {
 
     private InvoiceProvider getProvider(String code) {
         InvoiceProvider provider = providers.get(code.toUpperCase());
-        if (provider == null) throw new RuntimeException("Provider not supported: " + code);
-        return provider;
-    }
-}
-
-
-/*
-
-File mơới đucợ minimax viếtpackage com.einvoicehub.core.service;
-
-import com.einvoicehub.core.adapter.InvoiceProvider;
-import com.einvoicehub.core.common.exception.AppException;
-import com.einvoicehub.core.common.exception.ErrorCode;
-import com.einvoicehub.core.dto.InvoiceRequest;
-import com.einvoicehub.core.dto.InvoiceResponse;
-import com.einvoicehub.core.entity.InvoiceMetadata;
-import com.einvoicehub.core.entity.Merchant;
-import com.einvoicehub.core.repository.InvoiceMetadataRepository;
-import com.einvoicehub.core.repository.MerchantRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-/**
- * Service điều phối quy trình tạo hóa đơn điện tử.
- * Ví dụ minh họa cách sử dụng hệ thống exception management.
- */
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class InvoiceService {
-
-    private final MerchantRepository merchantRepository;
-    private final InvoiceMetadataRepository invoiceMetadataRepository;
-    private final InvoicePayloadService invoicePayloadService;
-    private final Map<String, InvoiceProvider> invoiceProviderMap;
-
-    /**
-     * Ví dụ 1: Sử dụng AppException với ErrorCode đơn giản.
-     * Phù hợp cho các trường hợp lỗi đã được định nghĩa sẵn.
-     */
-    public Merchant validateMerchant(String merchantCode) {
-        return merchantRepository.findByCode(merchantCode)
-                .orElseThrow(() -> new AppException(ErrorCode.MERCHANT_NOT_FOUND));
-    }
-
-    /**
-     * Ví dụ 2: Sử dụng AppException với message tùy chỉnh.
-     * Phù hợp khi cần thông báo chi tiết hơn.
-     */
-    public void checkQuota(Merchant merchant) {
-        if (merchant.getCurrentInvoiceCount() >= merchant.getInvoiceQuota()) {
-            throw new AppException(
-                    ErrorCode.INSUFFICIENT_QUOTA,
-                    String.format("Merchant %s đã sử dụng %d/%d hóa đơn. " +
-                                    "Vui lòng nâng cấp gói để tiếp tục.",
-                            merchant.getCode(),
-                            merchant.getCurrentInvoiceCount(),
-                            merchant.getInvoiceQuota())
-            );
-        }
-    }
-
-    /**
-     * Ví dụ 3: Sử dụng AppException với cause exception.
-     * Phù hợp khi cần chain exception để debug.
-     */
-    public InvoiceProvider getProvider(String providerCode) {
-        String normalizedCode = providerCode.toUpperCase();
-        InvoiceProvider provider = invoiceProviderMap.get(normalizedCode);
-
         if (provider == null) {
-            throw new AppException(
-                    ErrorCode.PROVIDER_ERROR,
-                    "Provider không được hỗ trợ: " + providerCode,
-                    new IllegalArgumentException("Unknown provider: " + providerCode)
-            );
+            throw new AppException(ErrorCode.PROVIDER_ERROR, "Provider không được hỗ trợ: " + code);
         }
         return provider;
     }
-
-    /**
-     * Ví dụ 4: Workflow hoàn chỉnh với exception handling.
-     * Demo cách sử dụng tất cả các pattern trong một method.
-     */
-    @Transactional
-    public InvoiceResponse createInvoice(InvoiceRequest request) {
-        String transactionId = UUID.randomUUID().toString();
-        log.info("Bắt đầu tạo hóa đơn với transactionId: {}", transactionId);
-
-        // Bước 1: Validate merchant
-        Merchant merchant = validateMerchant(request.getMerchantId());
-
-        // Bước 2: Check quota
-        checkQuota(merchant);
-
-        // Bước 3: Lấy provider
-        InvoiceProvider provider = getProvider(request.getProviderCode());
-
-        // Bước 4: Create InvoiceMetadata với trạng thái PENDING
-        InvoiceMetadata metadata = InvoiceMetadata.builder()
-                .transactionId(transactionId)
-                .merchantCode(request.getMerchantId())
-                .providerCode(request.getProviderCode())
-                .status("PENDING")
-                .build();
-        invoiceMetadataRepository.save(metadata);
-
-        try {
-            // Bước 5: Gọi provider
-            InvoiceResponse response = provider.createInvoice(request);
-
-            // Bước 6: Update thành công
-            metadata.setStatus("SUCCESS");
-            metadata.setProviderInvoiceId(response.getInvoiceId());
-            invoiceMetadataRepository.save(metadata);
-
-            // Bước 7: Increment usage
-            merchant.setCurrentInvoiceCount(merchant.getCurrentInvoiceCount() + 1);
-            merchantRepository.save(merchant);
-
-            log.info("Tạo hóa đơn thành công: transactionId={}, invoiceId={}",
-                    transactionId, response.getInvoiceId());
-
-            return response;
-
-        } catch (Exception e) {
-            // Log exception với context
-            log.error("Lỗi khi tạo hóa đơn cho transactionId {}: {}",
-                    transactionId, e.getMessage(), e);
-
-            // Update thất bại
-            metadata.setStatus("FAILED");
-            metadata.setErrorMessage(e.getMessage());
-            invoiceMetadataRepository.save(metadata);
-
-            // Wrap và rethrow để GlobalExceptionHandler xử lý
-            throw new AppException(
-                    ErrorCode.PROVIDER_ERROR,
-                    "Lỗi khi tạo hóa đơn: " + e.getMessage(),
-                    e
-            );
-        }
-    }
 }
- */

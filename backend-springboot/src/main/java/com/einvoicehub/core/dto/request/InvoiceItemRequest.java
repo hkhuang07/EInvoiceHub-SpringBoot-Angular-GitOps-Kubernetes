@@ -1,18 +1,14 @@
 package com.einvoicehub.core.dto.request;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /**
- * Invoice Item Request DTO - Public API Model
- * Chứa logic chuẩn hóa dữ liệu tài chính của mặt hàng.
+ * DTO cho chi tiết mặt hàng trong hóa đơn.
+ * Hợp nhất logic tính toán tự động và hệ thống Validation chuyên nghiệp.
  */
 @Data
 @Builder
@@ -20,160 +16,69 @@ import java.math.RoundingMode;
 @AllArgsConstructor
 public class InvoiceItemRequest {
 
-    @NotBlank(message = "Item name is required")
-    private String itemName;
-
-    private String itemCode;
-    private String unitName;
-    private String unitCode;
-
-    @DecimalMin(value = "0.0", message = "Quantity must be non-negative")
-    @Builder.Default
-    private BigDecimal quantity = BigDecimal.ONE;
-
-    @DecimalMin(value = "0.0", message = "Unit price must be non-negative")
-    private BigDecimal unitPrice = BigDecimal.ZERO;
-
-    private BigDecimal amount; // Thành tiền chưa thuế, chưa chiết khấu
-
-    @Builder.Default
-    private BigDecimal discountAmount = BigDecimal.ZERO;
-    private BigDecimal discountPercent;
-
-    @DecimalMin(value = "0.0", message = "Tax rate must be non-negative")
-    @Builder.Default
-    private BigDecimal taxRate = BigDecimal.ZERO;
-
-    private String taxType;
-    private String taxCategory;
-
-    private BigDecimal totalAmount;    // Thành tiền sau chiết khấu, chưa thuế
-    private BigDecimal totalTaxAmount; // Tiền thuế
-
-    private String description;
-    private String sequence;
-
-    /**
-     * Chuẩn hóa toàn bộ dữ liệu tài chính của mặt hàng.
-     */
-    public void normalizeData() {
-        calculateAmount();
-        calculateTotalAmount();
-        calculateTaxAmount();
-    }
-
-    private void calculateAmount() {
-        if (quantity != null && unitPrice != null) {
-            this.amount = quantity.multiply(unitPrice).setScale(2, RoundingMode.HALF_UP);
-        }
-    }
-
-    private void calculateTotalAmount() {
-        if (amount != null) {
-            this.totalAmount = amount.subtract(discountAmount != null ? discountAmount : BigDecimal.ZERO)
-                    .setScale(2, RoundingMode.HALF_UP);
-        }
-    }
-
-    private void calculateTaxAmount() {
-        if (totalAmount != null && taxRate != null) {
-            // totalTaxAmount = totalAmount * taxRate / 100
-            this.totalTaxAmount = totalAmount.multiply(taxRate)
-                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-        }
-    }
-}
-
-
-/*
-File mới được minimax viết package com.einvoicehub.core.dto.request;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
-import lombok.*;
-
-import java.math.BigDecimal;
-import java.util.List;
-
-/**
- * DTO cho từng sản phẩm/dịch vụ trong hóa đơn.
- */
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class InvoiceItemRequest {
-
-    /**
-     * Tên sản phẩm/dịch vụ - bắt buộc.
-     */
     @NotBlank(message = "VALIDATION_ERROR")
     @Size(max = 500, message = "VALIDATION_ERROR")
     private String itemName;
 
-    /**
-     * Mã sản phẩm - tùy chọn.
-     */
     @Size(max = 100, message = "VALIDATION_ERROR")
     private String itemCode;
 
-    /**
-     * Đơn vị tính - bắt buộc.
-     */
     @NotBlank(message = "VALIDATION_ERROR")
     @Size(max = 50, message = "VALIDATION_ERROR")
-    private String unit;
+    private String unitName;
 
-    /**
-     * Số lượng - bắt buộc, > 0.
-     */
     @NotNull(message = "VALIDATION_ERROR")
-    @DecimalMin(value = "0.01", inclusive = true, message = "VALIDATION_ERROR")
+    @DecimalMin(value = "0.000001", message = "VALIDATION_ERROR") // Số lượng phải > 0
     private BigDecimal quantity;
 
-    /**
-     * Đơn giá - bắt buộc, >= 0.
-     */
     @NotNull(message = "VALIDATION_ERROR")
-    @DecimalMin(value = "0.0", inclusive = true, message = "VALIDATION_ERROR")
+    @DecimalMin(value = "0.0", message = "VALIDATION_ERROR")
     private BigDecimal unitPrice;
 
-    /**
-     * Tổng tiền = quantity * unitPrice - bắt buộc, >= 0.
-     */
-    @NotNull(message = "VALIDATION_ERROR")
-    @DecimalMin(value = "0.0", inclusive = true, message = "VALIDATION_ERROR")
+    /** Thành tiền trước thuế và trước chiết khấu (Thường = quantity * unitPrice) */
     private BigDecimal amount;
 
-    /**
-     * Tỷ lệ thuế GTGT (0%, 5%, 10%) - bắt buộc.
-     */
-    @NotNull(message = "VALIDATION_ERROR")
-    @DecimalMin(value = "0.0", inclusive = true)
-    @DecimalMax(value = "10.0", inclusive = true)
-    @Pattern(regexp = "^(0|5|10)$|^0\\.0$|^5\\.0$|^10\\.0$",
-            message = "VALIDATION_ERROR")
-    private BigDecimal vatRate;
+    @Builder.Default
+    private BigDecimal discountAmount = BigDecimal.ZERO;
 
-    /**
-     * Tiền thuế GTGT = amount * vatRate - bắt buộc, >= 0.
-     */
+    /** Tỷ lệ thuế suất (0, 5, 8, 10...) */
     @NotNull(message = "VALIDATION_ERROR")
-    @DecimalMin(value = "0.0", inclusive = true, message = "VALIDATION_ERROR")
-    private BigDecimal vatAmount;
+    @DecimalMin(value = "0.0", message = "VALIDATION_ERROR")
+    private BigDecimal taxRate;
 
-    /**
-     * Tổng tiền bao gồm thuế = amount + vatAmount - bắt buộc, >= 0.
-     */
-    @NotNull(message = "VALIDATION_ERROR")
-    @DecimalMin(value = "0.0", inclusive = true, message = "VALIDATION_ERROR")
+    /** Tiền thuế GTGT */
+    private BigDecimal taxAmount;
+
+    /** Tổng tiền sau chiết khấu và đã bao gồm thuế */
     private BigDecimal totalAmountWithVat;
 
-    /**
-     * Mã hàng hóa theo quy định - tùy chọn.
-     */
-    @Size(max = 50, message = "VALIDATION_ERROR")
-    private String taxCategoryCode;
-}
+    private String description;
 
- */
+    /** Mã loại thuế suất (Dùng cho một số Provider đặc thù) */
+    private String taxCategoryCode;
+
+    /**
+     * CHUẨN HÓA DỮ LIỆU TÀI CHÍNH:
+     * Tự động tính toán lại các con số để đảm bảo tính nhất quán trước khi gửi sang Provider.
+     * Tránh lỗi lệch 1-2 đồng do Merchant làm tròn sai.
+     */
+    public void normalizeData() {
+        // 1. Tính thành tiền thô: amount = quantity * unitPrice
+        if (quantity != null && unitPrice != null) {
+            this.amount = quantity.multiply(unitPrice).setScale(2, RoundingMode.HALF_UP);
+        }
+
+        // 2. Tính tiền thuế: taxAmount = (amount - discountAmount) * taxRate / 100
+        if (amount != null && taxRate != null) {
+            BigDecimal baseAmount = amount.subtract(discountAmount != null ? discountAmount : BigDecimal.ZERO);
+            this.taxAmount = baseAmount.multiply(taxRate)
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        }
+
+        // 3. Tính tổng cộng cuối cùng: totalAmountWithVat = (amount - discountAmount) + taxAmount
+        if (amount != null && taxAmount != null) {
+            BigDecimal netAmount = amount.subtract(discountAmount != null ? discountAmount : BigDecimal.ZERO);
+            this.totalAmountWithVat = netAmount.add(taxAmount).setScale(2, RoundingMode.HALF_UP);
+        }
+    }
+}
