@@ -1,12 +1,6 @@
--- =====================================================
--- EInvoiceHub Database Schema - Version 1
--- Description: Initial schema for EInvoiceHub platform
--- =====================================================
+-- EInvoiceHub Database Schema
 
--- =====================================================
 -- 1. ENUM Types Definition
--- =====================================================
-
 -- Subscription Plan: Trial, Basic, Premium
 DROP TYPE IF EXISTS subscription_plan;
 CREATE TYPE subscription_plan AS ENUM ('TRIAL', 'BASIC', 'PREMIUM');
@@ -23,10 +17,8 @@ CREATE TYPE invoice_status AS ENUM ('DRAFT', 'PENDING', 'SIGNING', 'SENT_TO_PROV
 DROP TYPE IF EXISTS user_role;
 CREATE TYPE user_role AS ENUM ('ADMIN', 'MANAGER', 'STAFF', 'VIEWER');
 
--- =====================================================
--- 2. Merchants Table - Quản lý doanh nghiệp
--- =====================================================
 
+-- 2. Merchants Table - Quản lý doanh nghiệp
 CREATE TABLE merchants (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     tax_code VARCHAR(20) NOT NULL UNIQUE COMMENT 'Mã số thuế - định danh doanh nghiệp',
@@ -54,10 +46,8 @@ CREATE TABLE merchants (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Quản lý doanh nghiệp sử dụng dịch vụ';
 
--- =====================================================
--- 3. Merchant Users - Tài khoản người dùng của Merchant
--- =====================================================
 
+-- 3. Merchant Users - Tài khoản người dùng của Merchant
 CREATE TABLE merchant_users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Liên kết với doanh nghiệp',
@@ -86,10 +76,8 @@ CREATE TABLE merchant_users (
     INDEX idx_is_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tài khoản người dùng thuộc Merchant';
 
--- =====================================================
--- 4. API Credentials - Bảo mật và tích hợp API
--- =====================================================
 
+-- 4. API Credentials - Bảo mật và tích hợp API
 CREATE TABLE api_credentials (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu credential',
@@ -122,10 +110,8 @@ CREATE TABLE api_credentials (
     INDEX idx_is_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Credentials cho API access';
 
--- =====================================================
--- 5. Service Providers - Nhà cung cấp hóa đơn điện tử
--- =====================================================
 
+-- 5. Service Providers - Nhà cung cấp hóa đơn điện tử
 CREATE TABLE service_providers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     provider_code VARCHAR(20) NOT NULL UNIQUE COMMENT 'Mã provider: VNPT, VIETTEL, MISA, BKAV',
@@ -154,10 +140,8 @@ INSERT INTO service_providers (provider_code, provider_name, official_api_url, i
 ('MISA', 'MISA Mimosa', 'https://api.misa.com.vn/einvoice/v1', FALSE, FALSE, 3),
 ('BKAV', 'BKAV eInvoice', 'https://einvoice.bkav.com/api/v1', FALSE, FALSE, 4);
 
--- =====================================================
--- 6. Merchant Provider Configs - Cấu hình riêng của Merchant
--- =====================================================
 
+-- 6. Merchant Provider Configs - Cấu hình riêng của Merchant
 CREATE TABLE merchant_provider_configs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu',
@@ -186,10 +170,8 @@ CREATE TABLE merchant_provider_configs (
     INDEX idx_is_default (is_default)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Cấu hình kết nối Provider cho từng Merchant';
 
--- =====================================================
--- 7. Invoice Metadata - Thông tin tóm tắt hóa đơn
--- =====================================================
 
+-- 7. Invoice Metadata - Thông tin tóm tắt hóa đơn
 CREATE TABLE invoices_metadata (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp phát hành',
@@ -199,7 +181,7 @@ CREATE TABLE invoices_metadata (
     
     -- Thông tin hóa đơn
     invoice_number VARCHAR(20) NULL COMMENT 'Số hóa đơn từ Provider trả về',
-    symbol_code VARCHAR(10) NULL COMMENT 'Ký hiệu hóa đơn (VD: 1C23TML)',
+    symbol_code VARCHAR(10) NULL COMMENT 'Ký hiệu hóa đơn ',
     invoice_type_code VARCHAR(10) NULL COMMENT 'Mã loại hóa đơn: 01GTKT, 02GTTT, 07KPTQ...',
     template_code VARCHAR(20) NULL COMMENT 'Mẫu hóa đơn: 01GTKT0/001, 02GTTT0/001...',
     
@@ -284,10 +266,8 @@ CREATE TABLE invoices_metadata (
     INDEX idx_merchant_created (merchant_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Metadata hóa đơn - phục vụ tra cứu nhanh';
 
--- =====================================================
--- 8. Audit Log - Nhật ký thao tác
--- =====================================================
 
+-- 8. Audit Log - Nhật ký thao tác
 CREATE TABLE audit_logs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NULL COMMENT 'Doanh nghiệp liên quan',
@@ -310,10 +290,8 @@ CREATE TABLE audit_logs (
     INDEX idx_merchant_entity (merchant_id, entity_type, entity_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Nhật ký thay đổi hệ thống';
 
--- =====================================================
--- 9. System Configuration - Cấu hình hệ thống
--- =====================================================
 
+-- 9. System Configuration - Cấu hình hệ thống
 CREATE TABLE system_config (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     config_key VARCHAR(100) NOT NULL UNIQUE COMMENT 'Khóa cấu hình',
@@ -343,6 +321,3 @@ INSERT INTO system_config (config_key, config_value, config_type, description) V
 ('DEFAULT_CURRENCY', 'VND', 'STRING', 'Đơn vị tiền tệ mặc định'),
 ('TAX_DEFAULT_RATE', '10.00', 'NUMBER', 'Thuế suất mặc định (%)');
 
--- =====================================================
--- End of Migration V1
--- =====================================================
