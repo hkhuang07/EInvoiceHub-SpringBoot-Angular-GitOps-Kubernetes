@@ -10,10 +10,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InvoiceResponse {
-
     private boolean success;
     private String errorCode;
     private String message;
+    private String cqtCode;
+
     private String providerCode;
 
     private String transactionId;

@@ -1,4 +1,4 @@
-package com.einvoicehub.core.entity.mysql;
+package com.einvoicehub.core.entity.jpa;
 
 import com.einvoicehub.core.entity.enums.UserRole;
 import jakarta.persistence.*;

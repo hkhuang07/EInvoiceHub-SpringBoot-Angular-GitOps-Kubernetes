@@ -1,6 +1,6 @@
-package com.einvoicehub.core.repository.mysql;
+package com.einvoicehub.core.repository.jpa;
 
-import com.einvoicehub.core.entity.mysql.Merchant;
+import com.einvoicehub.core.entity.jpa.Merchant;
 import com.einvoicehub.core.entity.enums.EntityStatus;
 import com.einvoicehub.core.entity.enums.SubscriptionPlan;
 import org.springframework.data.jpa.repository.JpaRepository;

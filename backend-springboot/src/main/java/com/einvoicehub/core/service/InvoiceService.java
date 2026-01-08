@@ -5,21 +5,20 @@ import com.einvoicehub.core.common.exception.ErrorCode;
 import com.einvoicehub.core.dto.request.InvoiceRequest;
 import com.einvoicehub.core.dto.response.InvoiceResponse;
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
-import com.einvoicehub.core.entity.mongodb.InvoicePayload;
-import com.einvoicehub.core.entity.mysql.InvoiceMetadata;
-import com.einvoicehub.core.entity.mysql.Merchant;
-import com.einvoicehub.core.entity.mysql.MerchantProviderConfig;
+import com.einvoicehub.core.entity.jpa.InvoicePayload;
+import com.einvoicehub.core.entity.jpa.InvoiceMetadata;
+import com.einvoicehub.core.entity.jpa.Merchant;
+import com.einvoicehub.core.entity.jpa.MerchantProviderConfig;
 import com.einvoicehub.core.provider.InvoiceProvider;
 import com.einvoicehub.core.provider.ProviderConfig;
-import com.einvoicehub.core.repository.mysql.InvoiceMetadataRepository;
-import com.einvoicehub.core.repository.mysql.MerchantProviderConfigRepository;
-import com.einvoicehub.core.repository.mysql.MerchantRepository;
+import com.einvoicehub.core.repository.jpa.InvoiceMetadataRepository;
+import com.einvoicehub.core.repository.jpa.MerchantProviderConfigRepository;
+import com.einvoicehub.core.repository.jpa.MerchantRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @Slf4j

@@ -1,7 +1,7 @@
 package com.einvoicehub.core.security;
 
-import com.einvoicehub.core.entity.mysql.MerchantUser;
-import com.einvoicehub.core.repository.mysql.MerchantUserRepository;
+import com.einvoicehub.core.entity.jpa.MerchantUser;
+import com.einvoicehub.core.repository.jpa.MerchantUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

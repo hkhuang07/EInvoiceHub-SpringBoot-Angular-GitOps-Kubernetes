@@ -1,7 +1,7 @@
 package com.einvoicehub.core.security;
 
-import com.einvoicehub.core.entity.mysql.ApiCredential;
-import com.einvoicehub.core.entity.mysql.Merchant;
+import com.einvoicehub.core.entity.jpa.ApiCredential;
+import com.einvoicehub.core.entity.jpa.Merchant;
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

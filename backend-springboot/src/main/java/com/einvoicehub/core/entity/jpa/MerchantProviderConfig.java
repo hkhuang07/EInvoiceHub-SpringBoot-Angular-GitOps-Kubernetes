@@ -1,4 +1,4 @@
-package com.einvoicehub.core.entity.mysql;
+package com.einvoicehub.core.entity.jpa;
 
 import com.einvoicehub.core.converter.EncryptionConverter;
 import jakarta.persistence.*;

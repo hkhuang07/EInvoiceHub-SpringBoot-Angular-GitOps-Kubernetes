@@ -1,6 +1,6 @@
-package com.einvoicehub.core.repository.mysql;
+package com.einvoicehub.core.repository.jpa;
 
-import com.einvoicehub.core.entity.mysql.InvoiceMetadata;
+import com.einvoicehub.core.entity.jpa.InvoiceMetadata;
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

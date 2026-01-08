@@ -1,75 +1,85 @@
-package com.einvoicehub.core.entity.mongodb;
+package com.einvoicehub.core.entity.jpa;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-@Document(collection = "invoice_payloads")
+@Entity
+@Table(name = "invoice_payloads")
+@EntityListeners(AuditingEntityListener.class)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@CompoundIndex(name = "merchant_created_idx", def = "{'merchantId': 1, 'createdAt': -1}")
 public class InvoicePayload {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Indexed
-    @Field("merchantId")
+    @Column(name = "merchant_id")
     private Long merchantId;
 
-    @Indexed(unique = true)
-    @Field("clientRequestId")
+    @Column(name = "client_request_id", unique = true)
     private String clientRequestId;
 
-    @Field("rawRequest")
-    private Object rawRequest;
+    @Column(name = "transaction_id")
+    private String transactionId;
 
-    @Field("responseRaw")
+    @Column(name = "provider_code")
+    private String providerCode;
+
+    @Column(name = "invoice_id", unique = true)
+    private Long invoiceId;
+
+    @Column(name = "raw_data", columnDefinition = "JSON")
+    private String rawData;
+
+    @Column(name = "response_raw", columnDefinition = "LONGTEXT")
     private String responseRaw;
 
-    @Field("status")
+    @Column(name = "xml_content", columnDefinition = "LONGTEXT")
+    private String xmlContent;
+
+    @Column(name = "json_content", columnDefinition = "LONGTEXT")
+    private String jsonContent;
+
+    @Column(name = "signed_xml", columnDefinition = "LONGTEXT")
+    private String signedXml;
+
+    @Column(name = "pdf_data", columnDefinition = "LONGTEXT")
+    private String pdfData;
+
+    @Column(name = "status")
     private String status;
 
     @CreatedDate
-    @Field("createdAt")
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @LastModifiedDate
-    @Field("updatedAt")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Field("buyer")
-    private BuyerInfo buyer;
+    @Column(name = "extra_data", columnDefinition = "JSON")
+    private String extraData;
 
-    @Field("seller")
-    private SellerInfo seller;
+// Nested classes for buyer, seller, items, summary
+// Lưu trữ dưới dạng JSON trong các cột riêng biệt hoặc trong extra_data
 
-    @Field("items")
-    private List<InvoiceItem> items;
-
-    @Field("summary")
-    private InvoiceSummary summary;
-
-    @Field("metadata")
-    private Map<String, Object> metadata;
-
-    @Field("data")
-    private Map<String, Object> data;
-
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Embeddable
     public static class BuyerInfo {
         private String name;
         private String taxCode;
@@ -80,7 +90,11 @@ public class InvoicePayload {
         private String bankName;
     }
 
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Embeddable
     public static class SellerInfo {
         private String name;
         private String taxCode;
@@ -91,7 +105,11 @@ public class InvoicePayload {
         private String bankName;
     }
 
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Embeddable
     public static class InvoiceItem {
         private String itemCode;
         private String itemName;
@@ -107,7 +125,11 @@ public class InvoicePayload {
         private String description;
     }
 
-    @Data @Builder @NoArgsConstructor @AllArgsConstructor
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Embeddable
     public static class InvoiceSummary {
         private BigDecimal subtotalAmount;
         private BigDecimal totalDiscountAmount;

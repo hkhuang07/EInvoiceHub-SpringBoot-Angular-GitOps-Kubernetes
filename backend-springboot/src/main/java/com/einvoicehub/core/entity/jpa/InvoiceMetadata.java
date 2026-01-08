@@ -1,4 +1,4 @@
-package com.einvoicehub.core.entity.mysql;
+package com.einvoicehub.core.entity.jpa;
 
 import com.einvoicehub.core.entity.enums.InvoiceStatus;
 import jakarta.persistence.*;
@@ -33,13 +33,19 @@ public class InvoiceMetadata {
     @JoinColumn(name = "provider_config_id")
     private MerchantProviderConfig providerConfig;
 
+    @Column(name = "cqt_code")
+    private String cqtCode; // Mã cơ quan thuế cấp sau khi ký thành công
+
+    @Column(name = "client_request_id")
     private String clientRequestId;
+
     private String providerCode;
     private String invoiceNumber;
     private String symbolCode;
     private String invoiceTypeCode;
     private String templateCode;
 
+    // Seller & Buyer Info
     private String sellerName;
     private String sellerTaxCode;
     @Column(columnDefinition = "TEXT")
@@ -52,16 +58,17 @@ public class InvoiceMetadata {
     @Column(columnDefinition = "TEXT")
     private String buyerAddress;
 
+    // Tài chính
     @Builder.Default
     private BigDecimal subtotalAmount = BigDecimal.ZERO;
     @Builder.Default
     private BigDecimal taxAmount = BigDecimal.ZERO;
     @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
-
     @Builder.Default
     private String currencyCode = "VND";
 
+    // Vòng đời
     private LocalDate issueDate;
     private LocalDateTime signedAt;
     private LocalDateTime sentToProviderAt;
@@ -73,7 +80,6 @@ public class InvoiceMetadata {
     @Column(columnDefinition = "TEXT")
     private String statusMessage;
 
-    private String mongoPayloadId;
     private String providerTransactionCode;
     private String providerErrorCode;
 
@@ -96,7 +102,6 @@ public class InvoiceMetadata {
     }
 
     /* Status Helpers */
-
     public void markAsSent() {
         this.status = InvoiceStatus.SENT_TO_PROVIDER;
         this.sentToProviderAt = LocalDateTime.now();
@@ -112,5 +117,6 @@ public class InvoiceMetadata {
         this.status = InvoiceStatus.FAILED;
         this.providerErrorCode = code;
         this.providerErrorMessage = message;
+        this.updatedAt = LocalDateTime.now();
     }
 }

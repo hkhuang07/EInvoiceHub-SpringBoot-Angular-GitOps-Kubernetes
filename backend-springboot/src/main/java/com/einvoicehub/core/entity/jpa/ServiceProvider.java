@@ -1,4 +1,4 @@
-package com.einvoicehub.core.entity.mysql;
+package com.einvoicehub.core.entity.jpa;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,6 +1,6 @@
-package com.einvoicehub.core.repository.mysql;
+package com.einvoicehub.core.repository.jpa;
 
-import com.einvoicehub.core.entity.mysql.ApiCredential;
+import com.einvoicehub.core.entity.jpa.ApiCredential;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

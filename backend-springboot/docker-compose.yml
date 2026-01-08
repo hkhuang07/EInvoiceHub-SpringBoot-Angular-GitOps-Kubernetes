@@ -1,21 +1,23 @@
+# Docker Compose configuration for EInvoiceHub local development environment
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: einvoice-mysql
-    hostname: mysql
+  # MariaDB Database - Primary relational database
+  mariadb:
+    image: mariadb:10.11
+    container_name: einvoice-mariadb
+    hostname: mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-einvoice_root_pass}
-      MYSQL_DATABASE: einvoicehub
-      MYSQL_USER: einvoice_user
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-einvoice_pass}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-einvoice_root_pass}
+      MARIADB_DATABASE: einvoicehub
+      MARIADB_USER: einvoice_user
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-einvoice_pass}
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
       - ./sql/init:/docker-entrypoint-initdb.d
       - ./sql/config/my.cnf:/etc/mysql/conf.d/my.cnf:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-einvoice_root_pass}"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${MARIADB_ROOT_PASSWORD:-einvoice_root_pass}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -29,116 +31,8 @@ services:
         reservations:
           memory: 256M
 
-  # MongoDB - Document database for payload and transaction logs
-  mongodb:
-    image: mongo:7.0
-    container_name: einvoice-mongodb
-    hostname: mongodb
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-einvoice_mongo_pass}
-      MONGO_INITDB_DATABASE: einvoicehub
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-      - ./mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
-      - ./mongo/mongod.conf:/etc/mongod.conf:ro
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    networks:
-      - einvoice-network
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 256M
-
-  # Redis - Cache and session management
-  redis:
-    image: redis:7-alpine
-    container_name: einvoice-redis
-    hostname: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
-    command: redis-server /usr/local/etc/redis/redis.conf
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - einvoice-network
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-        reservations:
-          memory: 64M
-
-  # Elasticsearch - For audit logs and search functionality
-  elasticsearch:
-    image: elasticsearch:8.11.0
-    container_name: einvoice-elasticsearch
-    hostname: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms256m -Xmx512m"
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - einvoice-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-        reservations:
-          memory: 512M
-
-  # Kibana - Visualization for Elasticsearch
-  kibana:
-    image: kibana:8.11.0
-    container_name: einvoice-kibana
-    hostname: kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    ports:
-      - "5601:5601"
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    networks:
-      - einvoice-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 256M
-
-  # Prometheus - Metrics collection
+  
+  # Prometheus - Metrics collection (giữ lại)
   prometheus:
     image: prom/prometheus:v2.48.0
     container_name: einvoice-prometheus
@@ -168,7 +62,8 @@ services:
         reservations:
           memory: 256M
 
-  # Grafana - Metrics visualization
+  
+  # Grafana - Metrics visualization (giữ lại)
   grafana:
     image: grafana/grafana:10.2.0
     container_name: einvoice-grafana
@@ -200,38 +95,8 @@ services:
         reservations:
           memory: 128M
 
-  # =============================================================================
-  # Jaeger - Distributed tracing
-  jaeger:
-    image: jaegertracing/all-in-one:1.52
-    container_name: einvoice-jaeger
-    hostname: jaeger
-    environment:
-      - COLLECTOR_OTLP_ENABLED=true
-    ports:
-      - "16686:16686"
-      - "6831:6831/udp"
-      - "4317:4317"
-      - "4318:4318"
-    volumes:
-      - jaeger_data:/tmp
-    networks:
-      - einvoice-network
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:16686/ || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-        reservations:
-          memory: 256M
-
-  # =============================================================================
+  
   # EInvoiceHub Application - Main backend service
-  # =============================================================================
   backend:
     build:
       context: .
@@ -247,18 +112,11 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - SERVER_PORT=8080
 
-      # Database Configuration
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/einvoicehub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      # Database Configuration - Thay đổi sang MariaDB
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/einvoicehub?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=einvoice_user
       - SPRING_DATASOURCE_PASSWORD=einvoice_pass
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-
-      # MongoDB Configuration
-      - SPRING_DATA_MONGODB_URI=mongodb://admin:einvoice_mongo_pass@mongodb:27017/einvoicehub?authSource=admin
-
-      # Redis Configuration
-      - SPRING_REDIS_HOST=redis
-      - SPRING_REDIS_PORT=6379
 
       # Application Specific
       - APP_NAME=einvoicehub
@@ -267,11 +125,7 @@ services:
       # Java VM Options
       - JAVA_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xms256m -Xmx512m
     depends_on:
-      mysql:
-        condition: service_healthy
-      mongodb:
-        condition: service_healthy
-      redis:
+      mariadb:
         condition: service_healthy
     volumes:
       - ./logs:/app/logs:rw
@@ -292,9 +146,8 @@ services:
           memory: 512M
     restart: unless-stopped
 
-# =============================================================================
+
 # Networks Configuration
-# =============================================================================
 networks:
   einvoice-network:
     driver: bridge
@@ -303,30 +156,13 @@ networks:
       config:
         - subnet: 172.28.0.0/16
 
-# =============================================================================
+
 # Volumes Configuration
-# =============================================================================
 volumes:
-  mysql_data:
-    driver: local
-  mongo_data:
-    driver: local
-  redis_data:
-    driver: local
-  elasticsearch_data:
-    driver: local
-  grafana_data:
+  mariadb_data:
     driver: local
   prometheus_data:
     driver: local
-  jaeger_data:
+  grafana_data:
     driver: local
 
-# =============================================================================
-# Service Health Status Extension
-# =============================================================================
-x-einvoice-health: &einvoice-health
-  interval: 30s
-  timeout: 10s
-  retries: 10
-  start_period: 60s

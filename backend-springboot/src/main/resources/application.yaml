@@ -6,12 +6,14 @@ spring:
   application:
     name: einvoice-core
 
-  # MySQL Configuration
+  # =============================================================================
+  # MariaDB Database Configuration - Thay thế MySQL bằng MariaDB
+  # =============================================================================
   datasource:
-    url: jdbc:mysql://localhost:3306/einvoicehub?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mariadb://localhost:3306/einvoicehub?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: ${DB_PASSWORD:root}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.mariadb.jdbc.Driver
 
     hikari:
       minimum-idle: 5
@@ -20,7 +22,9 @@ spring:
       max-lifetime: 1200000
       connection-timeout: 20000
 
-  # JPA/Hibernate Configuration
+  # =============================================================================
+  # JPA/Hibernate Configuration - Sử dụng MariaDBDialect
+  # =============================================================================
   jpa:
     hibernate:
       ddl-auto: validate
@@ -28,20 +32,24 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MariaDBDialect
         jdbc:
           batch_size: 50
         order_inserts: true
         order_updates: true
 
-  # MongoDB Configuration
-  data:
-    mongodb:
-      uri: ${MONGODB_URI:mongodb+srv://huykyunhk:HuyKyunH.K07@cluster0.17bgl.mongodb.net/einvoicehub}
-      database: einvoicehub
-      auto-index-creation: true
+  # =============================================================================
+  # XÓA BỎ: MongoDB Configuration (đã chuyển sang MariaDB)
+  # =============================================================================
+  # data:
+  #   mongodb:
+  #     uri: ${MONGODB_URI:mongodb+srv://...}
+  #     database: einvoicehub
+  #     auto-index-creation: true
 
+  # =============================================================================
   # Flyway Migration
+  # =============================================================================
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -59,11 +67,11 @@ server:
 app:
   # Encryption
   encryption:
-    secret-key: ${ENCRYPTION_SECRET_KEY: !}
+    secret-key: ${ENCRYPTION_SECRET_KEY: CHƯA CÓ!}
 
   # JWT Configuration
   jwt:
-    secret: ${JWT_SECRET: !}
+    secret: ${JWT_SECRET: CHƯA CÓ!}
     expiration-ms: 86400000  # 24 hours
 
   # API Key Configuration
@@ -87,11 +95,12 @@ app:
       base-url: https://einvoice.bkav.com/api/v1
       test-base-url: https://demo.ehoadon.vn/api/v1
       timeout-ms: 30000
-      encryption-key: ${BKAV_ENCRYPTION_KEY: }  # AES-256 key từ BKAV
+      encryption-key: ${BKAV_ENCRYPTION_KEY: CHƯA CÓ }  # AES-256 key từ BKAV
     misa:
       base-url: https://api.meinvoice.vn/api/integration
       test-base-url: https://testapi.meinvoice.vn/api/integration
       timeout-ms: 30000
+
 # Logging Configuration
 logging:
   level:
