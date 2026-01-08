@@ -1,4 +1,15 @@
 -- EInvoiceHub Database Schema
+-- Đọc file resource.db.migration sau, hãy cho biết cơ sở dữ liệu nay có diểm gì?
+-- Database này đáp ưứng được những yêu cầu nghiệp vụ nào của hệ thống
+-- Chỉ ra nhưững hạn chế của database này , database này không thể đáp ứng những gì cho môt hệ thống trung tâm hóa đơn điệm tử chuyên mghiệp
+-- Cần phải bổ sung thêm các bảng nào, trường nào, cột nào để đảm bảo database đủ các bảng phục vụ cho đồ án Trung tâm hóa đơn điện tử
+-- Viết một form hoàn chỉnh hướng dẫn cho Minimax Agent phát trien những ưu điểm hiêện tại của database và khắc phục các hạn chees hiện tại của dâtabase
+
+--Table
+-- merchants , merchant_users,
+-- api_credentials, service_providers,merchant_provider_configs
+-- invoices_metadata,
+-- audit_logs, system_config
 
 -- 1. ENUM Types Definition
 -- Subscription Plan: Trial, Basic, Premium
