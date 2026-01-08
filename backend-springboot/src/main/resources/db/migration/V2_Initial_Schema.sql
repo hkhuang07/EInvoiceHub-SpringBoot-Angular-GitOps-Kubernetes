@@ -1,30 +1,7 @@
--- EInvoiceHub Database Schema [MySQL - MongoDB]
+-- EInvoiceHub Database Schema - Version 2 (Optimized)
+-- Database: MariaDB 
 
---Table
--- merchants , merchant_users,
--- api_credentials, service_providers,merchant_provider_configs
--- invoices_metadata,
--- audit_logs, system_config
-
--- 1. ENUM Types Definition
--- Subscription Plan: Trial, Basic, Premium
-DROP TYPE IF EXISTS subscription_plan;
-CREATE TYPE subscription_plan AS ENUM ('TRIAL', 'BASIC', 'PREMIUM');
-
--- Entity Status: Active, Inactive, Suspended
-DROP TYPE IF EXISTS entity_status;
-CREATE TYPE entity_status AS ENUM ('ACTIVE', 'INACTIVE', 'SUSPENDED');
-
--- Invoice Status: Workflow states
-DROP TYPE IF EXISTS invoice_status;
-CREATE TYPE invoice_status AS ENUM ('DRAFT', 'PENDING', 'SIGNING', 'SENT_TO_PROVIDER', 'SUCCESS', 'FAILED', 'CANCELLED', 'REPLACED');
-
--- User Role: Phân quyền trong Merchant
-DROP TYPE IF EXISTS user_role;
-CREATE TYPE user_role AS ENUM ('ADMIN', 'MANAGER', 'STAFF', 'VIEWER');
-
-
--- 2. Merchants Table - Quản lý doanh nghiệp
+-- 1. Merchants Table - Quản lý doanh nghiệp
 CREATE TABLE merchants (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     tax_code VARCHAR(20) NOT NULL UNIQUE COMMENT 'Mã số thuế - định danh doanh nghiệp',
@@ -37,11 +14,12 @@ CREATE TABLE merchants (
     phone VARCHAR(20) COMMENT 'Số điện thoại',
     representative_name VARCHAR(100) COMMENT 'Tên người đại diện',
     representative_title VARCHAR(100) COMMENT 'Chức danh người đại diện',
-    subscription_plan subscription_plan NOT NULL DEFAULT 'TRIAL' COMMENT 'Gói dịch vụ',
+    subscription_plan ENUM('TRIAL', 'BASIC', 'PREMIUM') NOT NULL DEFAULT 'TRIAL' COMMENT 'Gói dịch vụ: TRIAL, BASIC, PREMIUM',
     invoice_quota INT NOT NULL DEFAULT 100 COMMENT 'Hạn mức hóa đơn/tháng',
     invoice_used INT NOT NULL DEFAULT 0 COMMENT 'Hóa đơn đã sử dụng trong tháng',
-    status entity_status NOT NULL DEFAULT 'ACTIVE' COMMENT 'Trạng thái hoạt động',
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Soft delete flag',
+    is_using_hsm BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Sử dụng HSM hay USB Token để ký điện tử',
+    status ENUM('ACTIVE', 'INACTIVE', 'SUSPENDED') NOT NULL DEFAULT 'ACTIVE' COMMENT 'Trạng thái hoạt động',
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Cờ xóa mềm',
     deleted_at TIMESTAMP NULL COMMENT 'Thời điểm xóa',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
@@ -50,10 +28,10 @@ CREATE TABLE merchants (
     INDEX idx_status (status),
     INDEX idx_subscription_plan (subscription_plan),
     INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Quản lý doanh nghiệp sử dụng dịch vụ';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Quản lý doanh nghiệp sử dụng dịch vụ hóa đơn điện tử';
 
 
--- 3. Merchant Users - Tài khoản người dùng của Merchant
+-- 2. Merchant Users - Tài khoản người dùng của Merchant
 CREATE TABLE merchant_users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Liên kết với doanh nghiệp',
@@ -63,14 +41,14 @@ CREATE TABLE merchant_users (
     full_name VARCHAR(100) COMMENT 'Họ và tên đầy đủ',
     phone VARCHAR(20) COMMENT 'Số điện thoại',
     avatar_url VARCHAR(500) COMMENT 'URL ảnh đại diện',
-    role user_role NOT NULL DEFAULT 'STAFF' COMMENT 'Vai trò trong hệ thống',
+    role ENUM('ADMIN', 'MANAGER', 'STAFF', 'VIEWER') NOT NULL DEFAULT 'STAFF' COMMENT 'Vai trò trong hệ thống: ADMIN, MANAGER, STAFF, VIEWER',
     is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Kích hoạt tài khoản',
     is_primary BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Tài khoản chính của doanh nghiệp',
     last_login_at TIMESTAMP NULL COMMENT 'Đăng nhập lần cuối',
     failed_login_attempts INT NOT NULL DEFAULT 0 COMMENT 'Số lần đăng nhập sai',
     locked_until TIMESTAMP NULL COMMENT 'Khóa tài khoản đến thời điểm',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
     
     CONSTRAINT fk_merchant_users_merchant FOREIGN KEY (merchant_id) 
         REFERENCES merchants(id) ON DELETE CASCADE,
@@ -83,7 +61,9 @@ CREATE TABLE merchant_users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tài khoản người dùng thuộc Merchant';
 
 
--- 4. API Credentials - Bảo mật và tích hợp API
+-- 3. API Credentials - Bảo mật và tích hợp API
+
+
 CREATE TABLE api_credentials (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu credential',
@@ -100,8 +80,8 @@ CREATE TABLE api_credentials (
     expired_at TIMESTAMP NULL COMMENT 'Ngày hết hạn - NULL là không giới hạn',
     last_used_at TIMESTAMP NULL COMMENT 'Lần sử dụng cuối',
     is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Còn hiệu lực',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
     created_by BIGINT NULL COMMENT 'Người tạo - merchant_users.id',
     
     CONSTRAINT fk_api_credentials_merchant FOREIGN KEY (merchant_id) 
@@ -117,7 +97,7 @@ CREATE TABLE api_credentials (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Credentials cho API access';
 
 
--- 5. Service Providers - Nhà cung cấp hóa đơn điện tử
+-- 4. Service Providers - Nhà cung cấp hóa đơn điện tử
 CREATE TABLE service_providers (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     provider_code VARCHAR(20) NOT NULL UNIQUE COMMENT 'Mã provider: VNPT, VIETTEL, MISA, BKAV',
@@ -130,8 +110,8 @@ CREATE TABLE service_providers (
     is_default BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Provider mặc định của hệ thống',
     display_order INT NOT NULL DEFAULT 0 COMMENT 'Thứ tự hiển thị',
     extra_config_schema JSON NULL COMMENT 'Schema cấu hình bổ sung cho provider',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
     
     INDEX idx_provider_code (provider_code),
     INDEX idx_is_active (is_active),
@@ -147,22 +127,23 @@ INSERT INTO service_providers (provider_code, provider_name, official_api_url, i
 ('BKAV', 'BKAV eInvoice', 'https://einvoice.bkav.com/api/v1', FALSE, FALSE, 4);
 
 
--- 6. Merchant Provider Configs - Cấu hình riêng của Merchant
+-- 5. Merchant Provider Configs - Cấu hình riêng của Merchant
 CREATE TABLE merchant_provider_configs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu',
     provider_id BIGINT NOT NULL COMMENT 'Nhà cung cấp được chọn',
     username_service VARCHAR(100) NOT NULL COMMENT 'Tài khoản API do Provider cấp',
     password_service_encrypted VARCHAR(500) NOT NULL COMMENT 'Mật khẩu API - đã mã hóa AES-256',
-    certificate_serial VARCHAR(100) NULL COMMENT 'Serial number của chữ ký số',
+    certificate_serial VARCHAR(100) NULL COMMENT 'Serial number của chứng thư số',
     certificate_data TEXT NULL COMMENT 'Chứng thư số - đã mã hóa',
+    certificate_chain LONGTEXT NULL COMMENT 'Chuỗi chứng thư số đầy đủ (Certificate Chain)',
     certificate_expired_at TIMESTAMP NULL COMMENT 'Hạn chứng thư số',
     extra_config JSON NULL COMMENT 'Cấu hình bổ sung: pattern, serial, template',
     is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Cấu hình còn hiệu lực',
     is_default BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Provider mặc định của Merchant',
     last_sync_at TIMESTAMP NULL COMMENT 'Lần đồng bộ cuối với Provider',
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
     
     CONSTRAINT fk_mpc_merchant FOREIGN KEY (merchant_id) 
         REFERENCES merchants(id) ON DELETE CASCADE,
@@ -177,19 +158,86 @@ CREATE TABLE merchant_provider_configs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Cấu hình kết nối Provider cho từng Merchant';
 
 
--- 7. Invoice Metadata - Thông tin tóm tắt hóa đơn
+-- 6. Invoice Templates - Quản lý Mẫu số & Ký hiệu hóa đơn
+CREATE TABLE invoice_templates (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu mẫu',
+    provider_id BIGINT NOT NULL COMMENT 'Nhà cung cấp hóa đơn',
+    invoice_type_code VARCHAR(10) NOT NULL COMMENT 'Loại hóa đơn: 01GTKT, 02GTTT, 07KPTQ, 03KPTQ...',
+    template_code VARCHAR(20) NOT NULL COMMENT 'Mẫu hóa đơn: 01GTKT0/001, 02GTTT0/001...',
+    symbol_code VARCHAR(10) NOT NULL COMMENT 'Ký hiệu hóa đơn: AA/22E, AB/23T...',
+    current_number INT NOT NULL DEFAULT 0 COMMENT 'Số hiện hóa đơn hiện tại',
+    prefix VARCHAR(20) NULL COMMENT 'Tiền tố số hóa đơn',
+    suffix VARCHAR(20) NULL COMMENT 'Hậu tố số hóa đơn',
+    min_number INT NOT NULL DEFAULT 1 COMMENT 'Số bắt đầu',
+    max_number INT NOT NULL DEFAULT 99999 COMMENT 'Số kết thúc',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Mẫu còn hiệu lực',
+    is_sequential BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Sử dụng số thứ tự liên tục',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
+    
+    CONSTRAINT fk_invoice_template_merchant FOREIGN KEY (merchant_id) 
+        REFERENCES merchants(id) ON DELETE CASCADE,
+    CONSTRAINT fk_invoice_template_provider FOREIGN KEY (provider_id) 
+        REFERENCES service_providers(id) ON DELETE RESTRICT,
+    CONSTRAINT uq_merchant_template UNIQUE (merchant_id, template_code, symbol_code),
+    
+    INDEX idx_template_merchant (merchant_id),
+    INDEX idx_template_code (template_code),
+    INDEX idx_symbol_code (symbol_code),
+    INDEX idx_invoice_type (invoice_type_code),
+    INDEX idx_is_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Quản lý mẫu số và ký hiệu hóa đơn theo quy định';
+
+
+-- 7. Customers - Danh mục khách hàng của Merchant
+CREATE TABLE customers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu khách hàng',
+    customer_code VARCHAR(50) NULL COMMENT 'Mã khách hàng nội bộ',
+    tax_code VARCHAR(20) NULL COMMENT 'Mã số thuế khách hàng',
+    name VARCHAR(255) NOT NULL COMMENT 'Tên khách hàng/đơn vị',
+    address TEXT NULL COMMENT 'Địa chỉ',
+    email VARCHAR(255) NULL COMMENT 'Email nhận hóa đơn',
+    phone VARCHAR(20) NULL COMMENT 'Điện thoại',
+    contact_person VARCHAR(100) NULL COMMENT 'Người liên hệ',
+    bank_account VARCHAR(50) NULL COMMENT 'Tài khoản ngân hàng',
+    bank_name VARCHAR(100) NULL COMMENT 'Tên ngân hàng',
+    note TEXT NULL COMMENT 'Ghi chú',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Còn hoạt động',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
+    
+    CONSTRAINT fk_customer_merchant FOREIGN KEY (merchant_id) 
+        REFERENCES merchants(id) ON DELETE CASCADE,
+    
+    INDEX idx_customer_merchant (merchant_id),
+    INDEX idx_customer_code (customer_code),
+    INDEX idx_tax_code (tax_code),
+    INDEX idx_name (name),
+    INDEX idx_email (email),
+    INDEX idx_is_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Danh mục khách hàng thường xuyên của Merchant';
+
+
+-- 8. Invoices Metadata - Thông tin tóm tắt hóa đơn
 CREATE TABLE invoices_metadata (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp phát hành',
     provider_id BIGINT NULL COMMENT 'Provider xử lý hóa đơn',
     provider_config_id BIGINT NULL COMMENT 'Cấu hình Provider được sử dụng',
+    invoice_template_id BIGINT NULL COMMENT 'Mẫu hóa đơn được sử dụng',
     client_request_id VARCHAR(100) NULL COMMENT 'ID request từ Merchant',
     
     -- Thông tin hóa đơn
     invoice_number VARCHAR(20) NULL COMMENT 'Số hóa đơn từ Provider trả về',
-    symbol_code VARCHAR(10) NULL COMMENT 'Ký hiệu hóa đơn ',
+    symbol_code VARCHAR(10) NULL COMMENT 'Ký hiệu hóa đơn (VD: 1C23TML)',
     invoice_type_code VARCHAR(10) NULL COMMENT 'Mã loại hóa đơn: 01GTKT, 02GTTT, 07KPTQ...',
     template_code VARCHAR(20) NULL COMMENT 'Mẫu hóa đơn: 01GTKT0/001, 02GTTT0/001...',
+    is_summary_invoice BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Hóa đơn tổng hợp hay hóa đơn chi tiết',
+    
+    -- Thông tin Cơ quan Thuế
+    cqt_code VARCHAR(50) NULL COMMENT 'Mã Cơ quan Thuế quản lý',
     
     -- Thông tin người bán (từ merchant data)
     seller_name VARCHAR(255) NULL COMMENT 'Tên người bán',
@@ -202,6 +250,7 @@ CREATE TABLE invoices_metadata (
     buyer_email VARCHAR(255) NULL COMMENT 'Email người mua (nhận hóa đơn)',
     buyer_phone VARCHAR(20) NULL COMMENT 'Điện thoại người mua',
     buyer_address TEXT NULL COMMENT 'Địa chỉ người mua',
+    customer_id BIGINT NULL COMMENT 'Liên kết với bảng customers',
     
     -- Thông tin tài chính
     subtotal_amount DECIMAL(18,2) NOT NULL DEFAULT 0.00 COMMENT 'Tổng tiền trước thuế',
@@ -217,14 +266,10 @@ CREATE TABLE invoices_metadata (
     due_date DATE NULL COMMENT 'Ngày thanh toán đến hạn',
     
     -- Trạng thái và điều khoản
-    status invoice_status NOT NULL DEFAULT 'DRAFT' COMMENT 'Trạng thái xử lý',
+    status ENUM('DRAFT', 'PENDING', 'SIGNING', 'SENT_TO_PROVIDER', 'SUCCESS', 'FAILED', 'CANCELLED', 'REPLACED') NOT NULL DEFAULT 'DRAFT' COMMENT 'Trạng thái xử lý hóa đơn',
     status_message TEXT NULL COMMENT 'Thông báo trạng thái chi tiết',
     cancellation_reason VARCHAR(500) NULL COMMENT 'Lý do hủy/thay thế',
     replaced_by_invoice_id BIGINT NULL COMMENT 'ID hóa đơn thay thế',
-    
-    -- Liên kết MongoDB
-    mongo_payload_id VARCHAR(50) NULL COMMENT 'ObjectId trong collection invoice_payloads',
-    mongo_transaction_id VARCHAR(50) NULL COMMENT 'ObjectId trong collection provider_transactions',
     
     -- Tracking
     signed_at TIMESTAMP NULL COMMENT 'Thời điểm ký điện tử',
@@ -253,6 +298,10 @@ CREATE TABLE invoices_metadata (
         REFERENCES service_providers(id) ON DELETE SET NULL,
     CONSTRAINT fk_invoice_config FOREIGN KEY (provider_config_id) 
         REFERENCES merchant_provider_configs(id) ON DELETE SET NULL,
+    CONSTRAINT fk_invoice_template FOREIGN KEY (invoice_template_id) 
+        REFERENCES invoice_templates(id) ON DELETE SET NULL,
+    CONSTRAINT fk_invoice_customer FOREIGN KEY (customer_id) 
+        REFERENCES customers(id) ON DELETE SET NULL,
     CONSTRAINT fk_invoice_replaced_by FOREIGN KEY (replaced_by_invoice_id) 
         REFERENCES invoices_metadata(id) ON DELETE SET NULL,
     CONSTRAINT fk_invoice_deleted_by FOREIGN KEY (deleted_by) 
@@ -269,11 +318,85 @@ CREATE TABLE invoices_metadata (
     INDEX idx_created_at (created_at),
     INDEX idx_client_request_id (client_request_id),
     INDEX idx_merchant_status (merchant_id, status),
-    INDEX idx_merchant_created (merchant_id, created_at)
+    INDEX idx_merchant_created (merchant_id, created_at),
+    INDEX idx_cqt_code (cqt_code),
+    INDEX idx_invoice_template (invoice_template_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Metadata hóa đơn - phục vụ tra cứu nhanh';
 
 
--- 8. Audit Log - Nhật ký thao tác
+-- 9. Invoice Items - Chi tiết hàng hóa/dịch vụ trong hóa đơn
+CREATE TABLE invoice_items (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id BIGINT NOT NULL COMMENT 'ID hóa đơn cha',
+    line_number INT NOT NULL DEFAULT 1 COMMENT 'Số thứ tự dòng',
+    product_name VARCHAR(500) NOT NULL COMMENT 'Tên sản phẩm/dịch vụ',
+    product_code VARCHAR(100) NULL COMMENT 'Mã sản phẩm theo danh mục',
+    unit_name VARCHAR(50) NOT NULL COMMENT 'Đơn vị tính: cái, kg, chiếc...',
+    quantity DECIMAL(18,4) NOT NULL DEFAULT 0 COMMENT 'Số lượng',
+    unit_price DECIMAL(18,4) NOT NULL DEFAULT 0 COMMENT 'Đơn giá trước thuế',
+    amount DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT 'Thành tiền = quantity * unit_price',
+    discount_rate DECIMAL(5,2) NOT NULL DEFAULT 0 COMMENT 'Tỷ lệ chiết khấu (%)',
+    discount_amount DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT 'Tiền chiết khấu',
+    tax_rate DECIMAL(5,2) NOT NULL DEFAULT 0 COMMENT 'Thuế suất GTGT (%)',
+    tax_amount DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT 'Tiền thuế GTGT',
+    total_amount DECIMAL(18,2) NOT NULL DEFAULT 0 COMMENT 'Thành tiền bao gồm thuế',
+    description TEXT NULL COMMENT 'Mô tả chi tiết sản phẩm',
+    tax_category_code VARCHAR(20) NULL COMMENT 'Mã nhóm hàng hóa theo thuế',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
+    
+    CONSTRAINT fk_invoice_item_invoice FOREIGN KEY (invoice_id) 
+        REFERENCES invoices_metadata(id) ON DELETE CASCADE,
+    
+    INDEX idx_item_invoice (invoice_id),
+    INDEX idx_line_number (line_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Chi tiết từng dòng hàng hóa/dịch vụ trong hóa đơn';
+
+
+-- 10. Invoice Payloads - Lưu trữ nội dung XML/JSON gốc (Thay thế MongoDB)
+CREATE TABLE invoice_payloads (
+    invoice_id BIGINT NOT NULL PRIMARY KEY COMMENT 'ID hóa đơn - khóa chính và khóa ngoại',
+    raw_data JSON NULL COMMENT 'Dữ liệu thô request/response dạng JSON',
+    xml_content LONGTEXT NULL COMMENT 'Nội dung XML gốc của hóa đơn (phục vụ in ấn)',
+    json_content LONGTEXT NULL COMMENT 'Nội dung JSON đầy đủ của hóa đơn',
+    signed_xml LONGTEXT NULL COMMENT 'XML đã ký điện tử (chữ ký số)',
+    pdf_data LONGTEXT NULL COMMENT 'Dữ liệu PDF đã tạo (base64)',
+    extra_data JSON NULL COMMENT 'Dữ liệu bổ sung khác',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm lưu',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
+    
+    CONSTRAINT fk_invoice_payload_invoice FOREIGN KEY (invoice_id) 
+        REFERENCES invoices_metadata(id) ON DELETE CASCADE,
+    
+    INDEX idx_payload_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Lưu trữ nội dung XML/JSON gốc hóa đơn - thay thế MongoDB';
+
+
+-- 11. Tax Authority Responses - Phản hồi từ Cơ quan Thuế
+CREATE TABLE tax_authority_responses (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    invoice_id BIGINT NOT NULL COMMENT 'Hóa đơn liên quan',
+    cqt_code VARCHAR(50) NOT NULL COMMENT 'Mã Cơ quan Thuế',
+    status_from_cqt VARCHAR(50) NOT NULL COMMENT 'Trạng thái từ Cơ quan Thuế: APPROVED, REJECTED, PENDING',
+    processing_code VARCHAR(100) NULL COMMENT 'Mã xử lý từ Cơ quan Thuế',
+    signature_data TEXT NULL COMMENT 'Dữ liệu chữ ký từ Cơ quan Thuế',
+    raw_response JSON NULL COMMENT 'Response thô từ Cơ quan Thuế',
+    error_code VARCHAR(50) NULL COMMENT 'Mã lỗi từ Cơ quan Thuế',
+    error_message TEXT NULL COMMENT 'Thông báo lỗi từ Cơ quan Thuế',
+    received_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm nhận phản hồi',
+    processed_at TIMESTAMP NULL COMMENT 'Thời điểm xử lý hoàn tất',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo bản ghi',
+    
+    CONSTRAINT fk_tax_response_invoice FOREIGN KEY (invoice_id) 
+        REFERENCES invoices_metadata(id) ON DELETE CASCADE,
+    
+    INDEX idx_tax_response_invoice (invoice_id),
+    INDEX idx_cqt_code (cqt_code),
+    INDEX idx_status_cqt (status_from_cqt),
+    INDEX idx_received_at (received_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Lưu vết tương tác với Cơ quan Thuế';
+
+
+-- 12. Audit Log - Nhật ký thao tác
 CREATE TABLE audit_logs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NULL COMMENT 'Doanh nghiệp liên quan',
@@ -297,7 +420,7 @@ CREATE TABLE audit_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Nhật ký thay đổi hệ thống';
 
 
--- 9. System Configuration - Cấu hình hệ thống
+-- 13. System Configuration - Cấu hình hệ thống
 CREATE TABLE system_config (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     config_key VARCHAR(100) NOT NULL UNIQUE COMMENT 'Khóa cấu hình',
@@ -307,7 +430,7 @@ CREATE TABLE system_config (
     is_encrypted BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'Có cần mã hóa không',
     is_editable BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Có thể chỉnh sửa không',
     updated_by BIGINT NULL COMMENT 'Người cập nhật cuối',
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
     
     CONSTRAINT fk_config_updated_by FOREIGN KEY (updated_by) 
         REFERENCES merchant_users(id) ON DELETE SET NULL,
@@ -325,5 +448,8 @@ INSERT INTO system_config (config_key, config_value, config_type, description) V
 ('PASSWORD_MIN_LENGTH', '8', 'NUMBER', 'Độ dài tối thiểu của mật khẩu'),
 ('API_KEY_PREFIX_LENGTH', '8', 'NUMBER', 'Độ dài prefix hiển thị của API Key'),
 ('DEFAULT_CURRENCY', 'VND', 'STRING', 'Đơn vị tiền tệ mặc định'),
-('TAX_DEFAULT_RATE', '10.00', 'NUMBER', 'Thuế suất mặc định (%)');
+('TAX_DEFAULT_RATE', '10.00', 'NUMBER', 'Thuế suất mặc định (%)'),
+('INVOICE_NUMBER_FORMAT', 'PREFIX + NUMBER + SUFFIX', 'STRING', 'Cấu trúc số hóa đơn mặc định');
+
+-- End of Migration V1
 
