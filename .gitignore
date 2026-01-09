@@ -1,0 +1,79 @@
+
+/backend-springboot/HELP.md
+/backend-springboot/target/
+/backend-springboot/.mvn/wrapper/maven-wrapper.jar
+/backend-springboot/!**/src/main/**/target/
+/backend-springboot/!**/src/test/**/target/
+
+### STS ###
+/backend-springboot/.apt_generated
+/backend-springboot/.classpath
+/backend-springboot/.factorypath
+/backend-springboot/.project
+/backend-springboot/.settings
+/backend-springboot/.springBeans
+/backend-springboot/.sts4-cache
+
+### IntelliJ IDEA ###
+/backend-springboot/.idea
+/backend-springboot/*.iws
+/backend-springboot/*.iml
+/backend-springboot/*.ipr
+
+### NetBeans ###
+/backend-springboot/nbproject/private/
+/backend-springboot/nbbuild/
+/backend-springboot/dist/
+/backend-springboot/nbdist/
+/backend-springboot/.nb-gradle/
+/backend-springboot/build/
+/backend-springboot/!**/src/main/**/build/
+/backend-springboot/!**/src/test/**/build/
+
+### VS Code ###
+/backend-springboot/.vscode/
+/backend-springboot/bin/
+
+# Compiled output   /frontend-angular
+/frontend-angular/dist
+/frontend-angular/tmp
+/frontend-angular/out-tsc
+/frontend-angular/bazel-out
+
+# Node
+/frontend-angular/node_modules
+/frontend-angular/npm-debug.log
+/frontend-angular/yarn-error.log
+
+# IDEs and editors
+/frontend-angular/.idea/
+.project
+/frontend-angular/.classpath
+/frontend-angular/.c9/
+/frontend-angular/*.launch
+/frontend-angular/.settings/
+/frontend-angular/*.sublime-workspace
+
+# Visual Studio Code
+/frontend-angular/.vscode/*
+/frontend-angular/!.vscode/settings.json
+/frontend-angular/!.vscode/tasks.json
+/frontend-angular/!.vscode/launch.json
+/frontend-angular/!.vscode/extensions.json
+/frontend-angular/.history/*
+
+# Miscellaneous
+/frontend-angular/.angular/cache
+/frontend-angular/.sass-cache/
+/frontend-angular/connect.lock
+/frontend-angular/coverage
+/frontend-angular/libpeerconnection.log
+/frontend-angular/testem.log
+/frontend-angular/typings
+/frontend-angular/__screenshots__/
+
+# System files
+/frontend-angular/.DS_Store
+/frontend-angular/Thumbs.db
+
+

@@ -1,0 +1,107 @@
+
+# Multi-stage Dockerfile for EInvoiceHub Spring Boot Application
+# Optimized for Java 21 with Virtual Threads support
+
+
+
+# Stage 1: Builder Stage - Compile and package the application
+
+FROM maven:3.9-eclipse-temurin-21-jdk-alpine AS builder
+
+# Set working directory
+WORKDIR /build
+
+# Copy pom.xml first for dependency caching
+COPY pom.xml ./
+
+# Download dependencies (this layer will be cached unless pom.xml changes)
+RUN mvn dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Build the application with Spring Boot thin launcher for smaller image
+RUN mvn package -DskipTests -B
+
+
+# Stage 2: Runtime Stage - Minimal JRE image for production
+
+FROM eclipse-temurin:21-jre-alpine AS runtime
+
+# Labels for container metadata
+LABEL maintainer="EInvoiceHub Team" \
+      version="1.0.0" \
+      description="EInvoiceHub - Electronic Invoice Hub Service" \
+      org.opencontainers.image.source="https://github.com/hkhuang07/EInvoiceHub-SpringBoot-Angular-GitOps-Kubernetes/tree/main/backend-springboot"
+
+# Set environment variables
+ENV JAVA_OPTS="-XX:+EnableDynamicAgentLoading -XX:+UseG1GC" \
+    APP_NAME="einvoicehub" \
+    APP_VERSION="1.0.0"
+
+# Create non-root user for security
+RUN addgroup -g 1000 appgroup && \
+    adduser -u 1000 -G appgroup -s /bin/sh -D appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy the built artifact from builder stage
+COPY --from=builder /build/target/*.jar app.jar
+
+# Create directories for logs and config
+RUN mkdir -p /app/logs /app/config && \
+    chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
+
+# Expose application port (default Spring Boot port)
+EXPOSE 8080
+
+# Health check configuration
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+
+# Entrypoint and CMD
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar"]
+CMD ["--spring.profiles.active=prod"]
+
+
+# Stage 3: Development Stage - For local development with debug support
+
+FROM builder AS dev
+
+# Expose debug port
+EXPOSE 5005
+
+# Debug JVM options
+ENV JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+
+# Entrypoint for development with debug
+ENTRYPOINT ["sh", "-c", "java $JAVA_TOOL_OPTIONS -Djava.security.egd=file:/dev/./urandom -jar /app/target/*.jar"]
+
+
+# Alternative: Native Build Stage (Optional - for GraalVM)
+
+# Uncomment this section and comment out the runtime stage for native image
+# FROM ghcr.io/graalvm/native-image:21-ol8 AS native-builder
+
+# WORKDIR /build
+# COPY --from=builder /build/target/*.jar application.jar
+# COPY --from=builder /build/src src
+
+# RUN native-image \
+#     -J-Xmx8g \
+#     -H:Class=com.einvoicehub.EinvoicehubApplication \
+#     -H:Name=einvoicehub-native \
+#     -H:+ReportExceptionStackTraces \
+#     --no-fallback \
+#     -H:+StaticExecutableWithDynamicLibC \
+#     -cp application.jar
+
+# FROM ubuntu:22.04 AS native-runtime
+# COPY --from=native-builder /build/einvoicehub-native /app/einvoicehub
+# RUN chmod +x /app/einvoicehub
+# EXPOSE 8080
+# ENTRYPOINT ["/app/einvoicehub"]
