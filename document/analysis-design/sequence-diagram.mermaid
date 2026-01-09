@@ -1,0 +1,89 @@
+sequenceDiagram
+    participant Client as "API Client\n/Merchant UI"
+    participant Gateway as "API Gateway"
+    participant Auth as "Auth Service"
+    participant InvoiceSvc as "Invoice Service"
+    participant QuotaSvc as "Quota Service"
+    participant DB as "MariaDB\n(Database)"
+    participant Queue as "Invoice Sync Queue\n(Background Job)"
+    participant Provider as "Provider API\n(VNPT/Viettel)"
+    participant CQT as "CQT Portal"
+
+    Note over Client, DB: Bước 1: Validation & Creation
+    Client->>Gateway: POST /api/v1/invoices\n+ Invoice Data
+    Gateway->>Auth: Validate JWT Token
+    Auth-->>Gateway: Token Valid\n+ merchant_id + scopes
+    Gateway->>InvoiceSvc: Forward Request
+    
+    InvoiceSvc->>DB: Check merchant status\n& quota availability
+    DB-->>InvoiceSvc: Merchant info\n+ invoice_used/quota
+    
+    InvoiceSvc->>QuotaSvc: Validate quota
+    QuotaSvc-->>InvoiceSvc: Quota valid
+    
+    Note over InvoiceSvc, DB: Bước 2: Create Invoice Metadata & Items
+    InvoiceSvc->>DB: INSERT invoices_metadata\n(DRAFT status)
+    DB-->>InvoiceSvc: invoice_id
+    
+    InvoiceSvc->>DB: INSERT invoice_items\n(for each item)
+    DB-->>InvoiceSvc: items created
+    
+    InvoiceSvc->>DB: INSERT invoice_tax_breakdowns\n(auto-calculated)
+    DB-->>InvoiceSvc: breakdowns created
+    
+    InvoiceSvc->>DB: INSERT invoice_payloads\n(raw_data)
+    DB-->>InvoiceSvc: payload created
+    
+    InvoiceSvc-->>Client: 202 Accepted\n{invoice_id, status: DRAFT}
+
+    Note over InvoiceSvc, Queue: Bước 3: Queue for Processing
+    InvoiceSvc->>DB: INSERT invoice_sync_queue\n(sync_type: SEND_TO_PROVIDER)
+    DB-->>InvoiceSvc: queue_id
+    
+    InvoiceSvc->>DB: UPDATE invoices_metadata\n(status: PENDING)
+    DB-->>InvoiceSvc: updated
+    
+    Note over Queue, Provider: Bước 4: Async Processing
+    loop Background Worker
+        Queue->>DB: SELECT pending jobs\nORDER BY priority
+        DB-->>Queue: pending jobs
+        
+        Queue->>Queue: Mark PROCESSING\nincrement attempt_count
+        
+        Queue->>Provider: POST CreateInvoice\n+ invoice_data
+        Provider-->>Queue: Processing response
+        
+        Note over Queue, CQT: Bước 5: Provider to CQT
+        Provider->>CQT: Submit Invoice\n(XML signed)
+        CQT-->>Provider: CQT Response\n(APPROVED/REJECTED)
+        
+        Provider-->>Queue: Final Response\n+ invoice_number\n+ cqt_code
+    end
+
+    Note over Queue, DB: Bước 6: Update Results
+    alt Success Case
+        Queue->>DB: UPDATE invoices_metadata\n(status: SUCCESS\ninvoice_number, cqt_code\nsigned_at, received_from_provider_at)
+        DB-->>Queue: updated
+        
+        Queue->>DB: UPDATE merchants\n(invoice_used + 1)\n[via trigger]
+        DB-->>Queue: updated
+        
+        Queue->>DB: UPDATE invoice_sync_queue\n(status: COMPLETED\nresponse_data)
+        DB-->>Queue: updated
+        
+        Queue->>Client: Webhook/Callback\n(status: SUCCESS)
+        
+    else Failure Case
+        Queue->>DB: UPDATE invoices_metadata\n(status: FAILED\nerror_code, error_message)
+        DB-->>Queue: updated
+        
+        Queue->>DB: UPDATE invoice_sync_queue\n(status: FAILED/RETRYING)
+        alt Under Max Attempts
+            Queue->>DB: UPDATE next_retry_at\n(schedule retry)
+        else Exceeded Max Attempts
+            Queue->>DB: Mark FAILED\n(no more retry)
+        end
+        DB-->>Queue: updated
+        
+        Queue->>Client: Webhook/Callback\n(status: FAILED)
+    end

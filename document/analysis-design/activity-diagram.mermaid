@@ -1,0 +1,72 @@
+flowchart TD
+    subgraph "Start Processing"
+        A[Worker picks job\nfrom queue] --> B[Lock job for processing]
+        B --> C[Check job status]
+    end
+
+    subgraph "Validation"
+        C{Job is valid?}
+        C -->|No| D[Skip job\nMark invalid]
+        C -->|Yes| E[Check attempt count]
+    end
+
+    subgraph "Retry Logic"
+        E{attempt_count\n< max_attempts?}
+        E -->|No| F[Set status FAILED\nNo more retry]
+        E -->|Yes| G[Increment attempt_count]
+    end
+
+    subgraph "Execute Sync"
+        G --> H[Execute sync operation]
+        H --> I{Sync type?}
+        
+        I -->|SEND_TO_PROVIDER| J[Call Provider API]
+        I -->|SEND_TO_CQT| K[Submit to CQT]
+        I -->|CANCEL_INVOICE| L[Send cancellation]
+        I -->|REPLACE_INVOICE| M[Send replacement]
+    end
+
+    subgraph "API Response"
+        J --> N{Provider response?}
+        K --> N
+        L --> N
+        M --> N
+        
+        N -->|Success| O[Parse response]
+        N -->|Network Error| P[Set error: NETWORK_ERROR]
+        N -->|Provider Error| Q[Set error from response]
+        
+        O --> R{Success?}
+        R -->|Yes| S[Update with\ninvoice_number, cqt_code]
+        R -->|No| T[Set error from\nresponse body]
+    end
+
+    subgraph "Update Results"
+        S --> U[Set status COMPLETED]
+        U --> V[Update invoice status\nto SUCCESS]
+        V --> W[Trigger webhook\nto client]
+        W --> X[End - Success]
+        
+        T --> Y[Set status FAILED\nor RETRYING]
+        Y --> Z{Need retry?}
+        Z -->|Yes| AA[Set status RETRYING\nCalculate backoff]
+        Z -->|No| AB[Set status FAILED]
+        
+        P --> Y
+        
+        F --> AC[Set status FAILED]
+        AC --> AD[Update invoice status\nto FAILED]
+        AD --> AE[Trigger error webhook]
+        AE --> AF[End - Failed]
+        
+        AA --> AG[Schedule next retry\nUpdate next_retry_at]
+        AG --> AH[End - Scheduled retry]
+    end
+
+    style A fill:#e1f5fe
+    style U fill:#c8e6c9
+    style F fill:#ffcdd2
+    style AA fill:#fff3e0
+    style X fill:#c8e6c9
+    style AF fill:#ffcdd2
+    style AH fill:#fff3e0

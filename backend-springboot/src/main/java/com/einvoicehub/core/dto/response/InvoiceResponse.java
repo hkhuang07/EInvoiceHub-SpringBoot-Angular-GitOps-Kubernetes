@@ -14,12 +14,9 @@ public class InvoiceResponse {
     private String errorCode;
     private String message;
     private String cqtCode;
-
     private String providerCode;
-
     private String transactionId;
     private String clientRequestId;
-
     private String invoiceNumber;
     private String invoiceCode;
     private String invoiceSerial;

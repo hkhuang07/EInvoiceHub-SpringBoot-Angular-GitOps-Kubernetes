@@ -72,11 +72,12 @@ public class InvoicePayloadService {
         return updatedPayload;
     }
 
+    // Trong các phương thức updateStatus, updateInvoiceId, updateXmlContent...
     @Transactional
     public void updateStatus(String clientRequestId, String status) {
         InvoicePayload payload = invoicePayloadRepository
                 .findByClientRequestId(clientRequestId)
-                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR, "Không tìm thấy Payload"));
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR, "Không tìm thấy Payload với requestId: " + clientRequestId));
         payload.setStatus(status);
         payload.setUpdatedAt(LocalDateTime.now());
         invoicePayloadRepository.save(payload);

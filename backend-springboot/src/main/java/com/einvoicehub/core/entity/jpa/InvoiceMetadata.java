@@ -34,18 +34,15 @@ public class InvoiceMetadata {
     private MerchantProviderConfig providerConfig;
 
     @Column(name = "cqt_code")
-    private String cqtCode; // Mã cơ quan thuế cấp sau khi ký thành công
+    private String cqtCode; // Mã cơ quan thuế cấp
 
-    @Column(name = "client_request_id")
     private String clientRequestId;
-
     private String providerCode;
     private String invoiceNumber;
     private String symbolCode;
     private String invoiceTypeCode;
     private String templateCode;
 
-    // Seller & Buyer Info
     private String sellerName;
     private String sellerTaxCode;
     @Column(columnDefinition = "TEXT")
@@ -58,17 +55,16 @@ public class InvoiceMetadata {
     @Column(columnDefinition = "TEXT")
     private String buyerAddress;
 
-    // Tài chính
     @Builder.Default
     private BigDecimal subtotalAmount = BigDecimal.ZERO;
     @Builder.Default
     private BigDecimal taxAmount = BigDecimal.ZERO;
     @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
+
     @Builder.Default
     private String currencyCode = "VND";
 
-    // Vòng đời
     private LocalDate issueDate;
     private LocalDateTime signedAt;
     private LocalDateTime sentToProviderAt;
@@ -99,12 +95,6 @@ public class InvoiceMetadata {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
-    }
-
-    /* Status Helpers */
-    public void markAsSent() {
-        this.status = InvoiceStatus.SENT_TO_PROVIDER;
-        this.sentToProviderAt = LocalDateTime.now();
     }
 
     public void markAsSuccess(String txCode) {

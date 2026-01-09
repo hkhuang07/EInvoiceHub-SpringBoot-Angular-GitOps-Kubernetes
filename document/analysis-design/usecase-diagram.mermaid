@@ -1,0 +1,102 @@
+graph TB
+    subgraph "Actors"
+        Admin["Merchant Admin"]
+        Staff["Staff"]
+        APIClient["API Client"]
+        SysAdmin["System Admin"]
+        CQT["Tax Authority"]
+    end
+
+    subgraph "Merchant Management"
+        UC1["Quản lý Merchant"]
+        UC1a["Đăng ký Merchant mới"]
+        UC1b["Cập nhật thông tin"]
+        UC1c["Quản lý người dùng"]
+        UC1d["Quản lý API Credentials"]
+    end
+
+    subgraph "Invoice Operations"
+        UC2["Lập hóa đơn"]
+        UC2a["Tạo Draft"]
+        UC2b["Cập nhật hóa đơn"]
+        UC2c["Gửi phát hành"]
+        
+        UC3["Ký số điện tử"]
+        UC3a["Ký bằng HSM"]
+        UC3b["Ký bằng USB Token"]
+        
+        UC4["Gửi/Đồng bộ hóa đơn"]
+        UC4a["Gửi Provider"]
+        UC4b["Gửi CQT"]
+        UC4c["Kiểm tra trạng thái"]
+        
+        UC5["Tra cứu hóa đơn"]
+        UC5a["Tra cứu theo mã"]
+        UC5b["Tra cứu theo CQT"]
+        UC5c["Tải XML/PDF"]
+    end
+
+    subgraph "Registration Management"
+        UC6["Đăng ký dải số"]
+        UC6a["Tạo đăng ký mới"]
+        UC6b["Liên kết Template"]
+        UC6c["Quản lý số hóa đơn"]
+        
+        UC7["Quản lý Template"]
+        UC7a["Tạo Template"]
+        UC7b["Cấu hình Symbol Code"]
+    end
+
+    subgraph "Adjustment Operations"
+        UC8["Điều chỉnh hóa đơn"]
+        UC8a["Tạo biên bản"]
+        UC8b["Phê duyệt"]
+        UC8c["Gửi CQT điều chỉnh"]
+        
+        UC9["Thay thế hóa đơn"]
+        UC9a["Tạo hóa đơn thay thế"]
+        UC9b["Liên kết hóa đơn gốc"]
+        
+        UC10["Hủy hóa đơn"]
+        UC10a["Tạo yêu cầu hủy"]
+        UC10b["Phê duyệt hủy"]
+    end
+
+    subgraph "System Management"
+        UC11["Quản lý Provider"]
+        UC11a["Cấu hình Provider"]
+        UC11b["Quản lý Certificate"]
+        
+        UC12["Quản lý Catalog"]
+        UC12a["Loại hóa đơn"]
+        UC12b["Phương thức thanh toán"]
+        UC12c["Thuế suất GTGT"]
+        
+        UC13["Báo cáo & Thống kê"]
+        UC13a["Báo cáo sử dụng"]
+        UC13b["Báo cáo thuế"]
+    end
+
+    %% Relationships
+    Admin --> UC1
+    Admin --> UC7
+    Admin --> UC11
+    Admin --> UC12
+    Admin --> UC13
+    
+    Staff --> UC2
+    Staff --> UC5
+    Staff --> UC6
+    
+    APIClient --> UC2
+    APIClient --> UC4
+    APIClient --> UC5
+    
+    SysAdmin --> UC1
+    SysAdmin --> UC11
+    SysAdmin --> UC12
+    
+    CQT --> UC4b
+    CQT --> UC8c
+    CQT --> UC9b
+    CQT --> UC10b

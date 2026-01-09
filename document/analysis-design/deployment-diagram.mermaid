@@ -1,0 +1,87 @@
+graph TB
+    subgraph "Cloud Infrastructure"
+        subgraph "Public Zone"
+            ClientApps["Client Applications\n- Web Browser\n- Mobile App\n- API Clients"]
+            CDN["CDN\n(Static Assets)"]
+        end
+
+        subgraph "DMZ Layer"
+            WAF["Web Application Firewall\n- Rate Limiting\n- SQL Injection Protection\n- DDoS Mitigation"]
+            API_Gateway["API Gateway\n- Authentication\n- Request Routing\n- Load Balancing"]
+        end
+
+        subgraph "Private Zone - Application Cluster"
+            subgraph "Kubernetes Cluster"
+                Auth_Svc["Auth Service\n- JWT Token Validation\n- OAuth2 Provider"]
+                Invoice_Svc["Invoice Service\n- Invoice CRUD\n- Validation Engine"]
+                Sync_Worker["Sync Worker\n- Queue Consumer\n- Retry Processor"]
+                Signing_Svc["Signing Service\n- HSM Integration\n- USB Token Manager"]
+                Report_Svc["Report Service\n- Statistics\n- Audit Trail"]
+            end
+            
+            subgraph "Message Queue"
+                Redis["Redis Cluster\n- Session Store\n- Rate Limiting\n- Pub/Sub"]
+                RabbitMQ["RabbitMQ\n- Invoice Sync Queue\n- Task Distribution"]
+            end
+        end
+
+        subgraph "Private Zone - Data Layer"
+            MariaDB_Primary["MariaDB Primary\n- Write Operations\n- Transaction Support"]
+            MariaDB_Replica1["MariaDB Replica 1\n- Read Operations\n- Failover Target"]
+            MariaDB_Replica2["MariaDB Replica 2\n- Read Operations\n- Failover Target"]
+        end
+
+        subgraph "Security Zone"
+            HSM["Hardware Security Module\n- Private Key Storage\n- Digital Signing\n- Certificate Management"]
+            Vault["Secret Manager\n- API Keys\n- Database Credentials\n- Certificates"]
+        end
+
+        subgraph "External Services"
+            VNPT["VNPT API\n- Invoice Submission\n- Status Check"]
+            Viettel["Viettel Business API\n- Invoice Submission\n- Status Check"]
+            MISA["MISA API\n- Invoice Submission"]
+            BKAV["BKAV eInvoice API"]
+            
+            CQT_Portal["CQT Portal\n- Tổng cục Thuế\n- Status Verification\n- Adjustment Submission"]
+        end
+    end
+
+    %% Connections
+    ClientApps --> WAF
+    CDN --> WAF
+    WAF --> API_Gateway
+    
+    API_Gateway --> Auth_Svc
+    API_Gateway --> Invoice_Svc
+    API_Gateway --> Report_Svc
+    
+    Invoice_Svc --> RabbitMQ
+    Invoice_Svc --> MariaDB_Primary
+    Invoice_Svc --> Redis
+    
+    Sync_Worker --> RabbitMQ
+    Sync_Worker --> MariaDB_Primary
+    Sync_Worker --> MariaDB_Replica1
+    Sync_Worker --> Redis
+    Sync_Worker --> Signing_Svc
+    
+    Signing_Svc --> HSM
+    Signing_Svc --> Vault
+    
+    Auth_Svc --> Redis
+    Auth_Svc --> MariaDB_Replica1
+    Auth_Svc --> Vault
+    
+    Report_Svc --> MariaDB_Replica1
+    Report_Svc --> MariaDB_Replica2
+    
+    Sync_Worker --> VNPT
+    Sync_Worker --> Viettel
+    Sync_Worker --> MISA
+    Sync_Worker --> BKAV
+    
+    Sync_Worker --> CQT_Portal
+
+    %% Database Replication
+    MariaDB_Primary --> MariaDB_Replica1
+    MariaDB_Primary --> MariaDB_Replica2

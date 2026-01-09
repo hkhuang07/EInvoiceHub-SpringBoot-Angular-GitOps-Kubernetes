@@ -1,0 +1,57 @@
+stateDiagram-v2
+    [*] --> DRAFT : Tạo mới hóa đơn
+    
+    DRAFT --> PENDING : Submit phát hành
+    DRAFT --> DRAFT : Cập nhật thông tin
+    DRAFT --> CANCELLED : Hủy draft
+    
+    PENDING --> SIGNING : Bắt đầu ký số
+    PENDING --> CANCELLED : Hủy trước khi ký
+    
+    SIGNING --> SENT_TO_PROVIDER : Ký thành công\nGửi Provider
+    SIGNING --> FAILED : Lỗi ký số
+    SIGNING --> SIGNING : Thử lại ký
+    
+    SENT_TO_PROVIDER --> SUCCESS : Provider xác nhận\nnhận từ CQT
+    SENT_TO_PROVIDER --> FAILED : Provider từ chối
+    SENT_TO_PROVIDER --> RETRYING : Lỗi mạng\nChờ retry
+    
+    RETRYING --> SENT_TO_PROVIDER : Retry thành công
+    RETRYING --> FAILED : Vượt max retry
+    
+    SUCCESS --> [*] : Hoàn tất\nCập nhật invoice_used
+    
+    FAILED --> DRAFT : Sửa lỗi\nTạo lại
+    FAILED --> CANCELLED : Hủy hóa đơn
+    
+    SUCCESS --> ADJUSTMENT : Yêu cầu điều chỉnh
+    SUCCESS --> REPLACEMENT : Yêu cầu thay thế
+    SUCCESS --> CANCELLED : Yêu cầu hủy
+    
+    ADJUSTMENT --> PENDING : Phê duyệt\nGửi điều chỉnh
+    ADJUSTMENT --> ADJUSTMENT : Cập nhật biên bản
+    
+    REPLACEMENT --> DRAFT : Tạo hóa đơn mới\nThay thế
+    REPLACEMENT --> REPLACEMENT : Liên kết hóa đơn gốc
+    
+    CANCELLED --> [*] : Hoàn tất hủy\nGiảm invoice_used
+
+    note right of DRAFT
+        Trạng thái ban đầu
+        - Chưa gửi đi
+        - Có thể chỉnh sửa
+        - Chưa tính quota
+    end note
+
+    note right of SUCCESS
+        Trạng thái cuối cùng
+        - Đã phát hành thành công
+        - Đã trừ quota
+        - Có thể điều chỉnh/thay thế/hủy
+    end note
+
+    note right of CANCELLED
+        Trạng thái kết thúc
+        - Không tính quota hoặc
+        - Hoàn trả quota
+    end note

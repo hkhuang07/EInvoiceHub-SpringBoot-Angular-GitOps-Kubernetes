@@ -1,0 +1,351 @@
+classDiagram
+    %% Catalog Classes
+    class InvoiceType {
+        +Long id
+        +String typeCode
+        +String typeName
+        +String description
+        +Boolean isActive
+        +Integer displayOrder
+    }
+
+    class PaymentMethod {
+        +Long id
+        +String methodCode
+        +String methodName
+        +String description
+        +Boolean isActive
+        +Integer displayOrder
+    }
+
+    class VatRate {
+        +Long id
+        +String rateCode
+        +BigDecimal ratePercent
+        +String rateName
+        +String description
+        +Boolean isActive
+    }
+
+    class ServiceProvider {
+        +Long id
+        +String providerCode
+        +String providerName
+        +String officialApiUrl
+        +Boolean isActive
+        +Boolean isDefault
+    }
+
+    %% Core Business Classes
+    class Merchant {
+        +Long id
+        +String taxCode
+        +String companyName
+        +String address
+        +String taxAuthorityCode
+        +SubscriptionPlan subscriptionPlan
+        +Integer invoiceQuota
+        +Integer invoiceUsed
+        +Boolean isUsingHsm
+        +EntityStatus status
+        +Boolean isDeleted
+        +List users
+        +List apiCredentials
+        +List invoices
+        +List registrations
+        +List templates
+    }
+
+    class MerchantUser {
+        +Long id
+        +Long merchantId
+        +String username
+        +String email
+        +String passwordHash
+        +String fullName
+        +UserRole role
+        +Boolean isActive
+        +Boolean isPrimary
+        +LocalDateTime lastLoginAt
+    }
+
+    class ApiCredential {
+        +Long id
+        +Long merchantId
+        +String clientId
+        +String apiKeyHash
+        +String apiKeyPrefix
+        +String scopes
+        +Integer rateLimitPerHour
+        +Integer rateLimitPerDay
+        +Boolean isActive
+        +LocalDateTime expiredAt
+    }
+
+    class MerchantProviderConfig {
+        +Long id
+        +Long merchantId
+        +Long providerId
+        +String usernameService
+        +String certificateSerial
+        +LocalDateTime certificateExpiredAt
+        +Boolean isActive
+        +Boolean isDefault
+    }
+
+    class InvoiceRegistration {
+        +Long id
+        +Long merchantId
+        +Long providerId
+        +String registrationNumber
+        +Long fromNumber
+        +Long toNumber
+        +Long quantity
+        +Long currentNumber
+        +LocalDate effectiveDate
+        +LocalDate expirationDate
+        +RegistrationStatus status
+    }
+
+    class InvoiceTemplate {
+        +Long id
+        +Long merchantId
+        +Long providerId
+        +Long invoiceTypeId
+        +String templateCode
+        +String symbolCode
+        +Integer currentNumber
+        +String prefix
+        +String suffix
+        +Boolean isActive
+        +Boolean isSequential
+    }
+
+    class Customer {
+        +Long id
+        +Long merchantId
+        +String customerCode
+        +String taxCode
+        +String name
+        +String address
+        +String email
+        +String bankAccount
+        +String bankName
+        +Boolean isActive
+    }
+
+    %% Invoice Classes
+    class InvoiceMetadata {
+        +Long id
+        +Long merchantId
+        +Long providerId
+        +Long providerConfigId
+        +Long invoiceTemplateId
+        +Long invoiceRegistrationId
+        +String clientRequestId
+        +String invoiceNumber
+        +String symbolCode
+        +String templateCode
+        +String cqtCode
+        +String paymentMethod
+        +String lookupCode
+        +IssuanceMethod issuanceMethod
+        +String sellerName
+        +String sellerTaxCode
+        +String buyerName
+        +String buyerTaxCode
+        +String buyerEmail
+        +BigDecimal subtotalAmount
+        +BigDecimal taxAmount
+        +BigDecimal discountAmount
+        +BigDecimal totalAmount
+        +LocalDate issueDate
+        +InvoiceStatus status
+        +String statusMessage
+        +String cancellationReason
+        +LocalDateTime signedAt
+        +LocalDateTime sentToProviderAt
+        +LocalDateTime receivedFromProviderAt
+    }
+
+    class InvoiceItem {
+        +Long id
+        +Long invoiceId
+        +Integer lineNumber
+        +String productName
+        +String productCode
+        +String unitName
+        +BigDecimal quantity
+        +BigDecimal unitPrice
+        +BigDecimal amount
+        +BigDecimal discountRate
+        +BigDecimal discountAmount
+        +BigDecimal taxRate
+        +BigDecimal taxAmount
+        +BigDecimal totalAmount
+        +String taxCategoryCode
+        +Long vatRateId
+        +Boolean isPromotion
+    }
+
+    class InvoiceTaxBreakdown {
+        +Long id
+        +Long invoiceId
+        +Long vatRateId
+        +String vatRateCode
+        +BigDecimal vatRatePercent
+        +BigDecimal subtotalAmount
+        +BigDecimal discountAmount
+        +BigDecimal taxableAmount
+        +BigDecimal taxAmount
+        +BigDecimal totalAmount
+    }
+
+    class InvoicePayload {
+        +Long invoiceId
+        +String rawData
+        +String xmlContent
+        +String jsonContent
+        +String signedXml
+        +String pdfData
+        +String extraData
+    }
+
+    %% Adjustment and Queue Classes
+    class InvoiceAdjustment {
+        +Long id
+        +Long originalInvoiceId
+        +AdjustmentType adjustmentType
+        +String agreementNumber
+        +LocalDate agreementDate
+        +String agreementContent
+        +String reasonCode
+        +BigDecimal oldTotalAmount
+        +BigDecimal newTotalAmount
+        +BigDecimal differenceAmount
+        +AdjustmentStatus status
+        +Boolean submittedToCqt
+    }
+
+    class InvoiceSyncQueue {
+        +Long id
+        +Long invoiceId
+        +Long merchantId
+        +Long providerId
+        +SyncType syncType
+        +Integer priority
+        +QueueStatus status
+        +Integer attemptCount
+        +Integer maxAttempts
+        +LocalDateTime nextRetryAt
+        +String requestData
+        +String responseData
+        +String errorCode
+        +String errorMessage
+    }
+
+    %% Enums
+    class SubscriptionPlan {
+        <<enumeration>>
+        TRIAL
+        BASIC
+        PREMIUM
+    }
+
+    class EntityStatus {
+        <<enumeration>>
+        ACTIVE
+        INACTIVE
+        SUSPENDED
+    }
+
+    class UserRole {
+        <<enumeration>>
+        ADMIN
+        MANAGER
+        STAFF
+        VIEWER
+    }
+
+    class InvoiceStatus {
+        <<enumeration>>
+        DRAFT
+        PENDING
+        SIGNING
+        SENT_TO_PROVIDER
+        SUCCESS
+        FAILED
+        CANCELLED
+        REPLACED
+    }
+
+    class RegistrationStatus {
+        <<enumeration>>
+        ACTIVE
+        EXHAUSTED
+        EXPIRED
+        CANCELLED
+    }
+
+    class AdjustmentType {
+        <<enumeration>>
+        ADJUSTMENT
+        REPLACEMENT
+        CANCELLATION
+    }
+
+    class AdjustmentStatus {
+        <<enumeration>>
+        PENDING
+        APPROVED
+        REJECTED
+        CANCELLED
+    }
+
+    class SyncType {
+        <<enumeration>>
+        SEND_TO_PROVIDER
+        SEND_TO_CQT
+        CANCEL_INVOICE
+        REPLACE_INVOICE
+    }
+
+    class QueueStatus {
+        <<enumeration>>
+        PENDING
+        PROCESSING
+        COMPLETED
+        FAILED
+        RETRYING
+    }
+
+    %% Relationships
+    Merchant "1" --> "*" MerchantUser : has
+    Merchant "1" --> "*" ApiCredential : has
+    Merchant "1" --> "*" InvoiceMetadata : issues
+    Merchant "1" --> "*" InvoiceRegistration : registers
+    Merchant "1" --> "*" InvoiceTemplate : owns
+    Merchant "1" --> "*" Customer : manages
+
+    ServiceProvider "1" --> "*" MerchantProviderConfig : configured by
+    Merchant "1" --> "*" MerchantProviderConfig : configures
+
+    InvoiceRegistration "1" --> "*" InvoiceTemplate : links to
+    InvoiceTemplate "0..1" --> "0..1" InvoiceRegistration : registered by
+
+    InvoiceMetadata "1" --> "1" InvoicePayload : contains
+    InvoiceMetadata "1" --> "*" InvoiceItem : contains
+    InvoiceMetadata "1" --> "*" InvoiceTaxBreakdown : breakdowns
+    InvoiceMetadata "1" --> "0..1" InvoiceAdjustment : adjusted by
+    InvoiceMetadata "1" --> "*" InvoiceSyncQueue : queued for
+
+    InvoiceItem "*" --> "1" VatRate : applies
+    InvoiceTaxBreakdown "*" --> "1" VatRate : based on
+
+    InvoiceMetadata "1" --> "0..1" InvoiceType : uses
+    InvoiceMetadata "1" --> "0..1" PaymentMethod : uses
+    InvoiceMetadata "1" --> "0..1" Customer : for
+    InvoiceMetadata "1" --> "0..1" ServiceProvider : via
+
+    InvoiceAdjustment "1" --> "1" InvoiceMetadata : original
+    InvoiceAdjustment "1" --> "1" AdjustmentType : is
