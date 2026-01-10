@@ -161,12 +161,9 @@ CREATE TABLE api_credentials (
      is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Còn hiệu lực',
      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
-     created_by BIGINT NULL COMMENT 'Người tạo - merchant_users.id',
 
      CONSTRAINT fk_api_credentials_merchant FOREIGN KEY (merchant_id)
          REFERENCES merchants(id) ON DELETE CASCADE,
-     CONSTRAINT fk_api_credentials_created_by FOREIGN KEY (created_by)
-         REFERENCES merchant_users(id) ON DELETE SET NULL,
 
      INDEX idx_merchant_id (merchant_id),
      INDEX idx_client_id (client_id),
@@ -235,10 +232,6 @@ CREATE TABLE merchant_provider_configs (
 -- 9. Invoice Registrations - Quản lý đăng ký dải số hóa đơn với CQT
 CREATE TABLE invoice_registrations (
    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-   merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu',
-   provider_id BIGINT NULL COMMENT 'Provider phát hành (nếu có)',
-   invoice_template_id BIGINT NULL COMMENT 'Mẫu hóa đơn liên kết',
-
    registration_number VARCHAR(50) NULL COMMENT 'Số quyết định/phê duyệt của CQT',
    from_number BIGINT NOT NULL COMMENT 'Số bắt đầu của dải (VD: 0000001)',
    to_number BIGINT NOT NULL COMMENT 'Số kết thúc của dải (VD: 0001000)',
@@ -255,12 +248,6 @@ CREATE TABLE invoice_registrations (
    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
 
-   CONSTRAINT fk_registration_merchant FOREIGN KEY (merchant_id)
-       REFERENCES merchants(id) ON DELETE RESTRICT,
-   CONSTRAINT fk_registration_provider FOREIGN KEY (provider_id)
-       REFERENCES service_providers(id) ON DELETE SET NULL,
-   CONSTRAINT fk_registration_template FOREIGN KEY (invoice_template_id)
-       REFERENCES invoice_templates(id) ON DELETE SET NULL,
    CONSTRAINT chk_registration_range CHECK (from_number <= to_number),
    CONSTRAINT chk_registration_quantity CHECK (quantity = (to_number - from_number + 1)),
 
@@ -276,7 +263,6 @@ CREATE TABLE invoice_registrations (
 CREATE TABLE invoice_templates (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu mẫu',
-    provider_id BIGINT NOT NULL COMMENT 'Nhà cung cấp hóa đơn',
     invoice_type_id BIGINT NULL COMMENT 'Loại hóa đơn (liên kết bảng invoice_types)',
     invoice_registration_id BIGINT NULL COMMENT 'Đăng ký dải số liên kết',
 
@@ -297,8 +283,6 @@ CREATE TABLE invoice_templates (
 
     CONSTRAINT fk_invoice_template_merchant FOREIGN KEY (merchant_id)
         REFERENCES merchants(id) ON DELETE CASCADE,
-    CONSTRAINT fk_invoice_template_provider FOREIGN KEY (provider_id)
-        REFERENCES service_providers(id) ON DELETE RESTRICT,
     CONSTRAINT fk_invoice_template_type FOREIGN KEY (invoice_type_id)
         REFERENCES invoice_types(id) ON DELETE SET NULL,
     CONSTRAINT fk_invoice_template_registration FOREIGN KEY (invoice_registration_id)
@@ -346,11 +330,8 @@ CREATE TABLE customers (
 -- 12. Invoices Metadata - Thông tin tóm tắt hóa đơn
 CREATE TABLE invoices_metadata (
    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-   merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp phát hành',
-   provider_id BIGINT NULL COMMENT 'Provider xử lý hóa đơn',
    provider_config_id BIGINT NULL COMMENT 'Cấu hình Provider được sử dụng',
    invoice_template_id BIGINT NULL COMMENT 'Mẫu hóa đơn được sử dụng',
-   invoice_registration_id BIGINT NULL COMMENT 'Đăng ký dải số được sử dụng',
    client_request_id VARCHAR(100) NULL COMMENT 'ID request từ Merchant',
 
    invoice_number VARCHAR(20) NULL COMMENT 'Số hóa đơn từ Provider trả về',
@@ -408,16 +389,10 @@ CREATE TABLE invoices_metadata (
    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm tạo',
    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Thời điểm cập nhật',
 
-   CONSTRAINT fk_invoice_merchant FOREIGN KEY (merchant_id)
-       REFERENCES merchants(id) ON DELETE RESTRICT,
-   CONSTRAINT fk_invoice_provider FOREIGN KEY (provider_id)
-       REFERENCES service_providers(id) ON DELETE SET NULL,
-   CONSTRAINT fk_invoice_config FOREIGN KEY (provider_config_id)
-       REFERENCES merchant_provider_configs(id) ON DELETE SET NULL,
    CONSTRAINT fk_invoice_template FOREIGN KEY (invoice_template_id)
        REFERENCES invoice_templates(id) ON DELETE SET NULL,
-   CONSTRAINT fk_invoice_registration FOREIGN KEY (invoice_registration_id)
-       REFERENCES invoice_registrations(id) ON DELETE SET NULL,
+   CONSTRAINT fk_invoice_config FOREIGN KEY (provider_config_id)
+       REFERENCES merchant_provider_configs(id) ON DELETE SET NULL,
    CONSTRAINT fk_invoice_customer FOREIGN KEY (customer_id)
        REFERENCES customers(id) ON DELETE SET NULL,
    CONSTRAINT fk_invoice_payment_method FOREIGN KEY (payment_method)
@@ -532,7 +507,6 @@ CREATE TABLE invoice_adjustments (
      difference_amount DECIMAL(18,2) NULL COMMENT 'Chênh lệch tiền',
 
      status ENUM('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED') NOT NULL DEFAULT 'PENDING' COMMENT 'Trạng thái duyệt',
-     approved_by BIGINT NULL COMMENT 'Người duyệt - merchant_users.id',
      approved_at TIMESTAMP NULL COMMENT 'Thời điểm duyệt',
 
     -- Thông tin gửi CQT
@@ -545,8 +519,7 @@ CREATE TABLE invoice_adjustments (
 
      CONSTRAINT fk_adjustment_original_invoice FOREIGN KEY (original_invoice_id)
          REFERENCES invoices_metadata(id) ON DELETE RESTRICT,
-     CONSTRAINT fk_adjustment_approved_by FOREIGN KEY (approved_by)
-         REFERENCES merchant_users(id) ON DELETE SET NULL,
+
 
      INDEX idx_adjustment_original (original_invoice_id),
      INDEX idx_adjustment_type (adjustment_type),
@@ -559,9 +532,6 @@ CREATE TABLE invoice_adjustments (
 CREATE TABLE invoice_sync_queue (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     invoice_id BIGINT NOT NULL COMMENT 'ID hóa đơn cần đồng bộ',
-    merchant_id BIGINT NOT NULL COMMENT 'Doanh nghiệp sở hữu',
-    provider_id BIGINT NULL COMMENT 'Provider đích (nếu có)',
-
     sync_type ENUM('SEND_TO_PROVIDER', 'SEND_TO_CQT', 'CANCEL_INVOICE', 'REPLACE_INVOICE') NOT NULL COMMENT 'Loại thao tác đồng bộ',
     priority INT NOT NULL DEFAULT 5 COMMENT 'Độ ưu tiên (1=cao nhất, 10=thấp nhất)',
 
@@ -585,10 +555,7 @@ CREATE TABLE invoice_sync_queue (
 
     CONSTRAINT fk_sync_queue_invoice FOREIGN KEY (invoice_id)
         REFERENCES invoices_metadata(id) ON DELETE CASCADE,
-    CONSTRAINT fk_sync_queue_merchant FOREIGN KEY (merchant_id)
-        REFERENCES merchants(id) ON DELETE CASCADE,
-    CONSTRAINT fk_sync_queue_provider FOREIGN KEY (provider_id)
-        REFERENCES service_providers(id) ON DELETE SET NULL,
+
     CONSTRAINT chk_sync_attempt_count CHECK (attempt_count <= max_attempts),
 
     INDEX idx_sync_queue_status (status),
@@ -648,7 +615,7 @@ CREATE TABLE tax_authority_responses (
 -- 19. Audit Log - Nhật ký thao tác
 CREATE TABLE audit_logs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    merchant_id BIGINT NULL COMMENT 'Doanh nghiệp liên quan',
+    merchantuser_id BIGINT NULL COMMENT 'Doanh nghiệp liên quan',
     user_id BIGINT NULL COMMENT 'Người thực hiện',
     entity_type VARCHAR(50) NOT NULL COMMENT 'Loại entity: Invoice, Merchant, Config...',
     entity_id BIGINT NOT NULL COMMENT 'ID của entity',
@@ -659,6 +626,9 @@ CREATE TABLE audit_logs (
     user_agent VARCHAR(500) NULL COMMENT 'User Agent của browser/client',
     request_id VARCHAR(100) NULL COMMENT 'ID request từ frontend',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời điểm xảy ra',
+
+    CONSTRAINT fk_merchant_user FOREIGN KEY (merchantuser_id)
+        REFERENCES merchant_users(id) ON DELETE CASCADE,
 
     INDEX idx_merchant_id (merchant_id),
     INDEX idx_user_id (user_id),
