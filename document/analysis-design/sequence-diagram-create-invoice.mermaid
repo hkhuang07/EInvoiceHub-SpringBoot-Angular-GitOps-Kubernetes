@@ -1,0 +1,93 @@
+sequenceDiagram
+    autonumber
+    title Quy trình Tạo Hóa đơn Điện tử (Create Invoice)
+    
+    participant Client as "Client/Merchant"
+    participant API as "API Gateway"
+    participant Auth as "Auth Service"
+    participant InvSVC as "InvoiceService"
+    participant RegRepo as "InvoiceRegistration<br>Repository"
+    participant TemplateRepo as "InvoiceTemplate<br>Repository"
+    participant Quota as "Quota Service"
+    participant InvMeta as "InvoicesMetadata<br>(Entity)"
+    participant ItemRepo as "InvoiceItem<br>Repository"
+    participant TaxRepo as "InvoiceTaxBreakdown<br>Repository"
+    participant PayloadRepo as "InvoicePayloads<br>Repository"
+    participant SyncQ as "InvoiceSyncQueue<br>(Table)"
+    
+    Note over Client, SyncQ: Bước 1: Xác thực & Kiểm tra quyền
+    Client->>API: POST /api/v1/invoices (InvoiceCreateRequest)
+    API->>Auth: Validate API Key & JWT Token
+    Auth-->>API: Authentication Result (merchant_id, scopes)
+    API->>InvSVC: createInvoice(invoiceData, merchant_id)
+    
+    Note over InvSVC, Quota: Bước 2: Kiểm tra hạn mức hóa đơn
+    InvSVC->>Quota: checkAndReserveQuota(merchant_id)
+    Quota->>Quota: SELECT invoice_quota, invoice_used FROM merchants
+    alt Quota còn đủ
+        Quota-->>InvSVC: QuotaAvailable (invoice_quota - invoice_used > 0)
+    else Quota đã hết
+        Quota-->>InvSVC: QuotaExceededException
+        InvSVC-->>Client: HTTP 429 - Quota Exceeded
+    end
+    
+    Note over RegRepo, TemplateRepo: Bước 3: Sinh số hóa đơn từ Registration
+    InvSVC->>RegRepo: findActiveRegistration(merchant_id)
+    RegRepo-->>InvSVC: InvoiceRegistration (from_number, to_number, current_number)
+    
+    InvSVC->>InvSVC: Generate Invoice Number
+    InvSVC->>InvSVC: new_number = current_number + 1
+    InvSVC->>InvSVC: lookup_code = generateRandomCode(6 chars)
+    
+    alt Registration còn số
+        RegRepo-->>InvSVC: registration.active = true
+        InvSVC->>RegRepo: updateCurrentNumber(merchant_id, new_number)
+    else Registration đã hết
+        RegRepo-->>InvSVC: RegistrationExhaustedException
+        InvSVC-->>Client: HTTP 400 - No available numbers
+    end
+    
+    Note over InvMeta: Bước 4: Tạo Invoice Metadata
+    InvSVC->>InvMeta: new InvoicesMetadata()
+    InvSVC->>InvMeta: Set fields (seller_info, buyer_info, amounts, etc.)
+    InvSVC->>InvMeta: Set status = 'DRAFT'
+    InvSVC->>InvMeta: Set invoice_number, symbol_code, lookup_code
+    InvSVC->>InvMeta: Set created_at = NOW()
+    InvMeta-->>InvSVC: saved InvoiceMetadata (with id)
+    
+    Note over ItemRepo: Bước 5: Lưu các dòng hàng hóa (Invoice Items)
+    loop For each item in invoiceData.items
+        InvSVC->>ItemRepo: save(InvoiceItem)
+        ItemRepo->>ItemRepo: Calculate amounts (quantity * unit_price)
+        ItemRepo->>ItemRepo: Calculate tax_amount (amount * tax_rate/100)
+        ItemRepo-->>InvSVC: saved InvoiceItem
+    end
+    
+    Note over TaxRepo: Bước 6: Tạo phân rã thuế (Tax Breakdown)
+    InvSVC->>TaxRepo: calculateTaxBreakdown(invoice_id)
+    TaxRepo->>TaxRepo: Group items by vat_rate_id
+    TaxRepo->>TaxRepo: Calculate subtotal, taxable, tax per rate
+    loop For each unique vat_rate
+        TaxRepo->>TaxRepo: save(InvoiceTaxBreakdown)
+        TaxRepo-->>InvSVC: saved TaxBreakdown
+    end
+    
+    Note over InvMeta: Bước 7: Cập nhật tổng tiền vào Metadata
+    InvSVC->>InvMeta: Update totals (subtotal_amount, tax_amount, total_amount)
+    InvMeta-->>InvSVC: updated InvoiceMetadata
+    
+    Note over PayloadRepo: Bước 8: Lưu trữ raw request
+    InvSVC->>PayloadRepo: save(invoice_id, raw_data)
+    PayloadRepo-->>InvSVC: saved InvoicePayloads
+    
+    Note over SyncQ: Bước 9: Tạo Sync Queue entry (nếu auto-sign)
+    alt auto_sign = true
+        InvSVC->>SyncQ: new InvoiceSyncQueue()
+        InvSVC->>SyncQ: Set sync_type = 'SEND_TO_PROVIDER'
+        InvSVC->>SyncQ: Set status = 'PENDING'
+        InvSVC->>SyncQ: Set priority = 5
+        SyncQ-->>InvSVC: saved SyncQueue entry
+    end
+    
+    Note over InvSVC: Bước 10: Trả về kết quả
+    InvSVC-->>Client: InvoiceCreateResponse (invoice_id, invoice_number, lookup_code, status)

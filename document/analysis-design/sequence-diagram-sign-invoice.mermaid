@@ -1,0 +1,86 @@
+sequenceDiagram
+    autonumber
+    title Quy trình Ký Hóa đơn Điện tử (Sign Invoice)
+    
+    participant Client as "Client/Merchant"
+    participant API as "API Gateway"
+    participant Auth as "Auth Service"
+    participant SignSVC as "InvoiceSigningService"
+    participant InvRepo as "InvoicesMetadata<br>Repository"
+    participant ConfigRepo as "MerchantProviderConfig<br>Repository"
+    participant PayloadRepo as "InvoicePayloads<br>Repository"
+    participant HSM as "HSM Service /<br>USB Token Driver"
+    participant XMLGen as "XML Generator"
+    participant Invoice as "InvoicesMetadata<br>(Entity)"
+    participant SyncQ as "InvoiceSyncQueue<br>(Table)"
+    participant Provider as "External Provider<br>(VNPT, VIETTEL...)"
+    
+    Note over Client, Provider: Bước 1: Khởi tạo yêu cầu ký
+    Client->>API: POST /api/v1/invoices/{id}/sign
+    API->>Auth: Validate API Key & Invoice Ownership
+    Auth-->>API: Authenticated (merchant_id, user_id)
+    API->>SignSVC: signInvoice(invoice_id, merchant_id)
+    
+    Note over InvRepo: Bước 2: Truy xuất thông tin hóa đơn
+    SignSVC->>InvRepo: findById(invoice_id)
+    InvRepo-->>SignSVC: Invoice (with all fields)
+    
+    alt Invoice status != DRAFT
+        InvRepo-->>SignSVC: InvalidStateException
+        SignSVC-->>Client: HTTP 400 - Invoice not ready for signing
+    end
+    
+    Note over ConfigRepo: Bước 3: Lấy cấu hình Provider & Certificate
+    SignSVC->>ConfigRepo: findActiveConfig(merchant_id)
+    ConfigRepo-->>SignSVC: MerchantProviderConfig (cert_data, is_using_hsm)
+    
+    Note over Invoice: Bước 4: Cập nhật trạng thái SIGNING
+    SignSVC->>Invoice: status = 'SIGNING'
+    InvRepo-->>SignSVC: updated Invoice
+    
+    Note over XMLGen: Bước 5: Generate XML Content theo quy chuẩn TCT
+    SignSVC->>XMLGen: generateInvoiceXML(invoice, template_code)
+    XMLGen->>XMLGen: Build XML structure (TT78/2021 format)
+    XMLGen->>XMLGen: Include seller_info, buyer_info, items, tax_breakdown
+    XMLGen-->>SignSVC: xml_content (signed_data)
+    
+    SignSVC->>PayloadRepo: update(invoice_id, xml_content)
+    PayloadRepo-->>SignSVC: saved
+    
+    Note over HSM: Bước 6: Ký điện tử với HSM/Token
+    SignSVC->>HSM: loadCertificate(certificate_data)
+    HSM-->>SignSVC: Certificate loaded
+    
+    SignSVC->>HSM: sign(xml_content, certificate_serial)
+    
+    alt Using HSM (is_using_hsm = true)
+        HSM->>HSM: Connect to Hardware Security Module
+        HSM->>HSM: Generate digital signature using private key
+        HSM-->>SignSVC: signature_data
+    else Using USB Token (Software)
+        HSM->>HSM: Use local certificate + private key
+        HSM-->>SignSVC: signature_data
+    end
+    
+    Note over PayloadRepo: Bước 7: Embed signature vào XML và lưu trữ
+    SignSVC->>XMLGen: embedSignature(xml_content, signature_data)
+    XMLGen-->>SignSVC: signed_xml (complete XML with signature)
+    
+    SignSVC->>PayloadRepo: update(invoice_id, signed_xml)
+    PayloadRepo-->>SignSVC: saved
+    
+    Note over Invoice: Bước 8: Cập nhật trạng thái thành công
+    SignSVC->>Invoice: status = 'SIGNING_SUCCESS'
+    SignSVC->>Invoice: signed_at = NOW()
+    InvRepo-->>SignSVC: updated Invoice
+    
+    Note over SyncQ: Bước 9: Tạo Sync Queue để gửi Provider
+    SignSVC->>SyncQ: createEntry()
+    SyncQ->>SyncQ: invoice_id = current_invoice_id
+    SyncQ->>SyncQ: sync_type = 'SEND_TO_PROVIDER'
+    SyncQ->>SyncQ: request_data = {signed_xml, provider_config}
+    SyncQ->>SyncQ: status = 'PENDING'
+    SyncQ-->>SignSVC: created SyncQueue entry
+    
+    Note over SignSVC: Bước 10: Trả về kết quả
+    SignSVC-->>Client: SignInvoiceResponse (status, signed_at, txId)

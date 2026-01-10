@@ -1,0 +1,90 @@
+sequenceDiagram
+    autonumber
+    title Quy trình Lấy Thông tin Hóa đơn (Get Invoice Info)
+    
+    participant Client as "Client/Merchant/<br>Customer"
+    participant API as "API Gateway"
+    participant Auth as "Auth Service"
+    participant InvSVC as "InvoiceService"
+    participant InvRepo as "InvoicesMetadata<br>Repository"
+    participant ItemRepo as "InvoiceItem<br>Repository"
+    participant TaxRepo as "InvoiceTaxBreakdown<br>Repository"
+    participant PayloadRepo as "InvoicePayloads<br>Repository"
+    participant TemplateRepo as "InvoiceTemplate<br>Repository"
+    participant CustomerRepo as "Customers<br>Repository"
+    participant Audit as "Audit Service"
+    
+    Note over Client, Audit: Bước 1: Yêu cầu tra cứu hóa đơn
+    alt Tra cứu theo ID
+        Client->>API: GET /api/v1/invoices/{invoice_id}
+    else Tra cứu theo Lookup Code
+        Client->>API: GET /api/v1/invoices/lookup/{lookup_code}
+    else Tra cứu theo số hóa đơn
+        Client->>API: GET /api/v1/invoices/by-number?symbol=XX/YY&number=12345
+    else Tra cứu theo bộ lọc
+        Client->>API: GET /api/v1/invoices?status=SUCCESS&from_date=2024-01-01&to_date=2024-01-31
+    end
+    
+    API->>Auth: Validate API Key / JWT / Lookup Code
+    Auth-->>API: Authorization Result
+    
+    alt Lookup Code (Customer access)
+        Auth-->>API: Check invoice lookup_code matches
+    else API Key (Merchant access)
+        Auth-->>API: Check merchant_id ownership
+    end
+    
+    API->>InvSVC: getInvoiceInfo(query_params, requester_id)
+    
+    Note over InvRepo: Bước 2: Truy xuất Invoice Metadata
+    InvSVC->>InvRepo: findByCriteria(query)
+    
+    alt Tìm theo ID
+        InvRepo-->>InvSVC: InvoiceMetadata (single record)
+    else Tìm theo Lookup Code
+        InvRepo-->>InvSVC: InvoiceMetadata (single record)
+    else Tìm theo filters
+        InvRepo-->>InvSVC: List<InvoiceMetadata> (paginated)
+    else Không tìm thấy
+        InvRepo-->>InvSVC: InvoiceNotFoundException
+        InvSVC-->>Client: HTTP 404 - Invoice not found
+    end
+    
+    Note over InvSVC: Bước 3: Ghi Audit Log
+    InvSVC->>Audit: logInvoiceAccess(invoice_id, user_id, action='VIEW')
+    Audit-->>InvSVC: audit_log_saved
+    
+    Note over ItemRepo, TaxRepo: Bước 4: Load chi tiết liên quan
+    InvSVC->>ItemRepo: findByInvoiceId(invoice_id)
+    ItemRepo-->>InvSVC: List<InvoiceItem> (ordered by line_number)
+    
+    InvSVC->>TaxRepo: findByInvoiceId(invoice_id)
+    TaxRepo-->>InvSVC: List<InvoiceTaxBreakdown> (grouped by vat_rate)
+    
+    Note over TemplateRepo, CustomerRepo: Bước 5: Load thông tin mở rộng (nếu cần)
+    InvSVC->>TemplateRepo: findById(invoice.invoice_template_id)
+    TemplateRepo-->>InvSVC: InvoiceTemplate (template_code, symbol_code)
+    
+    alt invoice.customer_id != null
+        InvSVC->>CustomerRepo: findById(invoice.customer_id)
+        CustomerRepo-->>InvSVC: Customer (full details)
+    end
+    
+    Note over PayloadRepo: Bước 6: Load Invoice Payload (nếu requested)
+    alt include_xml = true
+        InvSVC->>PayloadRepo: findById(invoice_id)
+        PayloadRepo-->>InvSVC: InvoicePayloads (xml_content, signed_xml, json_content)
+    end
+    
+    Note over InvSVC: Bước 7: Build Invoice Response DTO
+    InvSVC->>InvSVC: Map InvoiceMetadata -> InvoiceResponseDTO
+    InvSVC->>InvSVC: Map InvoiceItems -> List<InvoiceItemDTO>
+    InvSVC->>InvSVC: Map TaxBreakdowns -> List<InvoiceTaxBreakdownDTO>
+    InvSVC->>InvSVC: Calculate summary stats (item_count, total_items)
+    
+    alt Include QR Code URL
+        InvSVC->>InvSVC: generateQRCodeUrl(lookup_code)
+    end
+    
+    Note over InvSVC: Bước 8: Trả về kết quả
+    InvSVC-->>Client: InvoiceResponseDTO (full details)
