@@ -1,0 +1,37 @@
+graph LR
+    subgraph "Actors"
+        Admin["Merchant Admin"]
+        Staff["Staff"]
+        APIClient["API Client"]
+        SysAdmin["System Admin"]
+        CQT["Tax Authority"]
+    end
+
+    subgraph "E-Invoice Hub System"
+        UC1(["UC1: Quản lý Tài khoản & Định danh"])
+        UC2(["UC2: Phát hành Hóa đơn"])
+        UC3(["UC3: Đồng bộ & Truyền nhận dữ liệu"])
+        UC4(["UC4: Tra cứu & Khai thác Hóa đơn"])
+        UC5(["UC5: Thiết lập Dải số & Mẫu hóa đơn"])
+        UC6(["UC6: Xử lý Nghiệp vụ sau Phát hành"])
+        UC7(["UC7: Quản lý Cấu hình & Hệ thống"])
+    end
+
+    %% Relationships
+    Admin --- UC1
+    Admin --- UC5
+    Admin --- UC7
+    
+    Staff --- UC2
+    Staff --- UC4
+    Staff --- UC6
+    
+    APIClient --- UC2
+    APIClient --- UC3
+    APIClient --- UC4
+    
+    SysAdmin --- UC1
+    SysAdmin --- UC7
+    
+    CQT --- UC3
+    CQT --- UC6

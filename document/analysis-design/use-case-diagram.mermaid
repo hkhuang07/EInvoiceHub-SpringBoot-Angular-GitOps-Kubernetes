@@ -1,0 +1,149 @@
+graph TB
+    subgraph "Actors"
+        Admin["Merchant Admin"]
+        Staff["Staff"]
+        APIClient["API Client"]
+        SysAdmin["System Admin"]
+        CQT["Tax Authority"]
+    end
+
+    subgraph "Merchant Management"
+        UC1["Quản lý Merchant"]
+        UC1a["Đăng ký Merchant mới"]
+        UC1b["Cập nhật thông tin"]
+        UC1c["Quản lý người dùng"]
+        UC1d["Quản lý API Credentials"]
+    end
+
+    subgraph "Invoice Operations"
+        UC2["Lập hóa đơn"]
+        UC2a["Tạo Draft"]
+        UC2b["Cập nhật hóa đơn"]
+        UC2c["Gửi phát hành"]
+        
+        UC3["Ký số điện tử"]
+        UC3a["Ký bằng HSM"]
+        UC3b["Ký bằng USB Token"]
+        
+        UC4["Gửi/Đồng bộ hóa đơn"]
+        UC4a["Gửi Provider"]
+        UC4b["Gửi CQT"]
+        UC4c["Kiểm tra trạng thái"]
+        
+        UC5["Tra cứu hóa đơn"]
+        UC5a["Tra cứu theo mã"]
+        UC5b["Tra cứu theo CQT"]
+        UC5c["Tải XML/PDF"]
+    end
+
+    subgraph "Registration Management"
+        UC6["Đăng ký dải số"]
+        UC6a["Tạo đăng ký mới"]
+        UC6b["Liên kết Template"]
+        UC6c["Quản lý số hóa đơn"]
+        
+        UC7["Quản lý Template"]
+        UC7a["Tạo Template"]
+        UC7b["Cấu hình Symbol Code"]
+    end
+
+    subgraph "Adjustment Operations"
+        UC8["Điều chỉnh hóa đơn"]
+        UC8a["Tạo biên bản"]
+        UC8b["Phê duyệt"]
+        UC8c["Gửi CQT điều chỉnh"]
+        
+        UC9["Thay thế hóa đơn"]
+        UC9a["Tạo hóa đơn thay thế"]
+        UC9b["Liên kết hóa đơn gốc"]
+        
+        UC10["Hủy hóa đơn"]
+        UC10a["Tạo yêu cầu hủy"]
+        UC10b["Phê duyệt hủy"]
+    end
+
+    subgraph "System Management"
+        UC11["Quản lý Provider"]
+        UC11a["Cấu hình Provider"]
+        UC11b["Quản lý Certificate"]
+        
+        UC12["Quản lý Catalog"]
+        UC12a["Loại hóa đơn"]
+        UC12b["Phương thức thanh toán"]
+        UC12c["Thuế suất GTGT"]
+        
+        UC13["Báo cáo & Thống kê"]
+        UC13a["Báo cáo sử dụng"]
+        UC13b["Báo cáo thuế"]
+    end
+
+    %% Relationships
+    Admin --> Quản lý Merchant
+    Admin --> Quản lý người dùng
+    Admin --> Quản lý API Credentials
+    Admin --> Quản lý Provider
+    Admin --> Cấu hình Provider
+	Admin --> Quản lý Certificate
+	Admin --> Quản lý Catalog
+	Admin --> Loại hóa đơn
+	Admin --> Phương thức thanh toán
+	Admin --> Thuế suất giá trị gia tăng
+	Admin --> Báo cáo thống kê
+	Admin --> Báo cáo sử dụng
+	Admin --> Báo cáo thuế
+	Admin --> Quản lý Template
+	Admin --> Tạo Template
+	Admin --> Cấu hình Symbol Code
+    
+	APIClient --> Gửi/đồng bộ hóa đơn
+	APIClient --> Gửi Provider
+    APIClient --> Kiểm tra trạng thái
+    APIClient --> Gửi cơ quan thuế
+    APIClient --> Tra cứu theo CQT
+    APIClient --> Tra cứu theo mã
+    APIClient --> Tra cứu hóa đơn
+    APIClient --> Tải XML/PDF
+    APIClient --> Lập hóa đơn
+    APIClient --> Tạo Draft
+    APIClient --> Cập nhật hóa đơn
+    APIClient --> Gửi phát hảnh  ----> Ký số điện tử (Ký bằng HSM, Ký bằng USB Token)
+	
+	Staff --> Tra cứu theo CQT
+    Staff --> Tra cứu theo mã
+    Staff --> Tra cứu hóa đơn
+    Staff --> Tải XML/PDF
+    Staff --> Lập hóa đơn
+    Staff --> Tạo Draft
+    Staff --> Cập nhật hóa đơn
+    Staff --> Gửi phát hảnh  ----> Ký số điện tử (Ký bằng HSM, Ký bằng USB Token
+	Staff --> Ký số điện tử
+	Staff --> Điều chỉnh hóa đơn
+	Staff --> Tạo biên bản
+	Staff --> Phê duyệt ----> Ký số điện tử (Ký bằng HSM, Ký bằng USB Token
+	Staff --> Gửi CQT điều hỉnh
+	Staff --> Hủy hóa đơn
+	Staff --> Tạo yêu cầu hủy ----> Ký số điện tử (Ký bằng HSM, Ký bằng USB Token
+	Staff --> Phê duyệt hủy
+	Staff --> Thay thuế hóa đơn
+	Staff --> Tạo đơn thay thế
+	Staff --> Liên kết hóa đơn gốc
+	Staff --> Đăng ký dải số
+	Staff --> Tạo đăng ký mới
+	Staff --> Quản lý số hóa đơn
+	Staff --> Liên kết Template
+    
+	SysAdmin --> Quản lý Merchant
+    SysAdmin --> Đăng ký Merchat mới
+	SysAdmin --> Cập nhật thông tin
+    SysAdmin --> Quản lý Provider
+    SysAdmin --> Cấu hình Provider
+	SysAdmin --> Quản lý Certificate
+	SysAdmin --> Quản lý Catalog
+	SysAdmin --> Loại hóa đơn
+	SysAdmin --> Phương thức thanh toán
+	SysAdmin --> Thuế suất giá trị gia tăng
+    
+    CQT --> Gửi cơ quan thuế
+    CQT --> Gửi cơ quan thuế điều chỉnh
+    CQT --> Phê duyệt hủy
+    CQT --> Liên kết hóa đơn gốc
