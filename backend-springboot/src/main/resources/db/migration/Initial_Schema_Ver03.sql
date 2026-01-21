@@ -671,6 +671,3 @@ INSERT INTO system_config (config_key, config_value, config_type, description) V
 ('INVOICE_NUMBER_FORMAT', 'PREFIX + NUMBER + SUFFIX', 'STRING', 'Cấu trúc số hóa đơn mặc định'),
 ('BACKGROUND_JOB_ENABLED', 'true', 'BOOLEAN', 'Kích hoạt xử lý background jobs'),
 ('INVOICE_LOOKUP_CODE_LENGTH', '6', 'NUMBER', 'Độ dài mã tra cứu hóa đơn ngẫu nhiên');
-
-
-
