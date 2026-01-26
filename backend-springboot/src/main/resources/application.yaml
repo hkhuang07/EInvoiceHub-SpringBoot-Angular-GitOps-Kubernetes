@@ -7,7 +7,7 @@ spring:
     name: einvoice-core
 
   # =============================================================================
-  # MariaDB Database Configuration - Thay thế MySQL bằng MariaDB
+  # MariaDB Database Configuration
   # =============================================================================
   datasource:
     url: jdbc:mariadb://localhost:3306/einvoicehub?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
@@ -22,9 +22,7 @@ spring:
       max-lifetime: 1200000
       connection-timeout: 20000
 
-  # =============================================================================
   # JPA/Hibernate Configuration - Sử dụng MariaDBDialect
-  # =============================================================================
   jpa:
     hibernate:
       ddl-auto: validate
@@ -39,15 +37,6 @@ spring:
         order_updates: true
 
   # =============================================================================
-  # XÓA BỎ: MongoDB Configuration (đã chuyển sang MariaDB)
-  # =============================================================================
-  # data:
-  #   mongodb:
-  #     uri: ${MONGODB_URI:mongodb+srv://...}
-  #     database: einvoicehub
-  #     auto-index-creation: true
-
-  # =============================================================================
   # Flyway Migration
   # =============================================================================
   flyway:
@@ -55,6 +44,7 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
     validate-on-migrate: true
+    baseline-version: 0
     out-of-order: false
 
 # Server Configuration
