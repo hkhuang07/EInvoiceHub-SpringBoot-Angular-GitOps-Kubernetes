@@ -6,7 +6,7 @@
 
 # Stage 1: Builder Stage - Compile and package the application
 
-FROM maven:3.9-eclipse-temurin-21-jdk-alpine AS builder
+FROM maven:3.9-eclipse-temurin-21-alpine AS builder
 
 # Set working directory
 WORKDIR /build

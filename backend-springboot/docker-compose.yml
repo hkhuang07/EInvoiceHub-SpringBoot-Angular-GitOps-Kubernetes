@@ -30,9 +30,8 @@ services:
           memory: 512M
         reservations:
           memory: 256M
-
   
-  # Prometheus - Metrics collection (giữ lại)
+  # Prometheus - Metrics collection
   prometheus:
     image: prom/prometheus:v2.48.0
     container_name: einvoice-prometheus
@@ -63,7 +62,7 @@ services:
           memory: 256M
 
   
-  # Grafana - Metrics visualization (giữ lại)
+  # Grafana - Metrics visualization 
   grafana:
     image: grafana/grafana:10.2.0
     container_name: einvoice-grafana

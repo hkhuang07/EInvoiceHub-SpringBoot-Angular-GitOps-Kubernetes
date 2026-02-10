@@ -1,0 +1,32 @@
+{
+  "output": {
+    "filePath": "einvoicehub-full-source.txt",
+    "style": "xml"
+  },
+  "include": ["**/*"],
+  "ignore": {
+    "customPatterns": [
+      "**/bin/**",
+      "**/target/**",
+      "**/*.class",
+      "**/*.exe",
+      "**/*.jar",
+      "mvnw",
+      "mvnw.cmd",
+      "**/HELP.md",
+      "**/.git/**",
+      "**/.idea/**",
+      "**/.vscode/**",
+      "**/node_modules/**",
+      "**/dist/**"
+    ],
+    "useGitignore": true,
+    "useDefaultPatterns": true
+  },
+  "security": {
+    "enableSecurityCheck": true
+  },
+  "tokenCount": {
+    "encoding": "cl100k_base"
+  }
+}

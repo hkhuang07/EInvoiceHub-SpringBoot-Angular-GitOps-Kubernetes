@@ -1,0 +1,772 @@
+This file is a merged representation of a subset of the codebase, containing specifically included files and files not matching ignore patterns, combined into a single document by Repomix.
+The content has been processed where line numbers have been added.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of a subset of the repository's contents that is considered the most important context.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Only files matching these patterns are included: src/**/*, angular.json, package.json, tsconfig.json
+- Files matching these patterns are excluded: node_modules/**, dist/**, .angular/**, **/assets/**, **/*.spec.ts, **/*.ico, **/*.png, **/*.jpg, **/*.svg, package-lock.json, coverage/**, .editorconfig, .gitignore
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Line numbers have been added to the beginning of each line
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+src/
+  app/
+    app.config.server.ts
+    app.config.ts
+    app.html
+    app.routes.server.ts
+    app.routes.ts
+    app.scss
+    app.ts
+  index.html
+  main.server.ts
+  main.ts
+  server.ts
+  styles.scss
+angular.json
+package.json
+tsconfig.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/app/app.config.server.ts">
+ 1: import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
+ 2: import { provideServerRendering, withRoutes } from '@angular/ssr';
+ 3: import { appConfig } from './app.config';
+ 4: import { serverRoutes } from './app.routes.server';
+ 5: 
+ 6: const serverConfig: ApplicationConfig = {
+ 7:   providers: [
+ 8:     provideServerRendering(withRoutes(serverRoutes))
+ 9:   ]
+10: };
+11: 
+12: export const config = mergeApplicationConfig(appConfig, serverConfig);
+</file>
+
+<file path="src/app/app.config.ts">
+ 1: import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+ 2: import { provideRouter } from '@angular/router';
+ 3: 
+ 4: import { routes } from './app.routes';
+ 5: import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+ 6: 
+ 7: export const appConfig: ApplicationConfig = {
+ 8:   providers: [
+ 9:     provideBrowserGlobalErrorListeners(),
+10:     provideRouter(routes), provideClientHydration(withEventReplay())
+11:   ]
+12: };
+</file>
+
+<file path="src/app/app.html">
+  1: <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+  2: <!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
+  3: <!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
+  4: <!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
+  5: <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+  6: <!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
+  7: <!-- * * * * * * * to get started with your project! * * * * * * * -->
+  8: <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+  9: 
+ 10: <style>
+ 11:   :host {
+ 12:     --bright-blue: oklch(51.01% 0.274 263.83);
+ 13:     --electric-violet: oklch(53.18% 0.28 296.97);
+ 14:     --french-violet: oklch(47.66% 0.246 305.88);
+ 15:     --vivid-pink: oklch(69.02% 0.277 332.77);
+ 16:     --hot-red: oklch(61.42% 0.238 15.34);
+ 17:     --orange-red: oklch(63.32% 0.24 31.68);
+ 18: 
+ 19:     --gray-900: oklch(19.37% 0.006 300.98);
+ 20:     --gray-700: oklch(36.98% 0.014 302.71);
+ 21:     --gray-400: oklch(70.9% 0.015 304.04);
+ 22: 
+ 23:     --red-to-pink-to-purple-vertical-gradient: linear-gradient(
+ 24:       180deg,
+ 25:       var(--orange-red) 0%,
+ 26:       var(--vivid-pink) 50%,
+ 27:       var(--electric-violet) 100%
+ 28:     );
+ 29: 
+ 30:     --red-to-pink-to-purple-horizontal-gradient: linear-gradient(
+ 31:       90deg,
+ 32:       var(--orange-red) 0%,
+ 33:       var(--vivid-pink) 50%,
+ 34:       var(--electric-violet) 100%
+ 35:     );
+ 36: 
+ 37:     --pill-accent: var(--bright-blue);
+ 38: 
+ 39:     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+ 40:       Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+ 41:       "Segoe UI Symbol";
+ 42:     box-sizing: border-box;
+ 43:     -webkit-font-smoothing: antialiased;
+ 44:     -moz-osx-font-smoothing: grayscale;
+ 45:   }
+ 46: 
+ 47:   h1 {
+ 48:     font-size: 3.125rem;
+ 49:     color: var(--gray-900);
+ 50:     font-weight: 500;
+ 51:     line-height: 100%;
+ 52:     letter-spacing: -0.125rem;
+ 53:     margin: 0;
+ 54:     font-family: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+ 55:       Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+ 56:       "Segoe UI Symbol";
+ 57:   }
+ 58: 
+ 59:   p {
+ 60:     margin: 0;
+ 61:     color: var(--gray-700);
+ 62:   }
+ 63: 
+ 64:   main {
+ 65:     width: 100%;
+ 66:     min-height: 100%;
+ 67:     display: flex;
+ 68:     justify-content: center;
+ 69:     align-items: center;
+ 70:     padding: 1rem;
+ 71:     box-sizing: inherit;
+ 72:     position: relative;
+ 73:   }
+ 74: 
+ 75:   .angular-logo {
+ 76:     max-width: 9.2rem;
+ 77:   }
+ 78: 
+ 79:   .content {
+ 80:     display: flex;
+ 81:     justify-content: space-around;
+ 82:     width: 100%;
+ 83:     max-width: 700px;
+ 84:     margin-bottom: 3rem;
+ 85:   }
+ 86: 
+ 87:   .content h1 {
+ 88:     margin-top: 1.75rem;
+ 89:   }
+ 90: 
+ 91:   .content p {
+ 92:     margin-top: 1.5rem;
+ 93:   }
+ 94: 
+ 95:   .divider {
+ 96:     width: 1px;
+ 97:     background: var(--red-to-pink-to-purple-vertical-gradient);
+ 98:     margin-inline: 0.5rem;
+ 99:   }
+100: 
+101:   .pill-group {
+102:     display: flex;
+103:     flex-direction: column;
+104:     align-items: start;
+105:     flex-wrap: wrap;
+106:     gap: 1.25rem;
+107:   }
+108: 
+109:   .pill {
+110:     display: flex;
+111:     align-items: center;
+112:     --pill-accent: var(--bright-blue);
+113:     background: color-mix(in srgb, var(--pill-accent) 5%, transparent);
+114:     color: var(--pill-accent);
+115:     padding-inline: 0.75rem;
+116:     padding-block: 0.375rem;
+117:     border-radius: 2.75rem;
+118:     border: 0;
+119:     transition: background 0.3s ease;
+120:     font-family: var(--inter-font);
+121:     font-size: 0.875rem;
+122:     font-style: normal;
+123:     font-weight: 500;
+124:     line-height: 1.4rem;
+125:     letter-spacing: -0.00875rem;
+126:     text-decoration: none;
+127:     white-space: nowrap;
+128:   }
+129: 
+130:   .pill:hover {
+131:     background: color-mix(in srgb, var(--pill-accent) 15%, transparent);
+132:   }
+133: 
+134:   .pill-group .pill:nth-child(6n + 1) {
+135:     --pill-accent: var(--bright-blue);
+136:   }
+137:   .pill-group .pill:nth-child(6n + 2) {
+138:     --pill-accent: var(--electric-violet);
+139:   }
+140:   .pill-group .pill:nth-child(6n + 3) {
+141:     --pill-accent: var(--french-violet);
+142:   }
+143: 
+144:   .pill-group .pill:nth-child(6n + 4),
+145:   .pill-group .pill:nth-child(6n + 5),
+146:   .pill-group .pill:nth-child(6n + 6) {
+147:     --pill-accent: var(--hot-red);
+148:   }
+149: 
+150:   .pill-group svg {
+151:     margin-inline-start: 0.25rem;
+152:   }
+153: 
+154:   .social-links {
+155:     display: flex;
+156:     align-items: center;
+157:     gap: 0.73rem;
+158:     margin-top: 1.5rem;
+159:   }
+160: 
+161:   .social-links path {
+162:     transition: fill 0.3s ease;
+163:     fill: var(--gray-400);
+164:   }
+165: 
+166:   .social-links a:hover svg path {
+167:     fill: var(--gray-900);
+168:   }
+169: 
+170:   @media screen and (max-width: 650px) {
+171:     .content {
+172:       flex-direction: column;
+173:       width: max-content;
+174:     }
+175: 
+176:     .divider {
+177:       height: 1px;
+178:       width: 100%;
+179:       background: var(--red-to-pink-to-purple-horizontal-gradient);
+180:       margin-block: 1.5rem;
+181:     }
+182:   }
+183: </style>
+184: 
+185: <main class="main">
+186:   <div class="content">
+187:     <div class="left-side">
+188:       <svg
+189:         xmlns="http://www.w3.org/2000/svg"
+190:         viewBox="0 0 982 239"
+191:         fill="none"
+192:         class="angular-logo"
+193:       >
+194:         <g clip-path="url(#a)">
+195:           <path
+196:             fill="url(#b)"
+197:             d="M388.676 191.625h30.849L363.31 31.828h-35.758l-56.215 159.797h30.848l13.174-39.356h60.061l13.256 39.356Zm-65.461-62.675 21.602-64.311h1.227l21.602 64.311h-44.431Zm126.831-7.527v70.202h-28.23V71.839h27.002v20.374h1.392c2.782-6.71 7.2-12.028 13.255-15.956 6.056-3.927 13.584-5.89 22.503-5.89 8.264 0 15.465 1.8 21.684 5.318 6.137 3.518 10.964 8.673 14.319 15.382 3.437 6.71 5.074 14.81 4.992 24.383v76.175h-28.23v-71.92c0-8.019-2.046-14.237-6.219-18.819-4.173-4.5-9.819-6.791-17.102-6.791-4.91 0-9.328 1.063-13.174 3.272-3.846 2.128-6.792 5.237-9.001 9.328-2.046 4.009-3.191 8.918-3.191 14.728ZM589.233 239c-10.147 0-18.82-1.391-26.103-4.091-7.282-2.7-13.092-6.382-17.511-10.964-4.418-4.582-7.528-9.655-9.164-15.219l25.448-6.136c1.145 2.372 2.782 4.663 4.991 6.954 2.209 2.291 5.155 4.255 8.837 5.81 3.683 1.554 8.428 2.291 14.074 2.291 8.019 0 14.647-1.964 19.884-5.81 5.237-3.845 7.856-10.227 7.856-19.064v-22.665h-1.391c-1.473 2.946-3.601 5.892-6.383 9.001-2.782 3.109-6.464 5.645-10.965 7.691-4.582 2.046-10.228 3.109-17.101 3.109-9.165 0-17.511-2.209-25.039-6.545-7.446-4.337-13.42-10.883-17.757-19.474-4.418-8.673-6.628-19.473-6.628-32.565 0-13.091 2.21-24.301 6.628-33.383 4.419-9.082 10.311-15.955 17.839-20.7 7.528-4.746 15.874-7.037 25.039-7.037 7.037 0 12.846 1.145 17.347 3.518 4.582 2.373 8.182 5.236 10.883 8.51 2.7 3.272 4.746 6.382 6.137 9.327h1.554v-19.8h27.821v121.749c0 10.228-2.454 18.737-7.364 25.447-4.91 6.709-11.538 11.7-20.048 15.055-8.509 3.355-18.165 4.991-28.884 4.991Zm.245-71.266c5.974 0 11.047-1.473 15.302-4.337 4.173-2.945 7.446-7.118 9.573-12.519 2.21-5.482 3.274-12.027 3.274-19.637 0-7.609-1.064-14.155-3.274-19.8-2.127-5.646-5.318-10.064-9.491-13.255-4.174-3.11-9.329-4.746-15.384-4.746s-11.537 1.636-15.792 4.91c-4.173 3.272-7.365 7.772-9.492 13.418-2.128 5.727-3.191 12.191-3.191 19.392 0 7.2 1.063 13.745 3.273 19.228 2.127 5.482 5.318 9.736 9.573 12.764 4.174 3.027 9.41 4.582 15.629 4.582Zm141.56-26.51V71.839h28.23v119.786h-27.412v-21.273h-1.227c-2.7 6.709-7.119 12.191-13.338 16.446-6.137 4.255-13.747 6.382-22.748 6.382-7.855 0-14.81-1.718-20.783-5.237-5.974-3.518-10.72-8.591-14.075-15.382-3.355-6.709-5.073-14.891-5.073-24.464V71.839h28.312v71.921c0 7.609 2.046 13.664 6.219 18.083 4.173 4.5 9.655 6.709 16.365 6.709 4.173 0 8.183-.982 12.111-3.028 3.927-2.045 7.118-5.072 9.655-9.082 2.537-4.091 3.764-9.164 3.764-15.218Zm65.707-109.395v159.796h-28.23V31.828h28.23Zm44.841 162.169c-7.61 0-14.402-1.391-20.457-4.091-6.055-2.7-10.883-6.791-14.32-12.109-3.518-5.319-5.237-11.946-5.237-19.801 0-6.791 1.228-12.355 3.765-16.773 2.536-4.419 5.891-7.937 10.228-10.637 4.337-2.618 9.164-4.664 14.647-6.055 5.4-1.391 11.046-2.373 16.856-3.027 7.037-.737 12.683-1.391 17.102-1.964 4.337-.573 7.528-1.555 9.574-2.782 1.963-1.309 3.027-3.273 3.027-5.973v-.491c0-5.891-1.718-10.391-5.237-13.664-3.518-3.191-8.51-4.828-15.056-4.828-6.955 0-12.356 1.473-16.447 4.5-4.009 3.028-6.71 6.546-8.183 10.719l-26.348-3.764c2.046-7.282 5.483-13.336 10.31-18.328 4.746-4.909 10.638-8.59 17.511-11.045 6.955-2.455 14.565-3.682 22.912-3.682 5.809 0 11.537.654 17.265 2.045s10.965 3.6 15.711 6.71c4.746 3.109 8.51 7.282 11.455 12.6 2.864 5.318 4.337 11.946 4.337 19.883v80.184h-27.166v-16.446h-.9c-1.719 3.355-4.092 6.464-7.201 9.328-3.109 2.864-6.955 5.237-11.619 6.955-4.828 1.718-10.229 2.536-16.529 2.536Zm7.364-20.701c5.646 0 10.556-1.145 14.729-3.354 4.173-2.291 7.364-5.237 9.655-9.001 2.292-3.763 3.355-7.854 3.355-12.273v-14.155c-.9.737-2.373 1.391-4.5 2.046-2.128.654-4.419 1.145-7.037 1.636-2.619.491-5.155.9-7.692 1.227-2.537.328-4.746.655-6.628.901-4.173.572-8.019 1.472-11.292 2.781-3.355 1.31-5.973 3.11-7.855 5.401-1.964 2.291-2.864 5.318-2.864 8.918 0 5.237 1.882 9.164 5.728 11.782 3.682 2.782 8.51 4.091 14.401 4.091Zm64.643 18.328V71.839h27.412v19.965h1.227c2.21-6.955 5.974-12.274 11.292-16.038 5.319-3.763 11.456-5.645 18.329-5.645 1.555 0 3.355.082 5.237.163 1.964.164 3.601.328 4.91.573v25.938c-1.227-.41-3.109-.819-5.646-1.146a58.814 58.814 0 0 0-7.446-.49c-5.155 0-9.738 1.145-13.829 3.354-4.091 2.209-7.282 5.236-9.655 9.164-2.373 3.927-3.519 8.427-3.519 13.5v70.448h-28.312ZM222.077 39.192l-8.019 125.923L137.387 0l84.69 39.192Zm-53.105 162.825-57.933 33.056-57.934-33.056 11.783-28.556h92.301l11.783 28.556ZM111.039 62.675l30.357 73.803H80.681l30.358-73.803ZM7.937 165.115 0 39.192 84.69 0 7.937 165.115Z"
+198:           />
+199:           <path
+200:             fill="url(#c)"
+201:             d="M388.676 191.625h30.849L363.31 31.828h-35.758l-56.215 159.797h30.848l13.174-39.356h60.061l13.256 39.356Zm-65.461-62.675 21.602-64.311h1.227l21.602 64.311h-44.431Zm126.831-7.527v70.202h-28.23V71.839h27.002v20.374h1.392c2.782-6.71 7.2-12.028 13.255-15.956 6.056-3.927 13.584-5.89 22.503-5.89 8.264 0 15.465 1.8 21.684 5.318 6.137 3.518 10.964 8.673 14.319 15.382 3.437 6.71 5.074 14.81 4.992 24.383v76.175h-28.23v-71.92c0-8.019-2.046-14.237-6.219-18.819-4.173-4.5-9.819-6.791-17.102-6.791-4.91 0-9.328 1.063-13.174 3.272-3.846 2.128-6.792 5.237-9.001 9.328-2.046 4.009-3.191 8.918-3.191 14.728ZM589.233 239c-10.147 0-18.82-1.391-26.103-4.091-7.282-2.7-13.092-6.382-17.511-10.964-4.418-4.582-7.528-9.655-9.164-15.219l25.448-6.136c1.145 2.372 2.782 4.663 4.991 6.954 2.209 2.291 5.155 4.255 8.837 5.81 3.683 1.554 8.428 2.291 14.074 2.291 8.019 0 14.647-1.964 19.884-5.81 5.237-3.845 7.856-10.227 7.856-19.064v-22.665h-1.391c-1.473 2.946-3.601 5.892-6.383 9.001-2.782 3.109-6.464 5.645-10.965 7.691-4.582 2.046-10.228 3.109-17.101 3.109-9.165 0-17.511-2.209-25.039-6.545-7.446-4.337-13.42-10.883-17.757-19.474-4.418-8.673-6.628-19.473-6.628-32.565 0-13.091 2.21-24.301 6.628-33.383 4.419-9.082 10.311-15.955 17.839-20.7 7.528-4.746 15.874-7.037 25.039-7.037 7.037 0 12.846 1.145 17.347 3.518 4.582 2.373 8.182 5.236 10.883 8.51 2.7 3.272 4.746 6.382 6.137 9.327h1.554v-19.8h27.821v121.749c0 10.228-2.454 18.737-7.364 25.447-4.91 6.709-11.538 11.7-20.048 15.055-8.509 3.355-18.165 4.991-28.884 4.991Zm.245-71.266c5.974 0 11.047-1.473 15.302-4.337 4.173-2.945 7.446-7.118 9.573-12.519 2.21-5.482 3.274-12.027 3.274-19.637 0-7.609-1.064-14.155-3.274-19.8-2.127-5.646-5.318-10.064-9.491-13.255-4.174-3.11-9.329-4.746-15.384-4.746s-11.537 1.636-15.792 4.91c-4.173 3.272-7.365 7.772-9.492 13.418-2.128 5.727-3.191 12.191-3.191 19.392 0 7.2 1.063 13.745 3.273 19.228 2.127 5.482 5.318 9.736 9.573 12.764 4.174 3.027 9.41 4.582 15.629 4.582Zm141.56-26.51V71.839h28.23v119.786h-27.412v-21.273h-1.227c-2.7 6.709-7.119 12.191-13.338 16.446-6.137 4.255-13.747 6.382-22.748 6.382-7.855 0-14.81-1.718-20.783-5.237-5.974-3.518-10.72-8.591-14.075-15.382-3.355-6.709-5.073-14.891-5.073-24.464V71.839h28.312v71.921c0 7.609 2.046 13.664 6.219 18.083 4.173 4.5 9.655 6.709 16.365 6.709 4.173 0 8.183-.982 12.111-3.028 3.927-2.045 7.118-5.072 9.655-9.082 2.537-4.091 3.764-9.164 3.764-15.218Zm65.707-109.395v159.796h-28.23V31.828h28.23Zm44.841 162.169c-7.61 0-14.402-1.391-20.457-4.091-6.055-2.7-10.883-6.791-14.32-12.109-3.518-5.319-5.237-11.946-5.237-19.801 0-6.791 1.228-12.355 3.765-16.773 2.536-4.419 5.891-7.937 10.228-10.637 4.337-2.618 9.164-4.664 14.647-6.055 5.4-1.391 11.046-2.373 16.856-3.027 7.037-.737 12.683-1.391 17.102-1.964 4.337-.573 7.528-1.555 9.574-2.782 1.963-1.309 3.027-3.273 3.027-5.973v-.491c0-5.891-1.718-10.391-5.237-13.664-3.518-3.191-8.51-4.828-15.056-4.828-6.955 0-12.356 1.473-16.447 4.5-4.009 3.028-6.71 6.546-8.183 10.719l-26.348-3.764c2.046-7.282 5.483-13.336 10.31-18.328 4.746-4.909 10.638-8.59 17.511-11.045 6.955-2.455 14.565-3.682 22.912-3.682 5.809 0 11.537.654 17.265 2.045s10.965 3.6 15.711 6.71c4.746 3.109 8.51 7.282 11.455 12.6 2.864 5.318 4.337 11.946 4.337 19.883v80.184h-27.166v-16.446h-.9c-1.719 3.355-4.092 6.464-7.201 9.328-3.109 2.864-6.955 5.237-11.619 6.955-4.828 1.718-10.229 2.536-16.529 2.536Zm7.364-20.701c5.646 0 10.556-1.145 14.729-3.354 4.173-2.291 7.364-5.237 9.655-9.001 2.292-3.763 3.355-7.854 3.355-12.273v-14.155c-.9.737-2.373 1.391-4.5 2.046-2.128.654-4.419 1.145-7.037 1.636-2.619.491-5.155.9-7.692 1.227-2.537.328-4.746.655-6.628.901-4.173.572-8.019 1.472-11.292 2.781-3.355 1.31-5.973 3.11-7.855 5.401-1.964 2.291-2.864 5.318-2.864 8.918 0 5.237 1.882 9.164 5.728 11.782 3.682 2.782 8.51 4.091 14.401 4.091Zm64.643 18.328V71.839h27.412v19.965h1.227c2.21-6.955 5.974-12.274 11.292-16.038 5.319-3.763 11.456-5.645 18.329-5.645 1.555 0 3.355.082 5.237.163 1.964.164 3.601.328 4.91.573v25.938c-1.227-.41-3.109-.819-5.646-1.146a58.814 58.814 0 0 0-7.446-.49c-5.155 0-9.738 1.145-13.829 3.354-4.091 2.209-7.282 5.236-9.655 9.164-2.373 3.927-3.519 8.427-3.519 13.5v70.448h-28.312ZM222.077 39.192l-8.019 125.923L137.387 0l84.69 39.192Zm-53.105 162.825-57.933 33.056-57.934-33.056 11.783-28.556h92.301l11.783 28.556ZM111.039 62.675l30.357 73.803H80.681l30.358-73.803ZM7.937 165.115 0 39.192 84.69 0 7.937 165.115Z"
+202:           />
+203:         </g>
+204:         <defs>
+205:           <radialGradient
+206:             id="c"
+207:             cx="0"
+208:             cy="0"
+209:             r="1"
+210:             gradientTransform="rotate(118.122 171.182 60.81) scale(205.794)"
+211:             gradientUnits="userSpaceOnUse"
+212:           >
+213:             <stop stop-color="#FF41F8" />
+214:             <stop offset=".707" stop-color="#FF41F8" stop-opacity=".5" />
+215:             <stop offset="1" stop-color="#FF41F8" stop-opacity="0" />
+216:           </radialGradient>
+217:           <linearGradient
+218:             id="b"
+219:             x1="0"
+220:             x2="982"
+221:             y1="192"
+222:             y2="192"
+223:             gradientUnits="userSpaceOnUse"
+224:           >
+225:             <stop stop-color="#F0060B" />
+226:             <stop offset="0" stop-color="#F0070C" />
+227:             <stop offset=".526" stop-color="#CC26D5" />
+228:             <stop offset="1" stop-color="#7702FF" />
+229:           </linearGradient>
+230:           <clipPath id="a"><path fill="#fff" d="M0 0h982v239H0z" /></clipPath>
+231:         </defs>
+232:       </svg>
+233:       <h1>Hello, {{ title() }}</h1>
+234:       <p>Congratulations! Your app is running. 🎉</p>
+235:     </div>
+236:     <div class="divider" role="separator" aria-label="Divider"></div>
+237:     <div class="right-side">
+238:       <div class="pill-group">
+239:         @for (item of [
+240:           { title: 'Explore the Docs', link: 'https://angular.dev' },
+241:           { title: 'Learn with Tutorials', link: 'https://angular.dev/tutorials' },
+242:           { title: 'Prompt and best practices for AI', link: 'https://angular.dev/ai/develop-with-ai'},
+243:           { title: 'CLI Docs', link: 'https://angular.dev/tools/cli' },
+244:           { title: 'Angular Language Service', link: 'https://angular.dev/tools/language-service' },
+245:           { title: 'Angular DevTools', link: 'https://angular.dev/tools/devtools' },
+246:         ]; track item.title) {
+247:           <a
+248:             class="pill"
+249:             [href]="item.link"
+250:             target="_blank"
+251:             rel="noopener"
+252:           >
+253:             <span>{{ item.title }}</span>
+254:             <svg
+255:               xmlns="http://www.w3.org/2000/svg"
+256:               height="14"
+257:               viewBox="0 -960 960 960"
+258:               width="14"
+259:               fill="currentColor"
+260:             >
+261:               <path
+262:                 d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h560v-280h80v280q0 33-23.5 56.5T760-120H200Zm188-212-56-56 372-372H560v-80h280v280h-80v-144L388-332Z"
+263:               />
+264:             </svg>
+265:           </a>
+266:         }
+267:       </div>
+268:       <div class="social-links">
+269:         <a
+270:           href="https://github.com/angular/angular"
+271:           aria-label="Github"
+272:           target="_blank"
+273:           rel="noopener"
+274:         >
+275:           <svg
+276:             width="25"
+277:             height="24"
+278:             viewBox="0 0 25 24"
+279:             fill="none"
+280:             xmlns="http://www.w3.org/2000/svg"
+281:             alt="Github"
+282:           >
+283:             <path
+284:               d="M12.3047 0C5.50634 0 0 5.50942 0 12.3047C0 17.7423 3.52529 22.3535 8.41332 23.9787C9.02856 24.0946 9.25414 23.7142 9.25414 23.3871C9.25414 23.0949 9.24389 22.3207 9.23876 21.2953C5.81601 22.0377 5.09414 19.6444 5.09414 19.6444C4.53427 18.2243 3.72524 17.8449 3.72524 17.8449C2.61064 17.082 3.81137 17.0973 3.81137 17.0973C5.04697 17.1835 5.69604 18.3647 5.69604 18.3647C6.79321 20.2463 8.57636 19.7029 9.27978 19.3881C9.39052 18.5924 9.70736 18.0499 10.0591 17.7423C7.32641 17.4347 4.45429 16.3765 4.45429 11.6618C4.45429 10.3185 4.9311 9.22133 5.72065 8.36C5.58222 8.04931 5.16694 6.79833 5.82831 5.10337C5.82831 5.10337 6.85883 4.77319 9.2121 6.36459C10.1965 6.09082 11.2424 5.95546 12.2883 5.94931C13.3342 5.95546 14.3801 6.09082 15.3644 6.36459C17.7023 4.77319 18.7328 5.10337 18.7328 5.10337C19.3942 6.79833 18.9789 8.04931 18.8559 8.36C19.6403 9.22133 20.1171 10.3185 20.1171 11.6618C20.1171 16.3888 17.2409 17.4296 14.5031 17.7321C14.9338 18.1012 15.3337 18.8559 15.3337 20.0084C15.3337 21.6552 15.3183 22.978 15.3183 23.3779C15.3183 23.7009 15.5336 24.0854 16.1642 23.9623C21.0871 22.3484 24.6094 17.7341 24.6094 12.3047C24.6094 5.50942 19.0999 0 12.3047 0Z"
+285:             />
+286:           </svg>
+287:         </a>
+288:         <a
+289:           href="https://x.com/angular"
+290:           aria-label="X"
+291:           target="_blank"
+292:           rel="noopener"
+293:         >
+294:           <svg
+295:             width="24"
+296:             height="24"
+297:             viewBox="0 0 24 24"
+298:             fill="none"
+299:             xmlns="http://www.w3.org/2000/svg"
+300:             alt="X"
+301:           >
+302:             <path
+303:               d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+304:             />
+305:           </svg>
+306:         </a>
+307:         <a
+308:           href="https://www.youtube.com/channel/UCbn1OgGei-DV7aSRo_HaAiw"
+309:           aria-label="Youtube"
+310:           target="_blank"
+311:           rel="noopener"
+312:         >
+313:           <svg
+314:             width="29"
+315:             height="20"
+316:             viewBox="0 0 29 20"
+317:             fill="none"
+318:             xmlns="http://www.w3.org/2000/svg"
+319:             alt="Youtube"
+320:           >
+321:             <path
+322:               fill-rule="evenodd"
+323:               clip-rule="evenodd"
+324:               d="M27.4896 1.52422C27.9301 1.96749 28.2463 2.51866 28.4068 3.12258C29.0004 5.35161 29.0004 10 29.0004 10C29.0004 10 29.0004 14.6484 28.4068 16.8774C28.2463 17.4813 27.9301 18.0325 27.4896 18.4758C27.0492 18.9191 26.5 19.2389 25.8972 19.4032C23.6778 20 14.8068 20 14.8068 20C14.8068 20 5.93586 20 3.71651 19.4032C3.11363 19.2389 2.56449 18.9191 2.12405 18.4758C1.68361 18.0325 1.36732 17.4813 1.20683 16.8774C0.613281 14.6484 0.613281 10 0.613281 10C0.613281 10 0.613281 5.35161 1.20683 3.12258C1.36732 2.51866 1.68361 1.96749 2.12405 1.52422C2.56449 1.08095 3.11363 0.76113 3.71651 0.596774C5.93586 0 14.8068 0 14.8068 0C14.8068 0 23.6778 0 25.8972 0.596774C26.5 0.76113 27.0492 1.08095 27.4896 1.52422ZM19.3229 10L11.9036 5.77905V14.221L19.3229 10Z"
+325:             />
+326:           </svg>
+327:         </a>
+328:       </div>
+329:     </div>
+330:   </div>
+331: </main>
+332: 
+333: <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+334: <!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
+335: <!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
+336: <!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
+337: <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+338: <!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
+339: <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+340: 
+341: 
+342: <router-outlet />
+</file>
+
+<file path="src/app/app.routes.server.ts">
+1: import { RenderMode, ServerRoute } from '@angular/ssr';
+2: 
+3: export const serverRoutes: ServerRoute[] = [
+4:   {
+5:     path: '**',
+6:     renderMode: RenderMode.Prerender
+7:   }
+8: ];
+</file>
+
+<file path="src/app/app.routes.ts">
+1: import { Routes } from '@angular/router';
+2: 
+3: export const routes: Routes = [];
+</file>
+
+<file path="src/app/app.scss">
+1: 
+</file>
+
+<file path="src/app/app.ts">
+ 1: import { Component, signal } from '@angular/core';
+ 2: import { RouterOutlet } from '@angular/router';
+ 3: 
+ 4: @Component({
+ 5:   selector: 'app-root',
+ 6:   imports: [RouterOutlet],
+ 7:   templateUrl: './app.html',
+ 8:   styleUrl: './app.scss'
+ 9: })
+10: export class App {
+11:   protected readonly title = signal('frontend-angular');
+12: }
+</file>
+
+<file path="src/index.html">
+ 1: <!doctype html>
+ 2: <html lang="en">
+ 3: <head>
+ 4:   <meta charset="utf-8">
+ 5:   <title>FrontendAngular</title>
+ 6:   <base href="/">
+ 7:   <meta name="viewport" content="width=device-width, initial-scale=1">
+ 8:   <link rel="icon" type="image/x-icon" href="favicon.ico">
+ 9: </head>
+10: <body>
+11:   <app-root></app-root>
+12: </body>
+13: </html>
+</file>
+
+<file path="src/main.server.ts">
+1: import { BootstrapContext, bootstrapApplication } from '@angular/platform-browser';
+2: import { App } from './app/app';
+3: import { config } from './app/app.config.server';
+4: 
+5: const bootstrap = (context: BootstrapContext) =>
+6:     bootstrapApplication(App, config, context);
+7: 
+8: export default bootstrap;
+</file>
+
+<file path="src/main.ts">
+1: import { bootstrapApplication } from '@angular/platform-browser';
+2: import { appConfig } from './app/app.config';
+3: import { App } from './app/app';
+4: 
+5: bootstrapApplication(App, appConfig)
+6:   .catch((err) => console.error(err));
+</file>
+
+<file path="src/server.ts">
+ 1: import {
+ 2:   AngularNodeAppEngine,
+ 3:   createNodeRequestHandler,
+ 4:   isMainModule,
+ 5:   writeResponseToNodeResponse,
+ 6: } from '@angular/ssr/node';
+ 7: import express from 'express';
+ 8: import { join } from 'node:path';
+ 9: 
+10: const browserDistFolder = join(import.meta.dirname, '../browser');
+11: 
+12: const app = express();
+13: const angularApp = new AngularNodeAppEngine();
+14: 
+15: /**
+16:  * Example Express Rest API endpoints can be defined here.
+17:  * Uncomment and define endpoints as necessary.
+18:  *
+19:  * Example:
+20:  * ```ts
+21:  * app.get('/api/{*splat}', (req, res) => {
+22:  *   // Handle API request
+23:  * });
+24:  * ```
+25:  */
+26: 
+27: /**
+28:  * Serve static files from /browser
+29:  */
+30: app.use(
+31:   express.static(browserDistFolder, {
+32:     maxAge: '1y',
+33:     index: false,
+34:     redirect: false,
+35:   }),
+36: );
+37: 
+38: /**
+39:  * Handle all other requests by rendering the Angular application.
+40:  */
+41: app.use((req, res, next) => {
+42:   angularApp
+43:     .handle(req)
+44:     .then((response) =>
+45:       response ? writeResponseToNodeResponse(response, res) : next(),
+46:     )
+47:     .catch(next);
+48: });
+49: 
+50: /**
+51:  * Start the server if this module is the main entry point, or it is ran via PM2.
+52:  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
+53:  */
+54: if (isMainModule(import.meta.url) || process.env['pm_id']) {
+55:   const port = process.env['PORT'] || 4000;
+56:   app.listen(port, (error) => {
+57:     if (error) {
+58:       throw error;
+59:     }
+60: 
+61:     console.log(`Node Express server listening on http://localhost:${port}`);
+62:   });
+63: }
+64: 
+65: /**
+66:  * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.
+67:  */
+68: export const reqHandler = createNodeRequestHandler(app);
+</file>
+
+<file path="src/styles.scss">
+1: /* You can add global styles to this file, and also import other style files */
+</file>
+
+<file path="angular.json">
+ 1: {
+ 2:   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+ 3:   "version": 1,
+ 4:   "cli": {
+ 5:     "packageManager": "npm",
+ 6:     "analytics": "5ce5120e-f1d8-4acf-a661-dac967a90263"
+ 7:   },
+ 8:   "newProjectRoot": "projects",
+ 9:   "projects": {
+10:     "frontend-angular": {
+11:       "projectType": "application",
+12:       "schematics": {
+13:         "@schematics/angular:component": {
+14:           "style": "scss"
+15:         }
+16:       },
+17:       "root": "",
+18:       "sourceRoot": "src",
+19:       "prefix": "app",
+20:       "architect": {
+21:         "build": {
+22:           "builder": "@angular/build:application",
+23:           "options": {
+24:             "browser": "src/main.ts",
+25:             "tsConfig": "tsconfig.app.json",
+26:             "inlineStyleLanguage": "scss",
+27:             "assets": [
+28:               {
+29:                 "glob": "**/*",
+30:                 "input": "public"
+31:               }
+32:             ],
+33:             "styles": [
+34:               "src/styles.scss"
+35:             ],
+36:             "server": "src/main.server.ts",
+37:             "outputMode": "server",
+38:             "ssr": {
+39:               "entry": "src/server.ts"
+40:             }
+41:           },
+42:           "configurations": {
+43:             "production": {
+44:               "budgets": [
+45:                 {
+46:                   "type": "initial",
+47:                   "maximumWarning": "500kB",
+48:                   "maximumError": "1MB"
+49:                 },
+50:                 {
+51:                   "type": "anyComponentStyle",
+52:                   "maximumWarning": "4kB",
+53:                   "maximumError": "8kB"
+54:                 }
+55:               ],
+56:               "outputHashing": "all"
+57:             },
+58:             "development": {
+59:               "optimization": false,
+60:               "extractLicenses": false,
+61:               "sourceMap": true
+62:             }
+63:           },
+64:           "defaultConfiguration": "production"
+65:         },
+66:         "serve": {
+67:           "builder": "@angular/build:dev-server",
+68:           "configurations": {
+69:             "production": {
+70:               "buildTarget": "frontend-angular:build:production"
+71:             },
+72:             "development": {
+73:               "buildTarget": "frontend-angular:build:development"
+74:             }
+75:           },
+76:           "defaultConfiguration": "development"
+77:         },
+78:         "test": {
+79:           "builder": "@angular/build:unit-test"
+80:         }
+81:       }
+82:     }
+83:   }
+84: }
+</file>
+
+<file path="package.json">
+ 1: {
+ 2:   "name": "frontend-angular",
+ 3:   "version": "0.0.0",
+ 4:   "scripts": {
+ 5:     "ng": "ng",
+ 6:     "start": "ng serve",
+ 7:     "build": "ng build",
+ 8:     "watch": "ng build --watch --configuration development",
+ 9:     "test": "ng test",
+10:     "serve:ssr:frontend-angular": "node dist/frontend-angular/server/server.mjs"
+11:   },
+12:   "prettier": {
+13:     "printWidth": 100,
+14:     "singleQuote": true,
+15:     "overrides": [
+16:       {
+17:         "files": "*.html",
+18:         "options": {
+19:           "parser": "angular"
+20:         }
+21:       }
+22:     ]
+23:   },
+24:   "private": true,
+25:   "packageManager": "npm@10.9.2",
+26:   "dependencies": {
+27:     "@angular/cdk": "^21.0.5",
+28:     "@angular/common": "^21.0.0",
+29:     "@angular/compiler": "^21.0.0",
+30:     "@angular/core": "^21.0.0",
+31:     "@angular/forms": "^21.0.0",
+32:     "@angular/material": "^21.0.5",
+33:     "@angular/platform-browser": "^21.0.0",
+34:     "@angular/platform-server": "^21.0.0",
+35:     "@angular/router": "^21.0.0",
+36:     "@angular/ssr": "^21.0.5",
+37:     "bootstrap": "^5.3.8",
+38:     "bootstrap-icons": "^1.13.1",
+39:     "express": "^5.1.0",
+40:     "lucide-angular": "^0.562.0",
+41:     "nodemon": "^3.1.11",
+42:     "rxjs": "~7.8.0",
+43:     "tslib": "^2.3.0"
+44:   },
+45:   "devDependencies": {
+46:     "@angular/build": "^21.0.5",
+47:     "@angular/cli": "^21.0.5",
+48:     "@angular/compiler-cli": "^21.0.0",
+49:     "@types/express": "^5.0.1",
+50:     "@types/node": "^20.17.19",
+51:     "jsdom": "^27.1.0",
+52:     "typescript": "~5.9.2",
+53:     "vitest": "^4.0.8"
+54:   }
+55: }
+</file>
+
+<file path="tsconfig.json">
+ 1: /* To learn more about Typescript configuration file: https://www.typescriptlang.org/docs/handbook/tsconfig-json.html. */
+ 2: /* To learn more about Angular compiler options: https://angular.dev/reference/configs/angular-compiler-options. */
+ 3: {
+ 4:   "compileOnSave": false,
+ 5:   "compilerOptions": {
+ 6:     "strict": true,
+ 7:     "noImplicitOverride": true,
+ 8:     "noPropertyAccessFromIndexSignature": true,
+ 9:     "noImplicitReturns": true,
+10:     "noFallthroughCasesInSwitch": true,
+11:     "skipLibCheck": true,
+12:     "isolatedModules": true,
+13:     "experimentalDecorators": true,
+14:     "importHelpers": true,
+15:     "target": "ES2022",
+16:     "module": "preserve"
+17:   },
+18:   "angularCompilerOptions": {
+19:     "enableI18nLegacyMessageIdFormat": false,
+20:     "strictInjectionParameters": true,
+21:     "strictInputAccessModifiers": true,
+22:     "strictTemplates": true
+23:   },
+24:   "files": [],
+25:   "references": [
+26:     {
+27:       "path": "./tsconfig.app.json"
+28:     },
+29:     {
+30:       "path": "./tsconfig.spec.json"
+31:     }
+32:   ]
+33: }
+</file>
+
+</files>
