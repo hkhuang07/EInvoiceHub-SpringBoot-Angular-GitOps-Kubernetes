@@ -20,7 +20,7 @@ public class InvoiceItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private Long invoiceId;
     @Column(name = "invoice_payload_id", nullable = false)
     private Long invoicePayloadId;
 

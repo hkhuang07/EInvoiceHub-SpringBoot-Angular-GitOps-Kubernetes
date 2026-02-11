@@ -15,9 +15,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"users", "apiCredentials", "providerConfigs", "invoices"})
+@ToString(exclude = {"invoices"})
 public class Merchant {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

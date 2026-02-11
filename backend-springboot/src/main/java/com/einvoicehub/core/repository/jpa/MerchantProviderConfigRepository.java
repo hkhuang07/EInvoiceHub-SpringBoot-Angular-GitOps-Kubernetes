@@ -14,13 +14,10 @@ import java.util.Optional;
  */
 @Repository
 public interface MerchantProviderConfigRepository extends JpaRepository<MerchantProviderConfig, Long> {
-
     List<MerchantProviderConfig> findByMerchantId(Long merchantId);
-
     List<MerchantProviderConfig> findByMerchantIdAndIsActive(Long merchantId, Boolean isActive);
-
     Optional<MerchantProviderConfig> findByMerchantIdAndProviderId(Long merchantId, Long providerId);
-
+    Optional<MerchantProviderConfig> findByMerchantIdAndProviderProviderCode(Long merchantId, String providerCode);
     Optional<MerchantProviderConfig> findByMerchantIdAndIsDefaultTrue(Long merchantId);
 
     @Query("SELECT c FROM MerchantProviderConfig c WHERE c.merchant.id = :merchantId " +

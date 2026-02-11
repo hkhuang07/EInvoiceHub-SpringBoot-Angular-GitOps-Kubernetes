@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -74,8 +75,11 @@ public class InvoiceService {
             ProviderConfig config = mapToProviderConfig(merchantConfig);
             var internalRequest = mapToInternalRequest(request, metadata.getId());
 
-            // 5. Gọi API Provider qua Virtual Thread
-            var internalRes = virtualThreadExecutor.submit(() -> provider.issueInvoice(internalRequest, config)).join();
+            // Sửa dòng số 88 trong InvoiceService.java
+            var internalRes = CompletableFuture.supplyAsync(
+                    () -> provider.issueInvoice(internalRequest, config),
+                    virtualThreadExecutor
+            ).join();
 
             if (internalRes.isSuccessful()) {
                 handleSuccess(metadata, requestId, internalRes, merchant);

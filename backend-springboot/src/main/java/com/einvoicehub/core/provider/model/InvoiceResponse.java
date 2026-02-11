@@ -1,6 +1,9 @@
 package com.einvoicehub.core.provider.model;
 
 import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import java.time.LocalDateTime;
 
 /**
@@ -34,6 +37,11 @@ public class InvoiceResponse {
     private String pdfUrl;
     private String xmlData;      // Dữ liệu XML gốc (pháp lý)
     private String portalUrl;    // Link tra cứu hóa đơn trực tiếp của hãng
+
+    private String cqtCode;
+    private String xmlUrl;
+    private String jsonUrl;
+    private boolean successful;
 
     private LocalDateTime responseTime;
     private Object rawResponse;  // Dữ liệu thô dùng cho debug/audit

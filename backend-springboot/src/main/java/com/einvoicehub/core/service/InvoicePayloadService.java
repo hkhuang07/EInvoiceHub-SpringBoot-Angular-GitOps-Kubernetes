@@ -2,6 +2,8 @@ package com.einvoicehub.core.service;
 
 import com.einvoicehub.core.entity.jpa.InvoicePayload;
 import com.einvoicehub.core.repository.jpa.InvoicePayloadRepository;
+import com.einvoicehub.core.common.exception.AppException;
+import com.einvoicehub.core.common.exception.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +28,9 @@ public class InvoicePayloadService {
 
     @Transactional
     public InvoicePayload savePayload(InvoicePayload invoicePayload) {
-        log.info("Đang lưu payload hóa đơn cho clientRequestId: {}",
-                invoicePayload.getClientRequestId());
+        log.info("Saving invoice payload for clientRequestId: {}", invoicePayload.getClientRequestId());
         InvoicePayload savedPayload = invoicePayloadRepository.save(invoicePayload);
-        log.info("Đã lưu payload hóa đơn thành công với ID: {}", savedPayload.getId());
+        log.info("Invoice payload saved successfully with ID: {}", savedPayload.getId());
         return savedPayload;
     }
 
@@ -55,29 +56,29 @@ public class InvoicePayloadService {
             String clientRequestId,
             String responseData,
             String status) {
-        log.info("Đang cập nhật payload hóa đơn cho clientRequestId: {} với trạng thái: {}",
-                clientRequestId, status);
-        Optional<InvoicePayload> existingPayload = invoicePayloadRepository
-                .findByClientRequestId(clientRequestId);
-        if (existingPayload.isEmpty()) {
-            log.error("Không tìm thấy payload với clientRequestId: {}", clientRequestId);
-            throw new RuntimeException("Không tìm thấy payload với clientRequestId: " + clientRequestId);
-        }
-        InvoicePayload payload = existingPayload.get();
+        log.info("Updating invoice payload for clientRequestId: {} with status: {}", clientRequestId, status);
+
+        InvoicePayload payload = invoicePayloadRepository.findByClientRequestId(clientRequestId)
+                .orElseThrow(() -> {
+                    log.error("Invoice payload not found with clientRequestId: {}", clientRequestId);
+                    return new AppException(ErrorCode.VALIDATION_ERROR,
+                            "Invoice payload not found with clientRequestId: " + clientRequestId);
+                });
+
         payload.setResponseRaw(responseData);
         payload.setStatus(status);
         payload.setUpdatedAt(LocalDateTime.now());
         InvoicePayload updatedPayload = invoicePayloadRepository.save(payload);
-        log.info("Đã cập nhật payload hóa đơn thành công cho clientRequestId: {}", clientRequestId);
+        log.info("Invoice payload updated successfully for clientRequestId: {}", clientRequestId);
         return updatedPayload;
     }
 
-    // Trong các phương thức updateStatus, updateInvoiceId, updateXmlContent...
     @Transactional
     public void updateStatus(String clientRequestId, String status) {
-        InvoicePayload payload = invoicePayloadRepository
-                .findByClientRequestId(clientRequestId)
-                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR, "Không tìm thấy Payload với requestId: " + clientRequestId));
+        InvoicePayload payload = invoicePayloadRepository.findByClientRequestId(clientRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR,
+                        "Invoice payload not found with requestId: " + clientRequestId));
+
         payload.setStatus(status);
         payload.setUpdatedAt(LocalDateTime.now());
         invoicePayloadRepository.save(payload);
@@ -85,11 +86,12 @@ public class InvoicePayloadService {
 
     @Transactional
     public void updateInvoiceId(String clientRequestId, Long invoiceId) {
-        log.info("Cập nhật invoiceId: {} cho clientRequestId: {}", invoiceId, clientRequestId);
-        InvoicePayload payload = invoicePayloadRepository
-                .findByClientRequestId(clientRequestId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Không tìm thấy payload với clientRequestId: " + clientRequestId));
+        log.info("Updating invoiceId: {} for clientRequestId: {}", invoiceId, clientRequestId);
+
+        InvoicePayload payload = invoicePayloadRepository.findByClientRequestId(clientRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR,
+                        "Invoice payload not found with clientRequestId: " + clientRequestId));
+
         payload.setInvoiceId(invoiceId);
         payload.setUpdatedAt(LocalDateTime.now());
         invoicePayloadRepository.save(payload);
@@ -97,11 +99,12 @@ public class InvoicePayloadService {
 
     @Transactional
     public void updateXmlContent(String clientRequestId, String xmlContent) {
-        log.info("Cập nhật XML content cho clientRequestId: {}", clientRequestId);
-        InvoicePayload payload = invoicePayloadRepository
-                .findByClientRequestId(clientRequestId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Không tìm thấy payload với clientRequestId: " + clientRequestId));
+        log.info("Updating XML content for clientRequestId: {}", clientRequestId);
+
+        InvoicePayload payload = invoicePayloadRepository.findByClientRequestId(clientRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR,
+                        "Invoice payload not found with clientRequestId: " + clientRequestId));
+
         payload.setXmlContent(xmlContent);
         payload.setUpdatedAt(LocalDateTime.now());
         invoicePayloadRepository.save(payload);
@@ -109,11 +112,12 @@ public class InvoicePayloadService {
 
     @Transactional
     public void updateSignedXml(String clientRequestId, String signedXml) {
-        log.info("Cập nhật Signed XML cho clientRequestId: {}", clientRequestId);
-        InvoicePayload payload = invoicePayloadRepository
-                .findByClientRequestId(clientRequestId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Không tìm thấy payload với clientRequestId: " + clientRequestId));
+        log.info("Updating Signed XML for clientRequestId: {}", clientRequestId);
+
+        InvoicePayload payload = invoicePayloadRepository.findByClientRequestId(clientRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR,
+                        "Invoice payload not found with clientRequestId: " + clientRequestId));
+
         payload.setSignedXml(signedXml);
         payload.setUpdatedAt(LocalDateTime.now());
         invoicePayloadRepository.save(payload);
@@ -121,38 +125,39 @@ public class InvoicePayloadService {
 
     @Transactional
     public void updateJsonContent(String clientRequestId, String jsonContent) {
-        log.info("Cập nhật JSON content cho clientRequestId: {}", clientRequestId);
-        InvoicePayload payload = invoicePayloadRepository
-                .findByClientRequestId(clientRequestId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Không tìm thấy payload với clientRequestId: " + clientRequestId));
+        log.info("Updating JSON content for clientRequestId: {}", clientRequestId);
+
+        InvoicePayload payload = invoicePayloadRepository.findByClientRequestId(clientRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR,
+                        "Invoice payload not found with clientRequestId: " + clientRequestId));
+
         payload.setJsonContent(jsonContent);
         payload.setUpdatedAt(LocalDateTime.now());
         invoicePayloadRepository.save(payload);
     }
 
     public Optional<InvoicePayload> findByClientRequestId(String clientRequestId) {
-        log.debug("Đang tìm kiếm payload với clientRequestId: {}", clientRequestId);
+        log.debug("Searching for payload with clientRequestId: {}", clientRequestId);
         return invoicePayloadRepository.findByClientRequestId(clientRequestId);
     }
 
     public Optional<InvoicePayload> findByTransactionId(String transactionId) {
-        log.debug("Đang tìm kiếm payload với transactionId: {}", transactionId);
+        log.debug("Searching for payload with transactionId: {}", transactionId);
         return invoicePayloadRepository.findByTransactionId(transactionId);
     }
 
     public Optional<InvoicePayload> findByInvoiceId(Long invoiceId) {
-        log.debug("Đang tìm kiếm payload với invoiceId: {}", invoiceId);
+        log.debug("Searching for payload with invoiceId: {}", invoiceId);
         return invoicePayloadRepository.findByInvoiceId(invoiceId);
     }
 
     public Page<InvoicePayload> findByMerchantId(Long merchantId, Pageable pageable) {
-        log.debug("Đang lấy danh sách payload cho merchantId: {}", merchantId);
+        log.debug("Fetching payload list for merchantId: {}", merchantId);
         return invoicePayloadRepository.findByMerchantIdOrderByCreatedAtDesc(merchantId, pageable);
     }
 
     public List<InvoicePayload> findAllByMerchantId(Long merchantId) {
-        log.debug("Đang lấy tất cả payload cho merchantId: {}", merchantId);
+        log.debug("Fetching all payloads for merchantId: {}", merchantId);
         return invoicePayloadRepository.findByMerchantId(merchantId);
     }
 
@@ -160,9 +165,8 @@ public class InvoicePayloadService {
             Long merchantId,
             LocalDateTime fromDate,
             LocalDateTime toDate) {
-        log.debug("Tìm payload merchantId: {} từ {} đến {}", merchantId, fromDate, toDate);
-        return invoicePayloadRepository.findByMerchantIdAndCreatedAtBetween(
-                merchantId, fromDate, toDate);
+        log.debug("Finding payloads for merchantId: {} from {} to {}", merchantId, fromDate, toDate);
+        return invoicePayloadRepository.findByMerchantIdAndCreatedAtBetween(merchantId, fromDate, toDate);
     }
 
     public long countByMerchantId(Long merchantId) {
@@ -180,7 +184,7 @@ public class InvoicePayloadService {
         try {
             return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
-            log.error("Lỗi khi chuyển đổi dữ liệu sang JSON", e);
+            log.error("Error converting data to JSON", e);
             return null;
         }
     }

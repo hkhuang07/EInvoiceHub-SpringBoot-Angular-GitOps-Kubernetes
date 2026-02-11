@@ -1,0 +1,40 @@
+# Development Profile - Optimized for Hybrid Workflow (IDE + Docker DB)
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/einvoicehub?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: einvoice_user
+    password: einvoice_pass
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+
+  flyway:
+    enabled: true
+    clean-disabled: false
+
+app:
+  encryption:
+    secret-key: "dev-secret-key-32-chars-long-abc"
+  jwt:
+    secret: "dev-jwt-secret-key-very-long-and-secure-for-testing"
+    expiration-ms: 36000000
+
+  provider:
+    bkav:
+      base-url: https://demo.ehoadon.vn/api/v1
+    misa:
+      base-url: https://testapi.meinvoice.vn/api/integration
+
+logging:
+  level:
+    com.einvoicehub: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.results: TRACE
