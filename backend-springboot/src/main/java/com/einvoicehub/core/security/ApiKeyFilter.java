@@ -1,11 +1,11 @@
 package com.einvoicehub.core.security;
 
 import com.einvoicehub.core.common.exception.ErrorCode;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.dto.response.ApiResponse;
-import com.einvoicehub.core.entity.enums.EntityStatus;
-import com.einvoicehub.core.entity.jpa.ApiCredential;
-import com.einvoicehub.core.entity.jpa.Merchant;
-import com.einvoicehub.core.repository.jpa.ApiCredentialRepository;
+import com.einvoicehub.core.domain.enums.EntityStatus;
+import com.einvoicehub.core.domain.entity.ApiCredential;
+import com.einvoicehub.core.domain.repository.ApiCredentialRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -91,7 +91,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
             return;
         }
 
-        Merchant merchant = credential.getMerchant();
+        MerchantEntity merchant = credential.getMerchant();
         if (merchant == null || merchant.getIsDeleted() || merchant.getStatus() != EntityStatus.ACTIVE) {
             writeErrorResponse(response, ErrorCode.UNAUTHORIZED, "Merchant account is inactive");
             return;

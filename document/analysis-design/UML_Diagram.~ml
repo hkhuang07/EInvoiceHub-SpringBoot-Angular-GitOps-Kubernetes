@@ -4919,8 +4919,8 @@
 <XPD:OBJ name="OwnedViews[0]" type="UMLSystemBoundaryView" guid="2ocf0YzuB0SWczW1Ndl2DAAA">
 <XPD:ATTR name="LineColor" type="string">clMaroon</XPD:ATTR>
 <XPD:ATTR name="FillColor" type="string">$00B9FFFF</XPD:ATTR>
-<XPD:ATTR name="Left" type="integer">212</XPD:ATTR>
-<XPD:ATTR name="Top" type="integer">32</XPD:ATTR>
+<XPD:ATTR name="Left" type="integer">476</XPD:ATTR>
+<XPD:ATTR name="Top" type="integer">52</XPD:ATTR>
 <XPD:ATTR name="Width" type="integer">1720</XPD:ATTR>
 <XPD:ATTR name="Height" type="integer">1264</XPD:ATTR>
 <XPD:ATTR name="Caption" type="string">System</XPD:ATTR>

@@ -5,14 +5,14 @@ import com.einvoicehub.core.common.exception.ErrorCode;
 import com.einvoicehub.core.dto.request.InvoiceItemRequest;
 import com.einvoicehub.core.dto.request.InvoiceRequest;
 import com.einvoicehub.core.dto.response.InvoiceResponse;
-import com.einvoicehub.core.entity.enums.InvoiceStatus;
-import com.einvoicehub.core.entity.jpa.*;
+import com.einvoicehub.core.domain.enums.InvoiceStatus;
+import com.einvoicehub.core.domain.entity.*;
 import com.einvoicehub.core.provider.InvoiceProvider;
 import com.einvoicehub.core.provider.ProviderConfig;
-import com.einvoicehub.core.repository.jpa.InvoiceItemRepository;
-import com.einvoicehub.core.repository.jpa.InvoiceMetadataRepository;
-import com.einvoicehub.core.repository.jpa.MerchantProviderConfigRepository;
-import com.einvoicehub.core.repository.jpa.MerchantRepository;
+import com.einvoicehub.core.domain.repository.InvoiceItemRepository;
+import com.einvoicehub.core.domain.repository.InvoiceMetadataRepository;
+import com.einvoicehub.core.domain.repository.MerchantProviderConfigRepository;
+import com.einvoicehub.core.domain.repository.MerchantRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +49,7 @@ public class InvoiceService {
         log.info("Starting professional invoice issuance: {}", requestId);
 
         // 1. Kiểm tra Merchant & Quota
-        Merchant merchant = merchantRepository.findById(Long.parseLong(request.getMerchantId()))
+        MerchantEntity merchant = merchantRepository.findById(Long.parseLong(request.getMerchantId()))
                 .orElseThrow(() -> new AppException(ErrorCode.MERCHANT_NOT_FOUND));
 
         if (!merchant.hasAvailableQuota()) {
@@ -57,12 +57,12 @@ public class InvoiceService {
         }
 
         // 2. Lấy cấu hình kết nối
-        MerchantProviderConfig merchantConfig = providerConfigRepository
+        MerchantProviderConfigEntity merchantConfig = providerConfigRepository
                 .findByMerchantIdAndProviderProviderCode(merchant.getId(), request.getProviderCode())
                 .orElseThrow(() -> new AppException(ErrorCode.VALIDATION_ERROR, "Config Provider not found"));
 
         // 3. Khởi tạo Metadata & Payload
-        InvoiceMetadata metadata = initMetadata(merchant, request, requestId, merchantConfig);
+        InvoiceMetadataEntity metadata = initMetadata(merchant, request, requestId, merchantConfig);
         saveInitialPayload(merchant.getId(), requestId, request.getProviderCode(), request);
 
         // 4. Lưu chi tiết hàng hóa (MariaDB)
@@ -101,7 +101,7 @@ public class InvoiceService {
         invoicePayloadService.createPayloadFromRequest(merchantId, clientRequestId, providerCode, requestData);
     }
 
-    private void handleSuccess(InvoiceMetadata metadata, String requestId, com.einvoicehub.core.provider.model.InvoiceResponse res, Merchant merchant) {
+    private void handleSuccess(InvoiceMetadataEntity metadata, String requestId, com.einvoicehub.core.provider.model.InvoiceResponse res, MerchantEntity merchant) {
         metadata.markAsSuccess(res.getTransactionCode());
         metadata.setInvoiceNumber(res.getInvoiceNumber());
         metadata.setCqtCode(res.getCqtCode());
@@ -124,13 +124,13 @@ public class InvoiceService {
         merchantRepository.save(merchant);
     }
 
-    private void handleFailure(InvoiceMetadata metadata, String requestId, String errorMessage, String errorCode) {
+    private void handleFailure(InvoiceMetadataEntity metadata, String requestId, String errorMessage, String errorCode) {
         metadata.markAsFailed(errorCode, errorMessage);
         invoiceMetadataRepository.save(metadata);
         invoicePayloadService.updatePayloadWithResponse(requestId, errorMessage, "FAILED");
     }
 
-    private InvoiceResponse mapToPublicResponse(com.einvoicehub.core.provider.model.InvoiceResponse res, InvoiceMetadata meta, boolean success, String msg) {
+    private InvoiceResponse mapToPublicResponse(com.einvoicehub.core.provider.model.InvoiceResponse res, InvoiceMetadataEntity meta, boolean success, String msg) {
         return InvoiceResponse.builder()
                 .success(success)
                 .transactionId(res.getTransactionCode())
@@ -155,7 +155,7 @@ public class InvoiceService {
         return p;
     }
 
-    private ProviderConfig mapToProviderConfig(MerchantProviderConfig e) {
+    private ProviderConfig mapToProviderConfig(MerchantProviderConfigEntity e) {
         return ProviderConfig.builder()
                 .configId(e.getId())
                 .providerCode(e.getProviderCode())
@@ -167,8 +167,8 @@ public class InvoiceService {
                 .build();
     }
 
-    private InvoiceMetadata initMetadata(Merchant merchant, InvoiceRequest request, String requestId, MerchantProviderConfig config) {
-        return invoiceMetadataRepository.save(InvoiceMetadata.builder()
+    private InvoiceMetadataEntity initMetadata(MerchantEntity merchant, InvoiceRequest request, String requestId, MerchantProviderConfigEntity config) {
+        return invoiceMetadataRepository.save(InvoiceMetadataEntity.builder()
                 .merchant(merchant)
                 .provider(config.getProvider())
                 .providerConfig(config)
@@ -194,9 +194,9 @@ public class InvoiceService {
     }
 
     private void saveInvoiceItems(Long invoiceId, List<InvoiceItemRequest> itemRequests) {
-        List<InvoiceItem> items = itemRequests.stream().map(req -> {
+        List<InvoiceItemEntity> items = itemRequests.stream().map(req -> {
             req.normalizeData();
-            return InvoiceItem.builder()
+            return InvoiceItemEntity.builder()
                     .invoiceId(invoiceId)
                     .productName(req.getItemName())
                     .quantity(req.getQuantity())

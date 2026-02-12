@@ -1,7 +1,7 @@
 package com.einvoicehub.core.security;
 
-import com.einvoicehub.core.entity.jpa.MerchantUser;
-import com.einvoicehub.core.repository.jpa.MerchantUserRepository;
+import com.einvoicehub.core.domain.entity.MerchantUserEntity;
+import com.einvoicehub.core.domain.repository.MerchantUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
                 String username = jwtTokenProvider.getUsernameFromToken(jwt);
 
-                MerchantUser user = userRepository.findByUsernameAndIsActiveTrue(username).orElse(null);
+                MerchantUserEntity user = userRepository.findByUsernameAndIsActiveTrue(username).orElse(null);
 
                 if (user != null && !user.isLocked()) {
                     List<SimpleGrantedAuthority> authorities = List.of(

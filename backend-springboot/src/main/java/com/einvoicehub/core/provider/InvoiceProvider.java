@@ -1,6 +1,6 @@
 package com.einvoicehub.core.provider;
 
-import com.einvoicehub.core.entity.enums.InvoiceStatus;
+import com.einvoicehub.core.domain.enums.InvoiceStatus;
 import com.einvoicehub.core.provider.model.InvoiceRequest;
 import com.einvoicehub.core.provider.model.InvoiceResponse;
 

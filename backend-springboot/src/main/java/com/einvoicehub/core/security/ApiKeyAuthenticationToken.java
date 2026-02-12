@@ -1,7 +1,7 @@
 package com.einvoicehub.core.security;
 
-import com.einvoicehub.core.entity.jpa.ApiCredential;
-import com.einvoicehub.core.entity.jpa.Merchant;
+import com.einvoicehub.core.domain.entity.ApiCredential;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,10 +14,10 @@ public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
     private final String clientId;
     private final String apiKey;
     private final ApiCredential credential;
-    private final Merchant merchant;
+    private final MerchantEntity merchant;
 
     public ApiKeyAuthenticationToken(String clientId, String apiKey,
-                                     ApiCredential credential, Merchant merchant,
+                                     ApiCredential credential, MerchantEntity merchant,
                                      Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.clientId = clientId;
