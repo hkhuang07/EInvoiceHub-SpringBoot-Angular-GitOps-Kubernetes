@@ -175,7 +175,7 @@ src/
         migration/
           Initial_Schema_Ver01.sql
           Initial_Schema_Ver02.sql
-          V1__Initial_Schema.sql
+          Initial_Schema_Ver04.sql
       application-dev.yaml
       application.yaml
   test/
@@ -10360,7 +10360,7 @@ INSERT INTO system_config (config_key, config_value, config_type, description) V
 -- End of Migration V1
 </file>
 
-<file path="src/main/resources/db/migration/V1__Initial_Schema.sql">
+<file path="src/main/resources/db/migration/Initial_Schema_Ver04.sql">
 -- EInvoiceHub Database Schema - Version 3
 -- Database: MariaDB   |   Character Set: utf8mb4_unicode_ci
 

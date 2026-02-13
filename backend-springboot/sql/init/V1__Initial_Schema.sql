@@ -306,7 +306,7 @@ CREATE TABLE `invoice_registrations` (
     `note`                TEXT         NULL COMMENT 'Ghi chú bổ sung',
     `created_at`          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT `fk_invoice_registrations_registration_statuses` FOREIGN KEY (`status_id`) REFERENCES `registration_statuses` (`id`) ON DELETE CASCADE,
+
     CONSTRAINT `fk_registration_merchant` FOREIGN KEY (`merchant_id`) REFERENCES `merchants` (`id`) ON DELETE CASCADE,
     CONSTRAINT `chk_registration_range` CHECK (`from_number` <= `to_number`),
 
