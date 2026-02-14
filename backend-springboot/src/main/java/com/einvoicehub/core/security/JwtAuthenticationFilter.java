@@ -1,7 +1,6 @@
 package com.einvoicehub.core.security;
 
 import com.einvoicehub.core.domain.entity.MerchantUserEntity;
-import com.einvoicehub.core.domain.repository.MerchantUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

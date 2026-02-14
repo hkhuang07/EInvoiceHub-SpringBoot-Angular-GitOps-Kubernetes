@@ -5,7 +5,6 @@ import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.dto.response.ApiResponse;
 import com.einvoicehub.core.domain.enums.EntityStatus;
 import com.einvoicehub.core.domain.entity.ApiCredential;
-import com.einvoicehub.core.domain.repository.ApiCredentialRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
