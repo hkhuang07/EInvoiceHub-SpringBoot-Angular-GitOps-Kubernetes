@@ -1,6 +1,5 @@
 package com.einvoicehub.core.service;
 
-import com.einvoicehub.core.domain.entity.InvoicePayload;
 import com.einvoicehub.core.domain.repository.InvoicePayloadRepository;
 import com.einvoicehub.core.common.exception.AppException;
 import com.einvoicehub.core.common.exception.ErrorCode;
