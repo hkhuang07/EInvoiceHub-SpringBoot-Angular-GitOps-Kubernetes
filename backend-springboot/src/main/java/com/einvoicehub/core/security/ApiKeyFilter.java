@@ -2,7 +2,6 @@ package com.einvoicehub.core.security;
 
 import com.einvoicehub.core.common.exception.ErrorCode;
 import com.einvoicehub.core.domain.entity.MerchantEntity;
-import com.einvoicehub.core.dto.response.ApiResponse;
 import com.einvoicehub.core.domain.enums.EntityStatus;
 import com.einvoicehub.core.domain.entity.ApiCredential;
 import com.fasterxml.jackson.databind.ObjectMapper;

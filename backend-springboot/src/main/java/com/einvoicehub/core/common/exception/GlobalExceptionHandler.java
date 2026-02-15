@@ -1,6 +1,5 @@
 package com.einvoicehub.core.common.exception;
 
-import com.einvoicehub.core.dto.response.ApiResponse;
 import com.einvoicehub.core.provider.exception.ProviderException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
