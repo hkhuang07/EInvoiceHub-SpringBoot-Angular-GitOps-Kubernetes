@@ -17,6 +17,7 @@ public interface EinvInvoiceItemRepository extends JpaRepository<EinvInvoiceItem
 
     @EntityGraph(attributePaths = {"vatRate"})
     List<EinvInvoiceItemEntity> findByInvoiceIdOrderByLineNumberAsc(Long invoiceId);
+    boolean existsByVatRateId(Long vatRateId);
 
     @Modifying
     @Query("DELETE FROM EinvInvoiceItemEntity i WHERE i.invoice.id = :invoiceId")

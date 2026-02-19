@@ -12,10 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Repository quản lý giao dịch hóa đơn trung tâm.
- * Kế thừa JpaSpecificationExecutor để hỗ trợ các bộ lọc động phức tạp từ Frontend.
- */
+
 @Repository
 public interface EinvInvoiceMetadataRepository extends JpaRepository<EinvInvoiceMetadataEntity, Long>,
         JpaSpecificationExecutor<EinvInvoiceMetadataEntity> {
@@ -26,11 +23,9 @@ public interface EinvInvoiceMetadataRepository extends JpaRepository<EinvInvoice
 
     Optional<EinvInvoiceMetadataEntity> findByInvoiceNumber(String invoiceNumber);
 
-    //Load Metadata kèm theo danh sách chi tiết (items) và trạng thái trong 1 câu Query duy nhất.
     @EntityGraph(attributePaths = {"items", "invoiceStatus", "merchant"})
     Optional<EinvInvoiceMetadataEntity> findWithDetailsById(Long id);
 
-    //Tìm hóa đơn mới nhất của đối tác để kiểm tra trùng lặp hoặc đối soát.
     @EntityGraph(attributePaths = {"invoiceStatus"})
     Optional<EinvInvoiceMetadataEntity> findTopByPartnerInvoiceIdOrderByCreatedAtDesc(String partnerInvoiceId);
 
@@ -51,14 +46,19 @@ public interface EinvInvoiceMetadataRepository extends JpaRepository<EinvInvoice
             Pageable pageable
     );
 
-    // Native Query hiệu năng cao: Lấy hóa đơn cuối cùng đã phát hành thành công của một Merchant.
-
     @Query(value = "SELECT * FROM invoice_metadata " +
             "WHERE merchant_id = :merchantId AND status_id = 5 " +
             "ORDER BY issue_date DESC, created_at DESC LIMIT 1",
             nativeQuery = true)
     Optional<EinvInvoiceMetadataEntity> findLatestSuccessInvoice(@Param("merchantId") Long merchantId);
 
-    //Kiểm tra sự tồn tại của Lookup Code để đảm bảo tính duy nhất khi sinh mã tra cứu mới.
     boolean existsByLookupCode(String lookupCode);
+
+    boolean existsByInvoiceTypeId(Long invoiceTypeId);
+    boolean existsByInvoiceTypeCode(String invoiceTypeCode);
+
+    boolean existsByStatusId(Integer statusId);
+
+    boolean existsByPaymentMethodId(Long paymentMethodId);
+    boolean existsByPaymentMethod(String paymentMethod);
 }

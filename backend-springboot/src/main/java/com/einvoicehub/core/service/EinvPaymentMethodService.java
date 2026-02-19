@@ -1,0 +1,72 @@
+package com.einvoicehub.core.service;
+
+import com.einvoicehub.core.exception.ErrorCode;
+import com.einvoicehub.core.exception.InvalidDataException;
+import com.einvoicehub.core.domain.entity.EinvPaymentMethodEntity;
+import com.einvoicehub.core.domain.repository.EinvPaymentMethodRepository;
+import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
+import com.einvoicehub.core.dto.EinvPaymentMethodDto;
+import com.einvoicehub.core.mapper.EinvHubMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class EinvPaymentMethodService {
+
+    private final EinvPaymentMethodRepository repository;
+    private final EinvInvoiceMetadataRepository metadataRepository;
+    private final EinvHubMapper mapper;
+
+    @Transactional(readOnly = true)
+    public List<EinvPaymentMethodDto> getAll() {
+        log.info("[Catalog] Lấy danh mục phương thức thanh toán");
+        return repository.findAll().stream().map(mapper::toDto).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public EinvPaymentMethodDto getById(Long id) {
+        return repository.findById(id).map(mapper::toDto)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Dữ liệu không tồn tại"));
+    }
+
+    @Transactional
+    public EinvPaymentMethodDto create(EinvPaymentMethodDto dto) {
+        log.info("[Catalog] Tạo mới PTTT: {}", dto.getMethodCode());
+        if (repository.findByMethodCode(dto.getMethodCode()).isPresent()) {
+            throw new InvalidDataException(ErrorCode.INVALID_DATA, "Mã thanh toán đã tồn tại");
+        }
+        EinvPaymentMethodEntity entity = mapper.toEntity(dto);
+        return mapper.toDto(repository.save(entity));
+    }
+
+    @Transactional
+    public EinvPaymentMethodDto update(Long id, EinvPaymentMethodDto dto) {
+        log.info("[Catalog] Cập nhật PTTT ID: {}", id);
+        EinvPaymentMethodEntity entity = repository.findById(id)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Không tìm thấy dữ liệu"));
+        entity.setMethodName(dto.getMethodName());
+        entity.setIsActive(dto.getIsActive());
+        entity.setDisplayOrder(dto.getDisplayOrder());
+        return mapper.toDto(repository.save(entity));
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        EinvPaymentMethodEntity entity = repository.findById(id)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Bản ghi không tồn tại"));
+
+        // Theo SQL: Tham chiếu qua method_code
+        if (metadataRepository.existsByPaymentMethod(entity.getMethodCode())) {
+            throw new InvalidDataException(ErrorCode.INVALID_DATA, "PTTT này đã được sử dụng trong hóa đơn");
+        }
+        repository.delete(entity);
+        log.info("[Catalog] Đã xóa PTTT: {}", entity.getMethodCode());
+    }
+}

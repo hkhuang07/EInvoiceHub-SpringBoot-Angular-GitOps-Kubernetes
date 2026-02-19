@@ -19,4 +19,7 @@ public interface EinvInvoiceTaxBreakdownRepository extends JpaRepository<EinvInv
     @Modifying
     @Query("DELETE FROM EinvInvoiceTaxBreakDownEntity t WHERE t.invoice.id = :invoiceId")
     void deleteByInvoiceId(@Param("invoiceId") Long invoiceId);
+
+    boolean existsByVatRateId(Long vateRateId);
+
 }

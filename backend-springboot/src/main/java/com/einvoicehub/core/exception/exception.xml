@@ -1,0 +1,325 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+AppException.java
+ErrorCode.java
+GlobalExceptionHandler.java
+InsufficientQuotaException.java
+InvalidDataException.java
+MerchantNotFoundException.java
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="AppException.java">
+package com.einvoicehub.core.exception;
+
+import lombok.Getter;
+import java.util.Collections;
+import java.util.Map;
+
+@Getter
+public class AppException extends RuntimeException {
+
+    private final ErrorCode errorCode;
+    private final Map<String, Object> details;
+
+    public AppException(ErrorCode errorCode) {
+        this(errorCode, errorCode.getMessage(), Collections.emptyMap());
+    }
+
+    public AppException(ErrorCode errorCode, String customMessage) {
+        this(errorCode, customMessage, Collections.emptyMap());
+    }
+
+    public AppException(ErrorCode errorCode, Map<String, Object> details) {
+        this(errorCode, errorCode.getMessage(), details);
+    }
+
+    public AppException(ErrorCode errorCode, String customMessage, Map<String, Object> details) {
+        super(customMessage);
+        this.errorCode = errorCode;
+        this.details = details != null ? details : Collections.emptyMap();
+    }
+
+    /* Exception chaining support */
+    public AppException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode.getMessage(), cause);
+        this.errorCode = errorCode;
+        this.details = Collections.emptyMap();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("AppException[errorCode=%s, code=%d, message='%s']",
+                errorCode.name(), errorCode.getCode(), getMessage());
+    }
+
+
+}
+</file>
+
+<file path="ErrorCode.java">
+package com.einvoicehub.core.exception;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+@Getter
+public enum ErrorCode {
+    SUCCESS(1000, "Thành công", HttpStatus.OK),
+    UNCATEGORIZED_EXCEPTION(9999, "Lỗi hệ thống không xác định", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // Auth & Access
+    UNAUTHORIZED(403, "Không có quyền truy cập", HttpStatus.FORBIDDEN),
+    UNAUTHENTICATED(401, "Chưa xác thực tài khoản", HttpStatus.UNAUTHORIZED),
+    API_KEY_INVALID(1005, "API Key không hợp lệ hoặc đã hết hạn", HttpStatus.UNAUTHORIZED),
+
+    // Merchant Errors
+    MERCHANT_NOT_FOUND(1001, "Không tìm thấy doanh nghiệp", HttpStatus.NOT_FOUND),
+    INSUFFICIENT_QUOTA(1002, "Doanh nghiệp đã hết hạn mức hóa đơn", HttpStatus.FORBIDDEN),
+
+    // Validation & Data Errors
+    VALIDATION_ERROR(1003, "Dữ liệu đầu vào không hợp lệ", HttpStatus.BAD_REQUEST),
+    INVALID_DATA(1006, "Dữ liệu nghiệp vụ không hợp lệ", HttpStatus.BAD_REQUEST), // Thêm cho InvalidDataException
+
+    // Invoice Business Errors
+    TEMPLATE_NOT_FOUND(2001, "Không tìm thấy mẫu hóa đơn", HttpStatus.NOT_FOUND),
+    REGISTRATION_EXPIRED(2002, "Dải số hóa đơn đã hết hạn", HttpStatus.BAD_REQUEST),
+    REGISTRATION_EXHAUSTED(2003, "Dải số hóa đơn đã dùng hết", HttpStatus.BAD_REQUEST),
+
+    PROVIDER_ERROR(1004, "Lỗi kết nối từ nhà cung cấp dịch vụ (Provider)", HttpStatus.BAD_GATEWAY);
+
+    private static final Map<Integer, ErrorCode> CACHE = Stream.of(values())
+            .collect(Collectors.toMap(ErrorCode::getCode, Function.identity()));
+
+    @JsonValue
+    private final int code;
+    private final String message;
+    private final HttpStatus statusCode;
+
+    ErrorCode(int code, String message, HttpStatus statusCode) {
+        this.code = code;
+        this.message = message;
+        this.statusCode = statusCode;
+    }
+
+    public static Optional<ErrorCode> findByCode(int code) {
+        return Optional.ofNullable(CACHE.get(code));
+    }
+}
+</file>
+
+<file path="GlobalExceptionHandler.java">
+package com.einvoicehub.core.exception;
+
+import com.einvoicehub.core.provider.exception.ProviderException;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import com.einvoicehub.core.dto.ApiResponse;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@Slf4j
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ApiResponse<?>> handleAppException(AppException ex) {
+        log.warn("Business Exception: [{}] - {}", ex.getErrorCode().getCode(), ex.getMessage());
+        return buildResponse(ex.getErrorCode(), ex.getMessage(), ex.getDetails());
+    }
+
+    @ExceptionHandler(ProviderException.class)
+    public ResponseEntity<ApiResponse<?>> handleProviderException(ProviderException ex) {
+        log.error("Provider Error [{}]: {} - Status: {}", ex.getProviderCode(), ex.getMessage(), ex.getStatusCode());
+
+        ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
+                .code(ErrorCode.PROVIDER_ERROR)
+                .message(ex.getMessage())
+                .result(ex.getDetails())
+                .build();
+        return ResponseEntity.status(ex.getStatusCode()).body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<?>> handleValidation(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
+        try {
+            String firstMsg = ex.getBindingResult().getFieldError().getDefaultMessage();
+            if (firstMsg != null) errorCode = ErrorCode.valueOf(firstMsg);
+        } catch (Exception ignored) {}
+
+        log.warn("Validation Failed: {}", errors);
+        return buildResponse(errorCode, errorCode.getMessage(), errors);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<?>> handleConstraintViolation(ConstraintViolationException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "Invalid parameter: " + ex.getMessage(), null);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAccessDenied(AccessDeniedException ex) {
+        return buildResponse(ErrorCode.UNAUTHORIZED, "Access denied", null);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<?>> handleInvalidJson(HttpMessageNotReadableException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "Invalid JSON format", null);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<?>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String msg = String.format("Parameter '%s' has an invalid data type", ex.getName());
+        return buildResponse(ErrorCode.VALIDATION_ERROR, msg, null);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public ResponseEntity<ApiResponse<?>> handleNotFound(NoHandlerFoundException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "API endpoint not found: " + ex.getRequestURL(), null);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponse<?>> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "HTTP method not supported", null);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<?>> handleGenericException(Exception ex) {
+        log.error("CRITICAL SYSTEM ERROR: ", ex);
+        return buildResponse(ErrorCode.UNCATEGORIZED_EXCEPTION, ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage(), null);
+    }
+
+    private ResponseEntity<ApiResponse<?>> buildResponse(ErrorCode errorCode, String message, Object result) {
+        ApiResponse<?> response = ApiResponse.builder()
+                .code(errorCode)
+                .message(message)
+                .result(result)
+                .build();
+        return ResponseEntity.status(errorCode.getStatusCode()).body(response);
+    }
+
+
+}
+</file>
+
+<file path="InsufficientQuotaException.java">
+package com.einvoicehub.core.exception;
+
+import lombok.Getter;
+
+
+@Getter
+public class InsufficientQuotaException extends AppException {
+    public InsufficientQuotaException(String message) {
+        super(ErrorCode.INSUFFICIENT_QUOTA);
+    }
+
+}
+</file>
+
+<file path="InvalidDataException.java">
+package com.einvoicehub.core.exception;
+
+import lombok.Getter;
+
+@Getter
+public class InvalidDataException extends AppException {
+
+    public InvalidDataException(String message) {
+        super(ErrorCode.INVALID_DATA, message);
+    }
+
+    public InvalidDataException(ErrorCode errorCode) {
+        super(errorCode);
+    }
+
+    public InvalidDataException(ErrorCode errorCode, String customMessage) {
+        super(errorCode, customMessage);
+    }
+}
+</file>
+
+<file path="MerchantNotFoundException.java">
+package com.einvoicehub.core.exception;
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+/**
+ * Exception khi không tìm thấy Merchant.
+ */
+@Getter
+public class MerchantNotFoundException extends AppException {
+    private final String errorCode = "MERCHANT_NOT_FOUND";
+    private final HttpStatus status = HttpStatus.NOT_FOUND;
+
+    public MerchantNotFoundException(String merchantCode) {
+        super(ErrorCode.MERCHANT_NOT_FOUND);     }
+}
+</file>
+
+</files>

@@ -23,4 +23,6 @@ public interface EinvInvoiceRegistrationRepository extends JpaRepository<EinvInv
     @Query(value = "SELECT * FROM invoice_registrations WHERE merchant_id = :merchantId " +
             "AND status_id = 1 ORDER BY effective_date DESC LIMIT 1", nativeQuery = true)
     Optional<EinvInvoiceRegistrationEntity> findLatestActiveRegistration(@Param("merchantId") Long merchantId);
+
+    boolean existsByStatusId(Integer statusId);
 }

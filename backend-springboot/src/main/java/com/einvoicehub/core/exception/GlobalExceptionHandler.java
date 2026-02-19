@@ -1,9 +1,10 @@
-package com.einvoicehub.core.common.exception;
+package com.einvoicehub.core.exception;
 
 import com.einvoicehub.core.provider.exception.ProviderException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import com.einvoicehub.core.dto.ApiResponse;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -23,7 +24,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponse<?>> handleAppException(AppException ex) {
         log.warn("Business Exception: [{}] - {}", ex.getErrorCode().getCode(), ex.getMessage());
-        return buildResponse(ex.getErrorCode(), ex.getMessage(), null);
+        return buildResponse(ex.getErrorCode(), ex.getMessage(), ex.getDetails());
     }
 
     @ExceptionHandler(ProviderException.class)
@@ -100,4 +101,6 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }
+
+
 }
