@@ -2,13 +2,12 @@ package com.einvoicehub.core.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EinvSyncQueueResponse {
+public class EinvInvoiceSyncQueueResponse {
 
     @JsonProperty("ID")
     private Long id;

@@ -61,4 +61,10 @@ public interface EinvInvoiceMetadataRepository extends JpaRepository<EinvInvoice
 
     boolean existsByPaymentMethodId(Long paymentMethodId);
     boolean existsByPaymentMethod(String paymentMethod);
+
+    boolean existsByMerchantId(Long merchantId);
+    boolean existsByProviderId(Long providerId);
+    boolean existsByProviderConfigId(Long providerConfigId);
+
+    boolean existsByTemplateId(Long templateId);
 }

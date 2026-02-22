@@ -39,4 +39,6 @@ public interface EinvInvoiceAdjustmentRepository extends JpaRepository<EinvInvoi
             "WHERE m.merchant_id = :merchantId " +
             "ORDER BY a.created_at DESC LIMIT 1", nativeQuery = true)
     Optional<EinvInvoiceAdjustmentsEntity> findLatestAdjustment(@Param("merchantId") Long merchantId);
+
+    boolean existsByOriginalInvoiceId(Long originalInvoiceId);
 }

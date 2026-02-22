@@ -71,7 +71,7 @@ public class MisaAdapter implements InvoiceProvider {
     }
 
     @Override
-    public InvoiceStatus getInvoiceStatus(String transactionId, ProviderConfig config) {
+    public EinvInvoiceStatus getInvoiceStatus(String transactionId, ProviderConfig config) {
         try {
             String token = getOrRefreshToken(config);
             MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

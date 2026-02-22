@@ -24,6 +24,15 @@ public interface EinvHubMapper {
     EinvRegistrationStatusEntity toEntity(EinvRegistrationStatusDto dto);
     EinvServiceProviderDto toDto(EinvServiceProviderEntity entity);
     EinvServiceProviderEntity toEntity(EinvServiceProviderDto dto);
+    EinvInvoicePayloadDto toDto(EinvInvoicePayloadEntity entity);
+    EinvInvoicePayloadEntity toEntity(EinvInvoicePayloadDto dto);
+    EinvSystemConfigDto toDto(EinvSystemConfigEntity entity);
+    EinvSystemConfigEntity toEntity(EinvSystemConfigDto dto);
+
+    EinvTaxAuthorityResponseDto toDto(EinvTaxAuthorityResponseEntity entity);
+    EinvTaxAuthorityResponseEntity toEntity(EinvTaxAuthorityResponseDto dto);
+    EinvInvoiceSyncQueueResponse toDto(EinvInvoiceSyncQueueEntity entity);
+    EinvInvoiceSyncQueueEntity toEntity(EinvInvoiceSyncQueueResponse dto);
 
     //  2. Merchant & User
     EinvMerchantEntity toEntity(EinvMerchantRequest request);
@@ -55,6 +64,7 @@ public interface EinvHubMapper {
     //  4. Transactions
     EinvInvoiceMetadataEntity toEntity(EinvSubmitInvoiceRequest request);
     EinvInvoiceItemEntity toEntity(EinvSubmitInvoiceDetailRequest request);
+    EinvInvoiceItemEntity toEntity(EinvInvoiceItemDto dto);
 
     @Mapping(source = "merchant.companyName", target = "merchantName")
     @Mapping(source = "invoiceStatus.name", target = "statusName")
@@ -79,7 +89,7 @@ public interface EinvHubMapper {
     EinvAuditLogResponse toResponse(EinvAuditLogsEntity entity);
 
     @Mapping(source = "invoice.invoiceNumber", target = "invoiceNumber")
-    EinvSyncQueueResponse toResponse(EinvInvoiceSyncQueueEntity entity);
+    EinvInvoiceSyncQueueResponse toResponse(EinvInvoiceSyncQueueEntity entity);
 
     @Mapping(source = "merchant.companyName", target = "merchantName")
     EinvApiCredentialDto toDto(EinvApiCredentialsEntity entity);

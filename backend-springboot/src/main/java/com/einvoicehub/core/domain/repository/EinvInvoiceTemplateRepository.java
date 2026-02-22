@@ -30,4 +30,5 @@ public interface EinvInvoiceTemplateRepository extends JpaRepository<EinvInvoice
             "AND is_active = 1 ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
     Optional<EinvInvoiceTemplateEntity> findLatestTemplate(@Param("merchantId") Long merchantId);
     boolean existsByInvoiceTypeId(Long invoiceTypeId);
+    boolean existsByRegistrationId(Long registrationId);
 }

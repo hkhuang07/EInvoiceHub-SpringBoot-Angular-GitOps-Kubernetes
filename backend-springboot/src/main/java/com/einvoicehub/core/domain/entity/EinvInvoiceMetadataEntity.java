@@ -77,9 +77,11 @@ public class EinvInvoiceMetadataEntity {
     @Column(name = "issuance_method", nullable = false)
     private IssuanceMethod issuanceMethod = IssuanceMethod.STANDARD;
 
-    // --- Enterprise Shell Fields (Identifiers) ---
     @Column(name = "lookup_code", length = 50, unique = true)
     private String lookupCode; // Mã tra cứu hóa đơn
+
+    @Column(name = "tax_authority_code", length = 50)
+    private String taxAuthorityCode;
 
     @Column(name = "cqt_code", length = 50)
     private String cqtCode; // Mã Cơ quan Thuế cấp

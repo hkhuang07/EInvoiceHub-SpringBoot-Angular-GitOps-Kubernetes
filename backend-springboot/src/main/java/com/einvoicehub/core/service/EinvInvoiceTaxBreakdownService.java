@@ -1,4 +1,109 @@
 package com.einvoicehub.core.service;
 
+import com.einvoicehub.core.domain.entity.EinvInvoiceMetadataEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoiceTaxBreakDownEntity;
+import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
+import com.einvoicehub.core.domain.repository.EinvInvoiceTaxBreakdownRepository;
+import com.einvoicehub.core.dto.EinvInvoiceTaxBreakdownDto;
+import com.einvoicehub.core.exception.ErrorCode;
+import com.einvoicehub.core.exception.InvalidDataException;
+import com.einvoicehub.core.mapper.EinvHubMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
 public class EinvInvoiceTaxBreakdownService {
+
+    private final EinvInvoiceTaxBreakdownRepository repository;
+    private final EinvInvoiceMetadataRepository metadataRepository;
+    private final EinvHubMapper mapper;
+
+    @Transactional(readOnly = true)
+    public List<EinvInvoiceTaxBreakdownDto> getAllByInvoiceId(Long invoiceId) {
+        log.info("[TaxBreakdown] Truy vấn danh sách phân rã thuế cho hóa đơn ID: {}", invoiceId);
+        return repository.findByInvoiceId(invoiceId).stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public EinvInvoiceTaxBreakdownDto getById(Long id) {
+        log.info("[TaxBreakdown] Lấy chi tiết phân rã thuế ID: {}", id);
+        return repository.findById(id).map(mapper::toDto)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Dữ liệu thuế không tồn tại"));
+    }
+
+    @Transactional
+    public EinvInvoiceTaxBreakdownDto create(Long invoiceId, EinvInvoiceTaxBreakdownDto dto) {
+        log.info("[TaxBreakdown] Tạo mới phân rã thuế cho hóa đơn ID: {}", invoiceId);
+        EinvInvoiceMetadataEntity invoice = metadataRepository.findById(invoiceId)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn gốc không tồn tại"));
+
+        if (Boolean.TRUE.equals(invoice.getMerchant().getIsDeleted())) {
+            throw new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND, "Doanh nghiệp đã ngừng hoạt động");
+        }
+        if (invoice.getInvoiceStatus().getId() != 1) {
+            throw new InvalidDataException(ErrorCode.INVALID_DATA, "Không thể sửa đổi thông tin thuế của hóa đơn đã chốt");
+        }
+
+        EinvInvoiceTaxBreakDownEntity entity = new EinvInvoiceTaxBreakDownEntity();
+        entity.setInvoice(invoice);
+        entity.setVatRateCode(dto.getVatRateCode());
+        entity.setVatRatePercent(dto.getVatRatePercent());
+
+        calculateBreakdownAmounts(entity, dto);
+
+        entity = repository.save(entity);
+        return mapper.toDto(entity);
+    }
+
+    @Transactional
+    public EinvInvoiceTaxBreakdownDto update(Long id, EinvInvoiceTaxBreakdownDto dto) {
+        log.info("[TaxBreakdown] Cập nhật phân rã thuế ID: {}", id);
+        EinvInvoiceTaxBreakDownEntity entity = repository.findById(id)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Bản ghi không tồn tại"));
+
+        if (entity.getInvoice().getInvoiceStatus().getId() != 1) {
+            throw new InvalidDataException(ErrorCode.INVALID_DATA, "Không được phép cập nhật thuế cho hóa đơn đã phát hành");
+        }
+
+        entity.setVatRateCode(dto.getVatRateCode());
+        entity.setVatRatePercent(dto.getVatRatePercent());
+        calculateBreakdownAmounts(entity, dto);
+
+        return mapper.toDto(repository.save(entity));
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        log.warn("[TaxBreakdown] Yêu cầu xóa phân rã thuế ID: {}", id);
+        EinvInvoiceTaxBreakDownEntity entity = repository.findById(id)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Không tìm thấy dữ liệu để xóa"));
+
+        if (entity.getInvoice().getInvoiceStatus().getId() != 1) {
+            throw new InvalidDataException(ErrorCode.INVALID_DATA, "Không thể xóa dòng thuế của hóa đơn đã hoàn tất");
+        }
+
+        repository.delete(entity);
+    }
+
+    private void calculateBreakdownAmounts(EinvInvoiceTaxBreakDownEntity entity, EinvInvoiceTaxBreakdownDto dto) {
+        BigDecimal taxable = dto.getTaxableAmount() != null ? dto.getTaxableAmount() : BigDecimal.ZERO;
+        BigDecimal taxRate = entity.getVatRatePercent().divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP);
+
+        BigDecimal taxAmount = taxable.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+        entity.setTaxableAmount(taxable);
+        entity.setTaxAmount(taxAmount);
+        entity.setTotalAmount(taxable.add(taxAmount));
+        entity.setSubtotalAmount(taxable);
+    }
 }

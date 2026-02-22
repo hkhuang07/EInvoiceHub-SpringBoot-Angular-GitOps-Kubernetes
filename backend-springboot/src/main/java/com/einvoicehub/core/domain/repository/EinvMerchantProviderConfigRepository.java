@@ -25,4 +25,5 @@ public interface EinvMerchantProviderConfigRepository extends JpaRepository<Einv
     List<EinvMerchantProviderConfigEntity> searchConfigs(@Param("merchantId") Long merchantId, @Param("search") String search);
 
     boolean existsByMerchantIdAndProviderId(Long merchantId, Long providerId);
+    boolean existsByProviderId(Long providerId);
 }
