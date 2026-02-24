@@ -1,6 +1,6 @@
 {
   "output": {
-    "filePath": "einvoicehub-full-source.txt",
+    "filePath": "einvoicehub-full-source.xml",
     "style": "xml"
   },
   "include": ["**/*"],

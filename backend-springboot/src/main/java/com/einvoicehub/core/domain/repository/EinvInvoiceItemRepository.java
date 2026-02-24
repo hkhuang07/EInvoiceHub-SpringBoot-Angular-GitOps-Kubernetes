@@ -1,6 +1,6 @@
 package com.einvoicehub.core.domain.repository;
 
-import com.einvoicehub.core.domain.entity.EinvInvoiceItemEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoiceDetailEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,11 +12,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface EinvInvoiceItemRepository extends JpaRepository<EinvInvoiceItemEntity, Long>,
-        JpaSpecificationExecutor<EinvInvoiceItemEntity> {
+public interface EinvInvoiceItemRepository extends JpaRepository<EinvInvoiceDetailEntity, Long>,
+        JpaSpecificationExecutor<EinvInvoiceDetailEntity> {
 
     @EntityGraph(attributePaths = {"vatRate"})
-    List<EinvInvoiceItemEntity> findByInvoiceIdOrderByLineNumberAsc(Long invoiceId);
+    List<EinvInvoiceDetailEntity> findByInvoiceIdOrderByLineNumberAsc(Long invoiceId);
     boolean existsByVatRateId(Long vatRateId);
 
     @Modifying

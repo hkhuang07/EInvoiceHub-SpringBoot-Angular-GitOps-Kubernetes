@@ -24,7 +24,7 @@ public class EinvInvoiceAdjustmentsEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "original_invoice_id", nullable = false)
-    private EinvInvoiceMetadataEntity originalInvoice;
+    private EinvInvoiceEntity originalInvoice;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "adjustment_type", nullable = false)

@@ -32,7 +32,7 @@ public class EinvInvoiceAdjustmentRequest {
     private String agreementContent;
 
     @JsonProperty("Signers")
-    private String signers; // Danh sách người ký (JSON String)
+    private String signers;
 
     @JsonProperty("ReasonCode")
     private String reasonCode;

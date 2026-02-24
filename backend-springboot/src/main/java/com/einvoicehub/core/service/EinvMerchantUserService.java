@@ -26,7 +26,6 @@ public class EinvMerchantUserService {
     private final EinvMerchantRepository merchantRepository;
     private final EinvHubMapper mapper;
 
-    // Lưu ý: Trong thực tế hãy Inject PasswordEncoder từ Spring Security
     // private final PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)

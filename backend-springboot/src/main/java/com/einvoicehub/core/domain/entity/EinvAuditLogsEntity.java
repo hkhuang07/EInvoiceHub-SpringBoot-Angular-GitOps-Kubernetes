@@ -1,62 +1,48 @@
 package com.einvoicehub.core.domain.entity;
 
-import com.einvoicehub.core.domain.entity.enums.AuditAction;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "audit_logs")
+@Table(name = "einv_audit_logs")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@ToString(exclude = {"merchant", "user"})
+@SuperBuilder
+@ToString
 public class EinvAuditLogsEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "merchant_id")
-    private EinvMerchantEntity merchant; // Doanh nghiệp liên quan
+    @Column(name = "action", length = 100, nullable = false)
+    private String action; // SUBMIT_INVOICE, SIGN_INVOICE...
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private EinvMerchantUserEntity user; // Người thực hiện
+    @Column(name = "entity_name", length = 100)
+    private String entityName;
 
-    @Column(name = "entity_type", length = 50, nullable = false)
-    private String entityType; // Loại đối tượng (Invoice, Config...)
+    @Column(name = "entity_id", length = 100)
+    private String entityId;
 
-    @Column(name = "entity_id", nullable = false)
-    private Long entityId;
+    @Column(name = "payload", columnDefinition = "JSON")
+    private String payload;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "action", length = 50, nullable = false)
-    private AuditAction action;
+    @Column(name = "result", length = 20)
+    private String result; // SUCCESS | FAILURE
 
-    // --- Core Management Fields (Dữ liệu phục vụ đối soát) ---
-    @Column(name = "old_value", columnDefinition = "JSON")
-    private String oldValue;
+    @Lob
+    @Column(name = "error_msg", columnDefinition = "TEXT")
+    private String errorMsg;
 
-    @Column(name = "new_value", columnDefinition = "JSON")
-    private String newValue;
-
-    // --- Enterprise Shell Fields (Lưu vết hạ tầng) ---
-    @Column(name = "ip_address", length = 45)
-    private String ipAddress;
-
-    @Column(name = "user_agent", length = 500)
-    private String userAgent;
-
-    @Column(name = "request_id", length = 100)
-    private String requestId;
+    @Column(name = "created_by", length = 100)
+    private String createdBy;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    // --------------------------------
 
     @PrePersist
     protected void onCreate() {

@@ -2,15 +2,16 @@ package com.einvoicehub.core.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "invoice_payloads")
+@Table(name = "einv_invoice_payloads")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @ToString(exclude = "invoice")
 public class EinvInvoicePayloadEntity {
 
@@ -21,32 +22,32 @@ public class EinvInvoicePayloadEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "invoice_id")
-    private EinvInvoiceMetadataEntity invoice;
+    private EinvInvoiceEntity invoice;
 
-    @Column(name = "raw_data", columnDefinition = "JSON")
-    private String rawData;
+    @Lob
+    @Column(name = "request_json", columnDefinition = "LONGTEXT")
+    private String requestJson; //JSON record send to ServiceProvider
 
-    @Column(name = "xml_content", columnDefinition = "LONGTEXT")
-    private String xmlContent;
+    @Lob
+    @Column(name = "request_xml", columnDefinition = "LONGTEXT")
+    private String requestXml; // XML Record
 
-    @Column(name = "json_content", columnDefinition = "LONGTEXT")
-    private String jsonContent;
+    @Lob
+    @Column(name = "response_json", columnDefinition = "LONGTEXT")
+    private String responseJson;
 
+    @Lob
     @Column(name = "signed_xml", columnDefinition = "LONGTEXT")
-    private String signedXml;
+    private String signedXml; // XML digital signed
 
+    @Lob
     @Column(name = "pdf_data", columnDefinition = "LONGTEXT")
-    private String pdfData;
-
-    @Column(name = "extra_data", columnDefinition = "JSON")
-    private String extraData;
-
+    private String pdfData; // PDF base64
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-    // --------------------------------
 
     @PrePersist
     protected void onCreate() {

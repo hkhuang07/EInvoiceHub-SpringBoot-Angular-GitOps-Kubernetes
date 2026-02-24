@@ -1,7 +1,7 @@
 package com.einvoicehub.core.service;
 
 import com.einvoicehub.core.domain.entity.EinvInvoiceAdjustmentsEntity;
-import com.einvoicehub.core.domain.entity.EinvInvoiceMetadataEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoiceEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceAdjustmentRepository;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.dto.request.EinvInvoiceAdjustmentRequest;
@@ -46,7 +46,7 @@ public class EinvInvoiceAdjustmentService {
     public EinvInvoiceAdjustmentResponse create(EinvInvoiceAdjustmentRequest request) {
         log.info("[Adjustment] Lập biên bản {} cho hóa đơn gốc ID: {}",
                 request.getAdjustmentType(), request.getOriginalInvoiceId());
-        EinvInvoiceMetadataEntity originalInvoice = metadataRepository.findById(request.getOriginalInvoiceId())
+        EinvInvoiceEntity originalInvoice = metadataRepository.findById(request.getOriginalInvoiceId())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn gốc không tồn tại"));
 
         if (originalInvoice.getInvoiceStatus().getId() != 5) {

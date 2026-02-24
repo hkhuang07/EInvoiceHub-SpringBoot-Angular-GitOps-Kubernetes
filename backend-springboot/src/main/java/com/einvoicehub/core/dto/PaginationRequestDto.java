@@ -12,14 +12,19 @@ public class PaginationRequestDto {
 
     @Builder.Default
     private Integer offset = 0;
+
     @Builder.Default
     private Integer limit = 20;
+
     @Builder.Default
     private Map<String, Object> filters = new HashMap<>();
+
     private String sortField;
+
     @Builder.Default
     private String sortDirection = "desc";
+
     public int getPageNumber() {
-        return limit == 0 ? 0 : (offset / limit);
+        return (limit == null || limit <= 0) ? 0 : (offset / limit);
     }
 }

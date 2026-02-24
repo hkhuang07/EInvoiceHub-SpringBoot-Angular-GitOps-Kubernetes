@@ -21,7 +21,7 @@ public class EinvInvoiceTaxBreakDownEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id", nullable = false)
-    private EinvInvoiceMetadataEntity invoice;
+    private EinvInvoiceEntity invoice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vat_rate_id", nullable = false)

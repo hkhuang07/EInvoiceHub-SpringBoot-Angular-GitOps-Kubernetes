@@ -1,18 +1,17 @@
 package com.einvoicehub.core.domain.entity;
 
-import com.einvoicehub.core.domain.entity.enums.SyncType;
-import com.einvoicehub.core.domain.entity.enums.SyncStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "invoice_sync_queue")
+@Table(name = "einv_sync_queue")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @ToString(exclude = "invoice")
 public class EinvInvoiceSyncQueueEntity {
 
@@ -22,67 +21,38 @@ public class EinvInvoiceSyncQueueEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id", nullable = false)
-    private EinvInvoiceMetadataEntity invoice;
+    private EinvInvoiceEntity invoice;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sync_type", nullable = false)
-    private SyncType syncType;
+    @Column(name = "sync_type", length = 50, nullable = false)
+    private String syncType; // SUBMIT | SIGN | GET_STATUS | GET_INVOICE
 
-    @Builder.Default
-    @Column(name = "priority", nullable = false)
-    private Integer priority = 5; // Độ ưu tiên: 1-Cao nhất, 10-Thấp nhất
+    @Column(name = "status", length = 20, nullable = false)
+    private String status; // PENDING | PROCESSING | SUCCESS | FAILED
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    @Column(name = "status", nullable = false)
-    private SyncStatus status = SyncStatus.PENDING;
-
-    @Builder.Default
     @Column(name = "attempt_count", nullable = false)
-    private Integer attemptCount = 0;
+    private Integer attemptCount;
 
-    @Builder.Default
     @Column(name = "max_attempts", nullable = false)
-    private Integer maxAttempts = 3;
+    private Integer maxAttempts;
 
-    @Column(name = "last_attempt_at")
-    private LocalDateTime lastAttemptAt;
+    @Lob
+    @Column(name = "last_error", columnDefinition = "TEXT")
+    private String lastError;
 
     @Column(name = "next_retry_at")
     private LocalDateTime nextRetryAt;
-
-    // --- Core Management Fields (Dữ liệu phục vụ xử lý lại) ---
-    @Column(name = "request_data", columnDefinition = "JSON")
-    private String requestData; // Dữ liệu gửi đi dạng JSON
-
-    @Column(name = "response_data", columnDefinition = "JSON")
-    private String responseData; // Dữ liệu nhận về từ API
-
-    @Column(name = "error_code", length = 50)
-    private String errorCode;
-
-    @Column(name = "error_message", columnDefinition = "TEXT")
-    private String errorMessage;
-
-    // --- Enterprise Shell Fields (Lưu vết worker xử lý) ---
-    @Column(name = "processed_by", length = 100)
-    private String processedBy; // Tên máy hoặc ID worker xử lý
-
-    @Column(name = "processing_started_at")
-    private LocalDateTime processingStartedAt;
-
-    @Column(name = "processing_completed_at")
-    private LocalDateTime processingCompletedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-    // --------------------------------
 
     @PrePersist
     protected void onCreate() {
+        if (this.status == null) this.status = "PENDING";
+        if (this.attemptCount == null) this.attemptCount = 0;
+        if (this.maxAttempts == null) this.maxAttempts = 3;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }

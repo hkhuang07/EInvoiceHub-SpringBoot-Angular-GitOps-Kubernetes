@@ -1,6 +1,6 @@
 package com.einvoicehub.core.service;
 
-import com.einvoicehub.core.domain.entity.EinvInvoiceMetadataEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoiceEntity;
 import com.einvoicehub.core.domain.entity.EinvInvoiceSyncQueueEntity;
 import com.einvoicehub.core.domain.entity.enums.SyncStatus;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
@@ -45,7 +45,7 @@ public class EinvInvoiceSyncQueueService {
     public EinvInvoiceSyncQueueResponse create(EinvInvoiceSyncQueueResponse dto) {
         log.info("[Queue] Thêm mới yêu cầu đồng bộ cho hóa đơn ID: {}", dto.getInvoiceId());
 
-        EinvInvoiceMetadataEntity invoice = metadataRepository.findById(dto.getInvoiceId())
+        EinvInvoiceEntity invoice = metadataRepository.findById(dto.getInvoiceId())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn gốc không tồn tại"));
 
         //Kiểm tra doanh nghiệp phải còn hoạt động mới được đồng bộ

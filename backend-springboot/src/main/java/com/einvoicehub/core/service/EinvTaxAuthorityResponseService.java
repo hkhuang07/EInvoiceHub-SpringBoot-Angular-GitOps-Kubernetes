@@ -1,6 +1,6 @@
 package com.einvoicehub.core.service;
 
-import com.einvoicehub.core.domain.entity.EinvInvoiceMetadataEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoiceEntity;
 import com.einvoicehub.core.domain.entity.EinvTaxAuthorityResponseEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvTaxAuthorityResponseRepository;
@@ -41,7 +41,7 @@ public class EinvTaxAuthorityResponseService {
     public EinvTaxAuthorityResponseDto create(EinvTaxAuthorityResponseDto dto) {
         log.info("[CQT] Tiếp nhận mã CQT cho hóa đơn ID: {}", dto.getInvoiceId());
 
-        EinvInvoiceMetadataEntity invoice = metadataRepository.findById(dto.getInvoiceId())
+        EinvInvoiceEntity invoice = metadataRepository.findById(dto.getInvoiceId())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn đích không tồn tại"));
 
         EinvTaxAuthorityResponseEntity entity = mapper.toEntity(dto);

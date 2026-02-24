@@ -1,6 +1,6 @@
 package com.einvoicehub.core.domain.repository;
 
-import com.einvoicehub.core.domain.entity.EinvMerchantProviderConfigEntity;
+import com.einvoicehub.core.domain.entity.EinvStoreProviderEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,17 +12,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EinvMerchantProviderConfigRepository extends JpaRepository<EinvMerchantProviderConfigEntity, Long>,
-        JpaSpecificationExecutor<EinvMerchantProviderConfigEntity> {
+public interface EinvMerchantProviderConfigRepository extends JpaRepository<EinvStoreProviderEntity, Long>,
+        JpaSpecificationExecutor<EinvStoreProviderEntity> {
 
     @EntityGraph(attributePaths = {"provider"})
-    Optional<EinvMerchantProviderConfigEntity> findByMerchantIdAndIsDefaultTrueAndIsActiveTrue(Long merchantId);
+    Optional<EinvStoreProviderEntity> findByMerchantIdAndIsDefaultTrueAndIsActiveTrue(Long merchantId);
 
     @Query("SELECT c FROM EinvMerchantProviderConfigEntity c WHERE " +
             "(:merchantId IS NULL OR c.merchant.id = :merchantId) AND " +
             "(:search IS NULL OR LOWER(c.taxCode) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             "LOWER(c.partnerId) LIKE LOWER(CONCAT('%', :search, '%')))")
-    List<EinvMerchantProviderConfigEntity> searchConfigs(@Param("merchantId") Long merchantId, @Param("search") String search);
+    List<EinvStoreProviderEntity> searchConfigs(@Param("merchantId") Long merchantId, @Param("search") String search);
 
     boolean existsByMerchantIdAndProviderId(Long merchantId, Long providerId);
     boolean existsByProviderId(Long providerId);

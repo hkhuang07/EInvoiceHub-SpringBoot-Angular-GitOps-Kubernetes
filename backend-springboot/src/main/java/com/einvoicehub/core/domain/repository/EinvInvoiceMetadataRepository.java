@@ -1,6 +1,6 @@
 package com.einvoicehub.core.domain.repository;
 
-import com.einvoicehub.core.domain.entity.EinvInvoiceMetadataEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoiceEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -14,20 +14,20 @@ import java.util.Optional;
 
 
 @Repository
-public interface EinvInvoiceMetadataRepository extends JpaRepository<EinvInvoiceMetadataEntity, Long>,
-        JpaSpecificationExecutor<EinvInvoiceMetadataEntity> {
+public interface EinvInvoiceMetadataRepository extends JpaRepository<EinvInvoiceEntity, Long>,
+        JpaSpecificationExecutor<EinvInvoiceEntity> {
 
-    Optional<EinvInvoiceMetadataEntity> findByPartnerInvoiceId(String partnerInvoiceId);
+    Optional<EinvInvoiceEntity> findByPartnerInvoiceId(String partnerInvoiceId);
 
-    Optional<EinvInvoiceMetadataEntity> findByLookupCode(String lookupCode);
+    Optional<EinvInvoiceEntity> findByLookupCode(String lookupCode);
 
-    Optional<EinvInvoiceMetadataEntity> findByInvoiceNumber(String invoiceNumber);
+    Optional<EinvInvoiceEntity> findByInvoiceNumber(String invoiceNumber);
 
     @EntityGraph(attributePaths = {"items", "invoiceStatus", "merchant"})
-    Optional<EinvInvoiceMetadataEntity> findWithDetailsById(Long id);
+    Optional<EinvInvoiceEntity> findWithDetailsById(Long id);
 
     @EntityGraph(attributePaths = {"invoiceStatus"})
-    Optional<EinvInvoiceMetadataEntity> findTopByPartnerInvoiceIdOrderByCreatedAtDesc(String partnerInvoiceId);
+    Optional<EinvInvoiceEntity> findTopByPartnerInvoiceIdOrderByCreatedAtDesc(String partnerInvoiceId);
 
     @Query("SELECT i FROM EinvInvoiceMetadataEntity i WHERE " +
             "(:merchantId IS NULL OR i.merchant.id = :merchantId) AND " +
@@ -39,7 +39,7 @@ public interface EinvInvoiceMetadataRepository extends JpaRepository<EinvInvoice
             ") " +
             "AND (:statusId IS NULL OR i.invoiceStatus.id = :statusId) " +
             "AND i.isDeleted = false")
-    Page<EinvInvoiceMetadataEntity> findByFilters(
+    Page<EinvInvoiceEntity> findByFilters(
             @Param("merchantId") Long merchantId,
             @Param("search") String search,
             @Param("statusId") Integer statusId,
@@ -50,7 +50,7 @@ public interface EinvInvoiceMetadataRepository extends JpaRepository<EinvInvoice
             "WHERE merchant_id = :merchantId AND status_id = 5 " +
             "ORDER BY issue_date DESC, created_at DESC LIMIT 1",
             nativeQuery = true)
-    Optional<EinvInvoiceMetadataEntity> findLatestSuccessInvoice(@Param("merchantId") Long merchantId);
+    Optional<EinvInvoiceEntity> findLatestSuccessInvoice(@Param("merchantId") Long merchantId);
 
     boolean existsByLookupCode(String lookupCode);
 

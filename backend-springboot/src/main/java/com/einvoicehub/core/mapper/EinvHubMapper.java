@@ -2,15 +2,15 @@ package com.einvoicehub.core.mapper;
 
 import com.einvoicehub.core.domain.entity.*;
 import com.einvoicehub.core.dto.*;
-import com.einvoicehub.core.dto.request.*;
+import com.einvoicehub.core.dto.request.EinvInvoiceAdjustmentRequest;
+import com.einvoicehub.core.dto.request.SubmitInvoice.*;
 import com.einvoicehub.core.dto.response.*;
 import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface EinvHubMapper {
-
     //  1. Catalog
     EinvInvoiceTypeDto toDto(EinvInvoiceTypeEntity entity);
     EinvInvoiceTypeEntity toEntity(EinvInvoiceTypeDto dto);
@@ -22,8 +22,8 @@ public interface EinvHubMapper {
     EinvVatRateEntity toEntity(EinvVatRateDto dto);
     EinvRegistrationStatusDto toDto(EinvRegistrationStatusEntity entity);
     EinvRegistrationStatusEntity toEntity(EinvRegistrationStatusDto dto);
-    EinvServiceProviderDto toDto(EinvServiceProviderEntity entity);
-    EinvServiceProviderEntity toEntity(EinvServiceProviderDto dto);
+    EinvServiceProviderDto toDto(EinvProviderEntity entity);
+    EinvProviderEntity toEntity(EinvServiceProviderDto dto);
     EinvInvoicePayloadDto toDto(EinvInvoicePayloadEntity entity);
     EinvInvoicePayloadEntity toEntity(EinvInvoicePayloadDto dto);
     EinvSystemConfigDto toDto(EinvSystemConfigEntity entity);
@@ -43,12 +43,13 @@ public interface EinvHubMapper {
     @Mapping(source = "merchant.taxCode", target = "merchantTaxCode")
     EinvMerchantUserResponse toResponse(EinvMerchantUserEntity entity);
 
+
     //  3. Config & Registration
-    EinvMerchantProviderConfigEntity toEntity(EinvMerchantProviderConfigRequest request);
+    EinvStoreProviderEntity toEntity(EinvMerchantProviderConfigRequest request);
     @Mapping(source = "merchant.companyName", target = "merchantName")
     @Mapping(source = "provider.providerName", target = "providerName")
     @Mapping(source = "provider.providerCode", target = "providerCode")
-    EinvMerchantProviderConfigResponse toResponse(EinvMerchantProviderConfigEntity entity);
+    EinvMerchantProviderConfigResponse toResponse(EinvStoreProviderEntity entity);
 
     EinvInvoiceRegistrationEntity toEntity(EinvInvoiceRegistrationRequest request);
     @Mapping(source = "merchant.companyName", target = "merchantName")
@@ -61,22 +62,49 @@ public interface EinvHubMapper {
     @Mapping(source = "registration.registrationNumber", target = "registrationNumber")
     EinvInvoiceTemplateResponse toResponse(EinvInvoiceTemplateEntity entity);
 
-    //  4. Transactions
-    EinvInvoiceMetadataEntity toEntity(EinvSubmitInvoiceRequest request);
-    EinvInvoiceItemEntity toEntity(EinvSubmitInvoiceDetailRequest request);
-    EinvInvoiceItemEntity toEntity(EinvInvoiceItemDto dto);
-
     @Mapping(source = "merchant.companyName", target = "merchantName")
     @Mapping(source = "invoiceStatus.name", target = "statusName")
     @Mapping(source = "invoiceStatus.note", target = "statusMessage")
     @Mapping(source = "paymentMethodEntity.methodName", target = "paymentMethod")
-    EinvInvoiceMetadataResponse toResponse(EinvInvoiceMetadataEntity entity);
+    EinvInvoiceMetadataResponse toResponse(EinvInvoiceEntity entity);
 
-    EinvInvoiceItemDto toDto(EinvInvoiceItemEntity entity);
-    List<EinvInvoiceItemDto> toItemDtoList(List<EinvInvoiceItemEntity> entities);
+    EinvInvoiceItemDto toDto(EinvInvoiceDetailEntity entity);
+    List<EinvInvoiceItemDto> toItemDtoList(List<EinvInvoiceDetailEntity> entities);
 
     EinvInvoiceTaxBreakdownDto toDto(EinvInvoiceTaxBreakDownEntity entity);
     List<EinvInvoiceTaxBreakdownDto> toTaxDtoList(List<EinvInvoiceTaxBreakDownEntity> entities);
+
+    //Tọa hóa đơn
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "invoiceTypeId", target = "invoiceTemplate.id")
+    @Mapping(source = "buyerCompany", target = "buyerName")
+    EinvInvoiceEntity toEntity(SubmitInvoiceRequest request);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "itemName", target = "productName")
+    @Mapping(source = "price", target = "unitPrice")
+    @Mapping(source = "taxTypeId", target = "vatRate.id")
+    EinvInvoiceDetailEntity toEntity(SubmitInvoiceDetailRequest request);
+    EinvInvoiceDetailEntity toEntity(EinvInvoiceItemDto dto);
+
+    @Mapping(source = "invoiceNumber", target = "invoiceNumber")
+    @Mapping(source = "lookupCode", target = "lookupCode")
+    @Mapping(source = "taxAuthorityCode", target = "taxAuthorityCode")
+    SubmitInvoiceResponse toDto(EinvInvoiceEntity entity);
+
+    //Danh sách và tra cứu
+    @Mapping(source = "merchant.companyName", target = "merchantName")
+    @Mapping(source = "invoiceStatus.name", target = "statusName")
+    @Mapping(source = "paymentMethodEntity.methodName", target = "paymentMethodName")
+    @Mapping(source = "createdAt", target = "createdAt")
+    ListInvoicesResponse toListResponse(EinvInvoiceEntity entity);
+    List<ListInvoicesResponse> toListResponseList(List<EinvInvoiceEntity> entities);
+    List<ListInvoicesResponse> toDto(List<EinvInvoiceEntity> entities);
+
+    @Mapping(source = "id", target = "invoiceId")
+    @Mapping(source = "invoiceStatus.id", target = "invoiceStatusId")
+    GetInvoicesResponse toGetInvoicesResponse(EinvInvoiceEntity entity);
+    GetInvoicesResponse toEntity(EinvInvoiceEntity entity);
 
     //  5. Adjustment & Operationss
     EinvInvoiceAdjustmentsEntity toEntity(EinvInvoiceAdjustmentRequest request);
@@ -93,4 +121,19 @@ public interface EinvHubMapper {
 
     @Mapping(source = "merchant.companyName", target = "merchantName")
     EinvApiCredentialDto toDto(EinvApiCredentialsEntity entity);
+
+
+    //Ký số
+    @Mapping(source = "signedAt", target = "signedAt")
+    @Mapping(target = "status", constant = "SIGNED")
+    SignInvoiceResponse toSignResponse(EinvInvoiceEntity entity);
+
+    @Mapping(source = "merchant.companyName", target = "merchantName")
+    @Mapping(source = "user.username", target = "userName")
+    EinvAuditLogResponse toAuditResponse(EinvAuditLogsEntity entity);
+    EinvAuditLogResponse toDto(EinvAuditLogsEntity entity);
+
+    @Mapping(source = "invoice.invoiceNumber", target = "invoiceNumber")
+    EinvInvoiceSyncQueueResponse toSyncResponse(EinvInvoiceSyncQueueEntity entity);
+
 }

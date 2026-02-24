@@ -2,6 +2,7 @@ package com.einvoicehub.core.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Entity
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @ToString
 public class EinvSystemConfigEntity {
 
@@ -21,33 +22,32 @@ public class EinvSystemConfigEntity {
     @Column(name = "config_key", length = 100, nullable = false, unique = true)
     private String configKey;
 
-    @Column(name = "config_value", columnDefinition = "TEXT", nullable = false)
+    @Lob
+    @Column(name = "config_value", nullable = false, columnDefinition = "TEXT")
     private String configValue;
 
     @Column(name = "config_type", length = 20, nullable = false)
     private String configType; // STRING, NUMBER, BOOLEAN, JSON
 
-    // --- Enterprise Shell Fields ---
     @Column(name = "description", length = 500)
     private String description;
 
-    @Builder.Default
     @Column(name = "is_encrypted", nullable = false)
-    private Boolean isEncrypted = false; // Mã hóa dữ liệu nhạy cảm (VD: API Secret)
+    private Boolean isEncrypted;
 
-    @Builder.Default
     @Column(name = "is_editable", nullable = false)
-    private Boolean isEditable = true;
+    private Boolean isEditable;
 
     @Column(name = "updated_by")
-    private Long updatedBy; // ID của MerchantUser thực hiện thay đổi (Decoupled)
+    private Long updatedBy;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-    // --------------------------------
 
     @PrePersist
     protected void onCreate() {
+        if (this.isEncrypted == null) this.isEncrypted = false;
+        if (this.isEditable == null) this.isEditable = true;
         this.updatedAt = LocalDateTime.now();
     }
 

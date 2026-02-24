@@ -1,8 +1,8 @@
 package com.einvoicehub.core.service;
 
 import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
-import com.einvoicehub.core.domain.entity.EinvMerchantProviderConfigEntity;
-import com.einvoicehub.core.domain.entity.EinvServiceProviderEntity;
+import com.einvoicehub.core.domain.entity.EinvStoreProviderEntity;
+import com.einvoicehub.core.domain.entity.EinvProviderEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantProviderConfigRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
@@ -12,12 +12,12 @@ import com.einvoicehub.core.dto.EinvMerchantProviderConfigResponse;
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
 import com.einvoicehub.core.mapper.EinvHubMapper;
+import com.einvoicehub.core.provider.EInvoiceProviderFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +30,7 @@ public class EinvMerchantProviderConfigService {
     private final EinvMerchantRepository merchantRepository;
     private final EinvServiceProviderRepository providerRepository;
     private final EinvInvoiceMetadataRepository metadataRepository;
+    private final EInvoiceProviderFactory providerFactory;
     private final EinvHubMapper mapper;
 
     @Transactional(readOnly = true)
@@ -59,6 +60,19 @@ public class EinvMerchantProviderConfigService {
                 });
     }
 
+
+    /*public EinvInvoiceProvider getActiveProviderForMerchant(Long merchantId) {
+        EinvMerchantProviderConfigEntity config = repository.findByMerchantIdAndIsDefaultTrueAndIsActiveTrue(merchantId)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA,
+                        "Doanh nghiệp chưa thiết lập cấu hình nhà cung cấp hóa đơn mặc định"));
+
+        String providerCode = config.getProvider().getProviderCode();
+
+        log.debug("[Config] Merchant {} đang sử dụng nhà cung cấp: {}", merchantId, providerCode);
+
+        return providerFactory.getProvider(providerCode);
+    }*/
+
     @Transactional
     public EinvMerchantProviderConfigResponse create(EinvMerchantProviderConfigRequest request) {
         log.info("[Config] Đang tạo cấu hình mới cho Merchant {} với Provider {}",
@@ -68,15 +82,15 @@ public class EinvMerchantProviderConfigService {
                 .filter(m -> !m.getIsDeleted())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND));
 
-        EinvServiceProviderEntity provider = providerRepository.findById(request.getProviderId())
-                .filter(EinvServiceProviderEntity::getIsActive)
+        EinvProviderEntity provider = providerRepository.findById(request.getProviderId())
+                .filter(EinvProviderEntity::getIsActive)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Nhà cung cấp không tồn tại hoặc ngừng hỗ trợ"));
 
         if (repository.existsByMerchantIdAndProviderId(request.getMerchantId(), request.getProviderId())) {
             throw new InvalidDataException(ErrorCode.INVALID_DATA, "Doanh nghiệp đã cấu hình tài khoản cho nhà cung cấp này");
         }
 
-        EinvMerchantProviderConfigEntity entity = mapper.toEntity(request);
+        EinvStoreProviderEntity entity = mapper.toEntity(request);
         entity.setMerchant(merchant);
         entity.setProvider(provider);
 
@@ -93,7 +107,7 @@ public class EinvMerchantProviderConfigService {
     public EinvMerchantProviderConfigResponse update(Long id, EinvMerchantProviderConfigRequest request) {
         log.info("[Config] Đang cập nhật cấu hình ID: {}", id);
 
-        EinvMerchantProviderConfigEntity entity = repository.findById(id)
+        EinvStoreProviderEntity entity = repository.findById(id)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Dữ liệu không tồn tại để cập nhật"));
 
         if (Boolean.TRUE.equals(entity.getMerchant().getIsDeleted())) {
@@ -126,7 +140,7 @@ public class EinvMerchantProviderConfigService {
             throw new InvalidDataException(ErrorCode.INVALID_DATA, "Bản ghi không tồn tại");
         }
 
-       if (metadataRepository.existsByProviderConfigId(id)) {
+        if (metadataRepository.existsByProviderConfigId(id)) {
             log.error("[Config] Xóa thất bại: Cấu hình ID {} đã phát sinh dữ liệu hóa đơn", id);
             throw new InvalidDataException(ErrorCode.INVALID_DATA, "Không thể xóa cấu hình đã được sử dụng để phát hành hóa đơn");
         }
@@ -135,10 +149,7 @@ public class EinvMerchantProviderConfigService {
         log.info("[Config] Đã xóa thành công cấu hình ID: {}", id);
     }
 
-    /**
-     * Logic nội bộ đảm bảo tại mỗi thời điểm chỉ có 1 cấu hình mặc định duy nhất cho mỗi Merchant.
-     */
-    private void handleDefaultConfigLogic(Long merchantId, Boolean isNewDefault, EinvMerchantProviderConfigEntity currentEntity) {
+    private void handleDefaultConfigLogic(Long merchantId, Boolean isNewDefault, EinvStoreProviderEntity currentEntity) {
         if (Boolean.TRUE.equals(isNewDefault)) {
             // Tìm cấu hình mặc định cũ và gỡ bỏ
             repository.findByMerchantIdAndIsDefaultTrueAndIsActiveTrue(merchantId).ifPresent(oldDefault -> {

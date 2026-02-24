@@ -4,7 +4,7 @@ import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
 import com.einvoicehub.core.domain.entity.EinvMerchantUserEntity;
 import com.einvoicehub.core.domain.repository.EinvMerchantUserRepository;
-import com.einvoicehub.core.dto.response.AuthResponse;
+import com.einvoicehub.core.dto.response.EinvAuthResponse;
 import com.einvoicehub.core.security.SecurityUser;
 import com.einvoicehub.core.security.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +29,11 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Transactional
-    public AuthResponse login(String username, String password) {
+    public EinvAuthResponse login(String username, String password) {
         log.info("[Auth] Bắt đầu xử lý đăng nhập cho: {}", username);
 
         try {
-            // Xác thực qua AuthenticationManager Spring Security core
-            // Nếu sai passwd, ném ra AuthenticationException
+            // Xác thực qua AuthenticationManager Spring Security core, nếu sai passwd, ném ra AuthenticationException
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(username, password)
             );
@@ -46,8 +45,7 @@ public class AuthService {
         EinvMerchantUserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Tài khoản không tồn tại trên hệ thống"));
 
-        // Kiểm tra trạng thái Doanh nghiệp
-        // Nếu Doanh nghiệp đã bị xóa mềm ,chặn truy cập
+        // Kiểm tra trạng thái Doanh nghiệp, mếu Doanh nghiệp đã bị xóa mềm ,chặn truy cập
         if (Boolean.TRUE.equals(user.getMerchant().getIsDeleted())) {
             log.error("[Auth] Chặn truy cập: Merchant sở hữu {} đã bị xóa hoặc ngừng hoạt động", user.getMerchant().getTaxCode());
             throw new InvalidDataException(ErrorCode.INVALID_DATA, "Doanh nghiệp của bạn đã ngừng hoạt động trên hệ thống");
@@ -65,7 +63,7 @@ public class AuthService {
 
         log.info("[Auth] User {} đăng nhập thành công cho Doanh nghiệp: {}", username, user.getMerchant().getCompanyName());
 
-        return AuthResponse.builder()
+        return EinvAuthResponse.builder()
                 .accessToken(jwtToken)
                 .username(user.getUsername())
                 .fullName(user.getFullName())

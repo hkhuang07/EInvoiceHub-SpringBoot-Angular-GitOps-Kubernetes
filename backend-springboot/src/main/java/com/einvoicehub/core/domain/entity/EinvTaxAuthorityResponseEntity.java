@@ -20,7 +20,7 @@ public class EinvTaxAuthorityResponseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "invoice_id", nullable = false)
-    private EinvInvoiceMetadataEntity invoice;
+    private EinvInvoiceEntity invoice;
 
     @Column(name = "cqt_code", length = 50, nullable = false)
     private String cqtCode; // Mã Cơ quan Thuế cấp

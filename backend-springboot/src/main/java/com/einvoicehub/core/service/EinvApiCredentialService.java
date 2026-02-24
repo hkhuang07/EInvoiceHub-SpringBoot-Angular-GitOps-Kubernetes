@@ -7,7 +7,7 @@ import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
 import com.einvoicehub.core.domain.repository.EinvApiCredentialRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
 import com.einvoicehub.core.dto.EinvApiCredentialDto;
-import com.einvoicehub.core.mapper.EinvHubMapper;
+import com.einvoicehub.core.mapper.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,6 @@ public class EinvApiCredentialService {
     @Transactional(readOnly = true)
     public List<EinvApiCredentialDto> getByMerchant(Long merchantId) {
         log.info("[API] Truy vấn danh sách API Key cho Merchant ID: {}", merchantId);
-        // Lưu ý: Repository findByFilters trả về Page, ở đây lọc đơn giản
         return repository.findAll().stream()
                 .filter(c -> c.getMerchant().getId().equals(merchantId))
                 .map(mapper::toDto)

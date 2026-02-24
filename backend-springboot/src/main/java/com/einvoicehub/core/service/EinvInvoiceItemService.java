@@ -45,13 +45,13 @@ public class EinvInvoiceItemService {
     public EinvInvoiceItemDto create(Long invoiceId, EinvInvoiceItemDto dto) {
         log.info("[Item] Thêm hàng hóa mới vào hóa đơn ID: {}", invoiceId);
 
-        EinvInvoiceMetadataEntity invoice = metadataRepository.findById(invoiceId)
+        EinvInvoiceEntity invoice = metadataRepository.findById(invoiceId)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn cha không tồn tại"));
         if (invoice.getInvoiceStatus().getId() != 1) {
             throw new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn đã chốt, không được thêm dòng hàng");
         }
 
-        EinvInvoiceItemEntity entity = mapper.toEntity(dto);
+        EinvInvoiceDetailEntity entity = mapper.toEntity(dto);
         entity.setInvoice(invoice);
         calculateItemAmounts(entity);
         entity = repository.save(entity);
@@ -63,7 +63,7 @@ public class EinvInvoiceItemService {
     @Transactional
     public EinvInvoiceItemDto update(Long id, EinvInvoiceItemDto dto) {
         log.info("[Item] Cập nhật dòng hàng ID: {}", id);
-        EinvInvoiceItemEntity entity = repository.findById(id)
+        EinvInvoiceDetailEntity entity = repository.findById(id)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Bản ghi không tồn tại"));
 
         if (entity.getInvoice().getInvoiceStatus().getId() != 1) {
@@ -85,10 +85,10 @@ public class EinvInvoiceItemService {
     @Transactional
     public void delete(Long id) {
         log.warn("[Item] Xóa dòng hàng ID: {}", id);
-        EinvInvoiceItemEntity entity = repository.findById(id)
+        EinvInvoiceDetailEntity entity = repository.findById(id)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Bản ghi không tồn tại"));
 
-        EinvInvoiceMetadataEntity invoice = entity.getInvoice();
+        EinvInvoiceEntity invoice = entity.getInvoice();
         if (invoice.getInvoiceStatus().getId() != 1) {
             throw new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn đã phát hành, không thể xóa chi tiết");
         }
@@ -97,7 +97,7 @@ public class EinvInvoiceItemService {
         updateInvoiceTotals(invoice);
     }
 
-    private void calculateItemAmounts(EinvInvoiceItemEntity entity) {
+    private void calculateItemAmounts(EinvInvoiceDetailEntity entity) {
         BigDecimal qty = entity.getQuantity() != null ? entity.getQuantity() : BigDecimal.ZERO;
         BigDecimal price = entity.getUnitPrice() != null ? entity.getUnitPrice() : BigDecimal.ZERO;
         BigDecimal discount = entity.getDiscountAmount() != null ? entity.getDiscountAmount() : BigDecimal.ZERO;
@@ -117,10 +117,10 @@ public class EinvInvoiceItemService {
         entity.setTotalAmount(net.add(entity.getTaxAmount() != null ? entity.getTaxAmount() : BigDecimal.ZERO));
     }
 
-    private void updateInvoiceTotals(EinvInvoiceMetadataEntity invoice) {
-        List<EinvInvoiceItemEntity> items = repository.findByInvoiceIdOrderByLineNumberAsc(invoice.getId());
+    private void updateInvoiceTotals(EinvInvoiceEntity invoice) {
+        List<EinvInvoiceDetailEntity> items = repository.findByInvoiceIdOrderByLineNumberAsc(invoice.getId());
 
-        BigDecimal subtotal = items.stream().map(EinvInvoiceItemEntity::getNetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal subtotal = items.stream().map(EinvInvoiceDetailEntity::getNetAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal tax = items.stream().map(i -> i.getTaxAmount() != null ? i.getTaxAmount() : BigDecimal.ZERO).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         invoice.setSubtotalAmount(subtotal);

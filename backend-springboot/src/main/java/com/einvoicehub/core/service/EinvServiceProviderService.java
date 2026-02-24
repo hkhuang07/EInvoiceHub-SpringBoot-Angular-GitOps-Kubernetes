@@ -1,6 +1,6 @@
 package com.einvoicehub.core.service;
 
-import com.einvoicehub.core.domain.entity.EinvServiceProviderEntity;
+import com.einvoicehub.core.domain.entity.EinvProviderEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantProviderConfigRepository;
 import com.einvoicehub.core.domain.repository.EinvServiceProviderRepository;
@@ -62,7 +62,7 @@ public class EinvServiceProviderService {
             });
         }
 
-        EinvServiceProviderEntity entity = mapper.toEntity(dto);
+        EinvProviderEntity entity = mapper.toEntity(dto);
         entity = repository.save(entity);
 
         log.info("[Config] Đã tạo thành công nhà cung cấp: {} (ID: {})", entity.getProviderName(), entity.getId());
@@ -73,7 +73,7 @@ public class EinvServiceProviderService {
     public EinvServiceProviderDto update(Long id, EinvServiceProviderDto dto) {
         log.info("[Config] Đang cập nhật thông tin nhà cung cấp ID: {}", id);
 
-        EinvServiceProviderEntity entity = repository.findById(id)
+        EinvProviderEntity entity = repository.findById(id)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Dữ liệu không tồn tại để cập nhật"));
 
         entity.setProviderName(dto.getProviderName());

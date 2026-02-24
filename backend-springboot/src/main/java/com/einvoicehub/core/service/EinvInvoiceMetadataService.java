@@ -2,7 +2,7 @@ package com.einvoicehub.core.service;
 
 import com.einvoicehub.core.domain.entity.*;
 import com.einvoicehub.core.domain.repository.*;
-import com.einvoicehub.core.dto.request.EinvSubmitInvoiceRequest;
+import com.einvoicehub.core.dto.request.SubmitInvoice.SubmitInvoiceRequest;
 import com.einvoicehub.core.dto.response.EinvInvoiceMetadataResponse;
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,7 +45,7 @@ public class EinvInvoiceMetadataService {
     }
 
     @Transactional
-    public EinvInvoiceMetadataResponse create(EinvSubmitInvoiceRequest request) {
+    public EinvInvoiceMetadataResponse create(SubmitInvoiceRequest request) {
         log.info("[Transaction] Bắt đầu tạo hóa đơn cho Merchant ID: {}", request.getInvoiceTypeId());
 
         EinvInvoiceTemplateEntity template = templateRepository.findById(request.getInvoiceTypeId())
@@ -70,7 +69,7 @@ public class EinvInvoiceMetadataService {
             template.setCurrentNumber(nextNumber);
             templateRepository.save(template);
 
-            EinvInvoiceMetadataEntity entity = mapper.toEntity(request);
+            EinvInvoiceEntity entity = mapper.toEntity(request);
             entity.setMerchant(merchant);
             entity.setInvoiceTemplate(template);
             entity.setInvoiceNumber(String.format("%08d", nextNumber)); // Format 8 chữ số chuẩn CQT
@@ -88,9 +87,9 @@ public class EinvInvoiceMetadataService {
     }
 
     @Transactional
-    public EinvInvoiceMetadataResponse update(Long id, EinvSubmitInvoiceRequest request) {
+    public EinvInvoiceMetadataResponse update(Long id, SubmitInvoiceRequest request) {
         log.info("[Transaction] Cập nhật thông tin hóa đơn ID: {}", id);
-        EinvInvoiceMetadataEntity entity = repository.findById(id)
+        EinvInvoiceEntity entity = repository.findById(id)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Không tìm thấy hóa đơn"));
 
         if (entity.getInvoiceStatus().getId() != 1) {
@@ -110,7 +109,7 @@ public class EinvInvoiceMetadataService {
     @Transactional
     public void delete(Long id) {
         log.warn("[Transaction] Đang thực hiện xóa mềm hóa đơn ID: {}", id);
-        EinvInvoiceMetadataEntity entity = repository.findById(id)
+        EinvInvoiceEntity entity = repository.findById(id)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn không tồn tại"));
 
         if (entity.getInvoiceStatus().getId() != 1) {
@@ -131,7 +130,7 @@ public class EinvInvoiceMetadataService {
     @Transactional
     public void hardDelete(Long id) {
         log.warn("[Transaction] CẢNH BÁO: Thực hiện xóa cứng hóa đơn ID: {}", id);
-        EinvInvoiceMetadataEntity entity = repository.findById(id)
+        EinvInvoiceEntity entity = repository.findById(id)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Bản ghi không tồn tại trong hệ thống"));
 
         if (entity.getInvoiceStatus().getId() != 1) {

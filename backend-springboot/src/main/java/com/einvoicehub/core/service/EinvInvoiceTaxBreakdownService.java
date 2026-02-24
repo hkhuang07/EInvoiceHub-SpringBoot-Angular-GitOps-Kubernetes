@@ -1,6 +1,6 @@
 package com.einvoicehub.core.service;
 
-import com.einvoicehub.core.domain.entity.EinvInvoiceMetadataEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoiceEntity;
 import com.einvoicehub.core.domain.entity.EinvInvoiceTaxBreakDownEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvInvoiceTaxBreakdownRepository;
@@ -45,7 +45,7 @@ public class EinvInvoiceTaxBreakdownService {
     @Transactional
     public EinvInvoiceTaxBreakdownDto create(Long invoiceId, EinvInvoiceTaxBreakdownDto dto) {
         log.info("[TaxBreakdown] Tạo mới phân rã thuế cho hóa đơn ID: {}", invoiceId);
-        EinvInvoiceMetadataEntity invoice = metadataRepository.findById(invoiceId)
+        EinvInvoiceEntity invoice = metadataRepository.findById(invoiceId)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn gốc không tồn tại"));
 
         if (Boolean.TRUE.equals(invoice.getMerchant().getIsDeleted())) {

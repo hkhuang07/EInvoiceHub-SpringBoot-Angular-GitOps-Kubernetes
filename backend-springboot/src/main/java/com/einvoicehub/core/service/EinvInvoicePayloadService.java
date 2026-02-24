@@ -1,6 +1,6 @@
 package com.einvoicehub.core.service;
 
-import com.einvoicehub.core.domain.entity.EinvInvoiceMetadataEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoiceEntity;
 import com.einvoicehub.core.domain.entity.EinvInvoicePayloadEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvInvoicePayloadRepository;
@@ -44,7 +44,7 @@ public class EinvInvoicePayloadService {
     @Transactional
     public EinvInvoicePayloadDto create(EinvInvoicePayloadDto dto) {
         log.info("[Infra] Đang khởi tạo Payload cho hóa đơn ID: {}", dto.getInvoiceId());
-        EinvInvoiceMetadataEntity invoice = metadataRepository.findById(dto.getInvoiceId())
+        EinvInvoiceEntity invoice = metadataRepository.findById(dto.getInvoiceId())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn gốc không tồn tại"));
 
         if (Boolean.TRUE.equals(invoice.getMerchant().getIsDeleted())) {

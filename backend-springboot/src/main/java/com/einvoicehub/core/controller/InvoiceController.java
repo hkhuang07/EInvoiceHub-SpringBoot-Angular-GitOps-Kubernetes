@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/invoices")
 public class InvoiceController {
 
-    //quỳên STAFF, MANAGER, ADMIN xem được hóa đơn
+    //!uỳên STAFF, MANAGER, ADMIN xem được hóa đơn
     @GetMapping
     @PreAuthorize("hasAnyRole('STAFF', 'MANAGER', 'ADMIN', 'API_USER')")
     public String getAllInvoices() {

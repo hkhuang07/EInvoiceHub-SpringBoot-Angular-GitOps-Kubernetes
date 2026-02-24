@@ -1,8 +1,10 @@
 package com.einvoicehub.core.domain.entity;
-import com.einvoicehub.core.domain.entity.enums.SubscriptionPlan;
+
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "merchants")
@@ -10,85 +12,43 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@ToString
+@SuperBuilder
 public class EinvMerchantEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "tax_code", length = 20, nullable = false, unique = true)
-    private String taxCode;
+    @Column(name = "tenant_id", length = 50, nullable = false, unique = true)
+    private String tenantId; // Định danh từ hệ thống PosORA
 
     @Column(name = "company_name", length = 255, nullable = false)
     private String companyName;
 
-    @Column(name = "short_name", length = 100)
-    private String shortName;
+    @Column(name = "tax_code", length = 20, nullable = false)
+    private String taxCode;
 
-    @Column(name = "address", columnDefinition = "TEXT")
-    private String address;
-
-    @Column(name = "district", length = 100)
-    private String district;
-
-    @Column(name = "city", length = 100)
-    private String city;
-
-    @Column(name = "email", length = 255)
-    private String email;
-
-    @Column(name = "phone", length = 20)
-    private String phone;
-
-    @Column(name = "representative_name", length = 100)
-    private String representativeName;
-
-    @Column(name = "representative_title", length = 100)
-    private String representativeTitle;
-
-    @Column(name = "tax_authority_code", length = 10)
-    private String taxAuthorityCode;
-
-    // --- Enterprise Shell Fields ---
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    @Column(name = "subscription_plan", nullable = false)
-    private SubscriptionPlan subscriptionPlan = SubscriptionPlan.TRIAL;
-
-    @Builder.Default
-    @Column(name = "invoice_quota", nullable = false)
-    private Integer invoiceQuota = 100;
-
-    @Builder.Default
-    @Column(name = "invoice_used", nullable = false)
-    private Integer invoiceUsed = 0;
-
-    @Builder.Default
-    @Column(name = "is_using_hsm", nullable = false)
-    private Boolean isUsingHsm = false;
-
-    @Builder.Default
-    @Column(name = "is_deleted", nullable = false)
-    private Boolean isDeleted = false;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updateAt;
+
+    @OneToMany(mappedBy = "merchant", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<EinvStoreEntity> stores;
 
     @PrePersist
     protected void onCreate() {
+        if (this.isActive == null) this.isActive = true;
         this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
     }
 
-    @PreUpdate
+    @PrePersist
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        if (this.isActive == null) this.isActive = true;
+        this.updateAt = LocalDateTime.now();
     }
 }
