@@ -1,8 +1,8 @@
 package com.einvoicehub.core.service;
 
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantUserRepository;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
@@ -55,7 +55,7 @@ public class EinvMerchantService {
             throw new InvalidDataException(ErrorCode.INVALID_DATA, "Mã số thuế này đã được đăng ký trên hệ thống");
         }
 
-        EinvMerchantEntity entity = mapper.toEntity(request);
+        MerchantEntity entity = mapper.toEntity(request);
         // Thiết lập các giá trị mặc định theo SOFTZ
         entity.setIsDeleted(false);
         entity = repository.save(entity);
@@ -66,7 +66,7 @@ public class EinvMerchantService {
     @Transactional
     public EinvMerchantResponse update(Long id, EinvMerchantRequest request) {
         log.info("[Merchant] Cập nhật thông tin doanh nghiệp ID: {}", id);
-        EinvMerchantEntity entity = repository.findById(id)
+        MerchantEntity entity = repository.findById(id)
                 .filter(m -> !m.getIsDeleted())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND));
 
@@ -85,7 +85,7 @@ public class EinvMerchantService {
     @Transactional
     public void delete(Long id) {
         log.warn("[Merchant] Yêu cầu xóa doanh nghiệp ID: {}", id);
-        EinvMerchantEntity entity = repository.findById(id)
+        MerchantEntity entity = repository.findById(id)
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND));
         // 3. Kiểm tra ràng buộc giao dịch trước khi xóa
         if (metadataRepository.existsByMerchantId(id)) {

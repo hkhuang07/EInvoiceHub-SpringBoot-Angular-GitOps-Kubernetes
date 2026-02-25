@@ -3,7 +3,7 @@ package com.einvoicehub.core.service;
 import com.einvoicehub.core.domain.entity.EinvProviderEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantProviderConfigRepository;
-import com.einvoicehub.core.domain.repository.EinvServiceProviderRepository;
+import com.einvoicehub.core.domain.repository.EinvProviderRepository;
 import com.einvoicehub.core.dto.EinvServiceProviderDto;
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EinvServiceProviderService {
 
-    private final EinvServiceProviderRepository repository;
+    private final EinvProviderRepository repository;
     private final EinvMerchantProviderConfigRepository providerConfigRepository;
     private final EinvInvoiceMetadataRepository metadataRepository;
     private final EinvHubMapper mapper;

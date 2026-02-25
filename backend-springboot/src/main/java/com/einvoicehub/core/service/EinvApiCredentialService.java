@@ -1,9 +1,9 @@
 package com.einvoicehub.core.service;
 
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
 import com.einvoicehub.core.domain.entity.EinvApiCredentialsEntity;
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
 import com.einvoicehub.core.domain.repository.EinvApiCredentialRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
 import com.einvoicehub.core.dto.EinvApiCredentialDto;
@@ -39,7 +39,7 @@ public class EinvApiCredentialService {
     public EinvApiCredentialDto create(Long merchantId, String scopeJson) {
         log.info("[API] Tạo mới API Key cho Merchant ID: {}", merchantId);
 
-        EinvMerchantEntity merchant = merchantRepository.findById(merchantId)
+        MerchantEntity merchant = merchantRepository.findById(merchantId)
                 .filter(m -> !m.getIsDeleted())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND));
 

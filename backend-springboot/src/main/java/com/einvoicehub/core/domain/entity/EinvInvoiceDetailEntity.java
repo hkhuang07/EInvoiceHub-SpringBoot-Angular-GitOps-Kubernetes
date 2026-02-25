@@ -5,38 +5,39 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "einv_invoices_detail")
+/** Chi tiết Hóa đơn */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@ToString(exclude = "invoice")
-public class EinvInvoiceDetailEntity {
+@Entity
+@Table(name = "einv_invoices_detail",
+        indexes = { @Index(name = "idx_detail_doc", columnList = "doc_id") })
+public class EinvInvoiceDetailEntity extends TenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doc_id", nullable = false)
-    private EinvInvoiceEntity invoice; // FK -> einv_invoices.id
+    @JoinColumn(name = "doc_id", nullable = false, foreignKey = @ForeignKey(name = "fk_detail_invoice"))
+    private EinvInvoiceEntity invoice;
 
     @Column(name = "line_no")
     private Integer lineNo;
 
     @Column(name = "item_id", length = 36)
-    private String itemId; // Mã hàng từ POS
+    private String itemId;
 
     @Column(name = "item_name", length = 500, nullable = false)
     private String itemName;
 
     @Column(name = "item_type_id")
-    private Integer itemTypeId; // Mapping sang loại item của NCC
+    private Integer itemTypeId;
 
     @Column(name = "is_free")
-    private Boolean isFree;
+    private Boolean isFree = false;
 
     @Column(name = "unit", length = 50)
     private String unit;
@@ -45,37 +46,40 @@ public class EinvInvoiceDetailEntity {
     private BigDecimal quantity;
 
     @Column(name = "price", precision = 15, scale = 6)
-    private BigDecimal price; // Đơn giá chưa CK
+    private BigDecimal price;
 
-    @Column(name = "gross_amount", precision = 15, scale = 2)
-    private BigDecimal grossAmount; // quantity * price
+    @Column(name = "gross_amount", precision = 20, scale = 2)
+    private BigDecimal grossAmount;
 
-    @Column(name = "discount_rate", precision = 15, scale = 2)
+    @Column(name = "discount_rate", precision = 20, scale = 2)
     private BigDecimal discountRate;
 
-    @Column(name = "discount_amount", precision = 15, scale = 2)
+    @Column(name = "discount_amount", precision = 20, scale = 2)
     private BigDecimal discountAmount;
 
-    @Column(name = "net_amount", precision = 15, scale = 2)
-    private BigDecimal netAmount; // gross - discount
+    @Column(name = "net_amount", precision = 20, scale = 2)
+    private BigDecimal netAmount;
 
-    @Column(name = "net_price", precision = 15, scale = 6)
-    private BigDecimal netPrice; // net_amount / quantity
+    @Column(name = "net_price", precision = 20, scale = 6)
+    private BigDecimal netPrice;
 
     @Column(name = "tax_type_id", length = 36)
-    private String taxTypeId; // Mã loại thuế HUB (Mapping sang NCC)
+    private String taxTypeId;
 
     @Column(name = "tax_rate", precision = 15, scale = 2)
     private BigDecimal taxRate;
 
-    @Column(name = "tax_amount", precision = 15, scale = 2)
+    @Column(name = "tax_amount", precision = 20, scale = 2)
     private BigDecimal taxAmount;
 
-    @Column(name = "net_price_vat", precision = 15, scale = 6)
-    private BigDecimal netPriceVat; // Đơn giá sau thuế
+    @Column(name = "net_price_vat", precision = 20, scale = 6)
+    private BigDecimal netPriceVat;
 
-    @Column(name = "total_amount", precision = 15, scale = 2)
-    private BigDecimal totalAmount; // net_amount + tax_amount
+    @Column(name = "total_amount", precision = 20, scale = 2)
+    private BigDecimal totalAmount;
+
+    @Column(name = "adjustment_type")
+    private Integer adjustmentType = 0; // 1:Tăng, 2:Giảm
 
     @Column(name = "notes", length = 500)
     private String notes;

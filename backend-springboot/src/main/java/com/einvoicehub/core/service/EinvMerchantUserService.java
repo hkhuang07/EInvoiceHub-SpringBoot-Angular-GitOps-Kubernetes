@@ -1,8 +1,8 @@
 package com.einvoicehub.core.service;
 
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
 import com.einvoicehub.core.domain.entity.EinvMerchantUserEntity;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantUserRepository;
@@ -49,7 +49,7 @@ public class EinvMerchantUserService {
         log.info("[User] Tạo tài khoản mới: {} cho Merchant ID: {}", request.getUsername(), request.getMerchantId());
 
         // 1. Kiểm tra trạng thái Merchant (Logic SOFTZ)
-        EinvMerchantEntity merchant = merchantRepository.findById(request.getMerchantId())
+        MerchantEntity merchant = merchantRepository.findById(request.getMerchantId())
                 .filter(m -> !m.getIsDeleted())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND));
 

@@ -1,0 +1,1029 @@
+{
+	"info": {
+		"_postman_id": "689c70b1-4fb3-428c-9725-2ded022192fe",
+		"name": "MinvoiceKinhDoanhMTT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16158197"
+	},
+	"item": [
+		{
+			"name": "Đăng nhập lấy Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\":\"ctkv2\",\n\t\"password\":\"123456\",\n\t\"ma_dvcs\":\"VP\"\n}\n\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://demohoadon123.mobifoneinvoice.vn/api/Account/Login",
+					"protocol": "https",
+					"host": [
+						"demohoadon123",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Account",
+						"Login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy thông tin dải hóa đơn",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear WGZNTHFWdzdIcUhzTDRpQ0lDcUhaUTQwWnMzREIyS3lLNWgyYkMrM0czcz06Q1RLVjI6NjM4MTc0MjU1NzUyOTEwMTM0OlZQ;VP"
+					}
+				],
+				"url": {
+					"raw": "https://demohoadon123.mobifoneinvoice.vn/api/System/GetDataReferencesByRefId?refId=RF00061",
+					"protocol": "https",
+					"host": [
+						"demohoadon123",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"System",
+						"GetDataReferencesByRefId"
+					],
+					"query": [
+						{
+							"key": "refId",
+							"value": "RF00061"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tạo hóa đơn tự động sinh mã MTT",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear RlhXcXZNTkpiQ0tyWnpURjhBeTd6NmNrUk1YbFVJY0d2eGtJdFF3Umg1TT06QURNSU5JU1RSQVRPUjo2MzgxNzA2OTc3NzA0NjcyNjA6VlA=;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"editmode\": 1,\r\n\t\"data\": [\r\n\t\t{\r\n\t\t\t\"cctbao_id\": \"ad52f7ac-8416-48fc-a4db-1c956cd0f919\",\r\n\t\t\t\"nlap\": \"2023-04-14\",\r\n            \"khieu\": \"2C23MUN\",\r\n\t\t\t\"sdhang\": \"\",\r\n\t\t\t\"dvtte\": \"VND\",\r\n\t\t\t\"tgia\": 1.0,\r\n\t\t\t\"htttoan\": \"Tiền mặt/Chuyển khoản\",\r\n\t\t\t\"stknban\": \"15654007\",\r\n\t\t\t\"tnhban\": \"Ngân hàng TMCP Á Châu (ACB) - PGD Hồng Lĩnh\",\r\n\t\t\t\"mnmua\": \"N0400001\",\r\n\t\t\t\"mst\": \"\",\r\n\t\t\t\"tnmua\": \"Khách lẻ\",\r\n\t\t\t\"email\": \"ngochuy1198@gmail.com\",\r\n\t\t\t\"ten\": \"KHÁCH LẺ\",\r\n\t\t\t\"dchi\": \"\",\r\n\t\t\t\"stknmua\": null,\r\n\t\t\t\"sdtnmua\": \"\",\r\n\t\t\t\"tnhmua\": null,\r\n\t\t\t\"cmndmua\": \"\",\r\n\t\t\t\"tgtcthue\": 85000.0,\r\n\t\t\t\"tgtthue\": 0.0,\r\n\t\t\t\"tgtttbso\": 85000.0,\r\n\t\t\t\"tgtttbso_last\": 85000.0,\r\n\t\t\t\"tgtphi\": 0.0,\r\n\t\t\t\"tkcktmn\": 0.0,\r\n\t\t\t\"ttcktmai\": 0.0,\r\n\t\t\t\"mdvi\": \"VP\",\r\n\t\t\t\"tthdon\": 0,\r\n\t\t\t\"is_hdcma\": 1,\r\n\t\t\t\"hoadon68_khac\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"data\": [\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"ttruong\": \"dchi\",\r\n\t\t\t\t\t\t\t\"kdlieu\": \"string\",\r\n\t\t\t\t\t\t\t\"dlieu\": \"\"\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"ttruong\": \"tendonvi\",\r\n\t\t\t\t\t\t\t\"kdlieu\": \"string\",\r\n\t\t\t\t\t\t\t\"dlieu\": \"\"\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t],\r\n\t\t\t\"details\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"data\": [\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"stt\": \"1\",\r\n\t\t\t\t\t\t\t\"ma\": \"N0100011\",\r\n\t\t\t\t\t\t\t\"ten\": \"Bút xoá CP-02, Thiên Long\",\r\n\t\t\t\t\t\t\t\"mdvtinh\": \"Cái\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"dgia\": \"25000\",\r\n\t\t\t\t\t\t\t\"sluong\": \"1\",\r\n\t\t\t\t\t\t\t\"thtien\": \"25000\",\r\n\t\t\t\t\t\t\t\"tthue\": 0.0,\r\n\t\t\t\t\t\t\t\"tgtien\": 0.0,\r\n\t\t\t\t\t\t\t\"kmai\": 1,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0.0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0.0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"\"\r\n\t\t\t\t\t\t},\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"stt\": \"2\",\r\n\t\t\t\t\t\t\t\"ma\": \"N0100034\",\r\n\t\t\t\t\t\t\t\"ten\": \"Màu sáp 12\",\r\n\t\t\t\t\t\t\t\"mdvtinh\": \"vĩ\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"dgia\": \"60000\",\r\n\t\t\t\t\t\t\t\"sluong\": \"1\",\r\n\t\t\t\t\t\t\t\"thtien\": \"60000\",\r\n\t\t\t\t\t\t\t\"tthue\": 0.0,\r\n\t\t\t\t\t\t\t\"tgtien\": 0.0,\r\n\t\t\t\t\t\t\t\"kmai\": 1,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0.0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0.0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"\"\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t]\r\n\t\t}\r\n\t]\r\n}"
+				},
+				"url": {
+					"raw": "https://demohoadon123.mobifoneinvoice.vn/api/Invoice68/SaveListHoadon78MTT",
+					"protocol": "https",
+					"host": [
+						"demohoadon123",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"SaveListHoadon78MTT"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tạo hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear WGZNTHFWdzdIcUhzTDRpQ0lDcUhaUTQwWnMzREIyS3lLNWgyYkMrM0czcz06Q1RLVjI6NjM4MTc0MjU1NzUyOTEwMTM0OlZQ;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"editmode\": 1,\r\n  \"data\": [\r\n    {\r\n      \"cctbao_id\": \"50ddf147-0f8f-45b6-9570-ba0268566dd0\",\r\n      \"nlap\": \"2023-04-18\",\r\n      \"sdhang \": \"16788684009647931870588443342\",\r\n      \"dvtte\": \"VND\",\r\n      \"tgia\": \"1\",\r\n      \"htttoan\": \"Tiền mặt\",\r\n      \"stknban\": \"\",\r\n      \"tnhban\": \"\",\r\n      \"mnmua\": \"\",\r\n      \"mst\": \"\",\r\n      \"tnmua\": \"phạm văn thái\",\r\n      \"sdtnmua\": \"0933272641\",\r\n      \"ten\": \"\",\r\n      \"diachi\": \"\",\r\n      \"stknmua\": null,\r\n      \"tnhmua\": null,\r\n      \"cmndmua\": null,\r\n      \"email\": null,\r\n      \"tgtcthue\": -66000,\r\n      \"tgtthue\": 0,\r\n      \"tgtttbso\": 39000,\r\n      \"tgtttbso_last\": 39000,\r\n      \"madv\": \"VP\",\r\n      \"tthd\": 0,\r\n      \"is_hdcma\": 1,\r\n      \"details\": [\r\n        {\r\n          \"data\": [\r\n            {\r\n              \"stt\": 1,\r\n              \"ma\": \"SP00025\",\r\n              \"ten\": \"Trà Lài Cúc\",\r\n              \"dvtinh\": \"Size M\",\r\n              \"dgia\": -35000,\r\n              \"sluong\": 3,\r\n              \"thtien\": -105000,\r\n              \"tthue\": 0,\r\n              \"tgtien\": -105000,\r\n              \"kmai\": 2,\r\n              \"tsuat\": 0\r\n            },\r\n            {\r\n              \"stt\": 2,\r\n              \"ma\": \"SP00018\",\r\n              \"ten\": \"Trà Vải\",\r\n              \"dvtinh\": \"Size M\",\r\n              \"dgia\": 39000,\r\n              \"sluong\": 1,\r\n              \"thtien\": 39000,\r\n              \"tthue\": 0,\r\n              \"tgtien\": 39000,\r\n              \"kmai\": 2,\r\n              \"tsuat\": 0\r\n            }\r\n          ]\r\n        }\r\n      ],\r\n      \"hoadon68_khac\": [\r\n        {\r\n          \"data\": [\r\n            {\r\n              \"ttruong\": \"dchi\",\r\n              \"kdlieu\": \"string\",\r\n              \"dlieu\": \"truyền đúng theo trường dchi ở trên\"\r\n            },\r\n            {\r\n              \"ttruong\": \"tendonvi\",\r\n              \"kdlieu\": \"string\",\r\n              \"dlieu\": \"truyền đúng theo trường ten ở trên\"\r\n            }\r\n          ]\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}"
+				},
+				"url": {
+					"raw": "https://demohoadon123.mobifoneinvoice.vn/api/Invoice68/SaveListHoadon78",
+					"protocol": "https",
+					"host": [
+						"demohoadon123",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"SaveListHoadon78"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tạo bảng kê đính kèm hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear eU9oMFc1ZWJwcFRodXRYc2JsYitMbldwM1o1dzVxN29hakhXMEJYK2JlWT06QURNSU5JU1RSQVRPUjo2MzgwODQ1MjY5NDYxMTkxMTI6VlA=;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"editmode\": 4, \r\n    \"data\": [\r\n        {\r\n            \"cctbao_id\": \"63af89ac-dcf2-4bad-b3c3-57de2902750f\",    \r\n            \"hdon_id\": \"818e87fc-9c31-4311-8853-d17f97585b66\",                                                                          \r\n            \"nlap\": \"2023-01-04 00:00\",\r\n            \"shdon\": \"\",\r\n            \"khieu\": \"1C23TYA\",\r\n            \"sdhang\": \"\",\r\n            \"dvtte\": \"VND\",\r\n            \"docngoaitetv\": 0,\r\n            \"tgia\": \"1\",\r\n            \"htttoan\": \"Tiền mặt/Chuyển khoản\",\r\n            \"stknban\": \"\",\r\n            \"tnhban\": \"\",\r\n            \"tudongtinhtien\": 0,\r\n            \"mnmua\": \"\",\r\n            \"mst\": \"\",\r\n            \"tnmua\": \"\",\r\n            \"email\": \"\",\r\n            \"ten\": \"\",\r\n            \"dchi\": \"\",\r\n            \"stknmua\": \"\",\r\n            \"tnhmua\": \"\",\r\n            \"sdtnmua\": \"\",\r\n            \"ttcktmai\": 0,\r\n            \"tgtcthue\": 30000,\r\n            \"tgtthue\": 3000,\r\n            \"tgtttbso\": 33000,\r\n            \"tkcktmn\": 0,\r\n            \"tgtphi\": 0,\r\n            \"tgtttbso_last\": 33000,\r\n            \"tgtttbchu\": \"Ba mươi ba nghìn đồng\",\r\n            \"hoadon68_khac\": [\r\n                {\r\n                    \"data\": []\r\n                }\r\n            ],\r\n            \"details\": [\r\n\t\t\t\t{\r\n\t\t\t\t\t\"data\": [\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"stt\": 1,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n\t\t\t\t\t\t{\r\n\t\t\t\t\t\t\t\"stt\": 2,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"stt\": 3,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"stt\": 4,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"stt\": 5,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"stt\": 6,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"stt\": 7,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"stt\": 8,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"stt\": 9,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n                        {\r\n\t\t\t\t\t\t\t\"stt\": 10,\r\n\t\t\t\t\t\t\t\"ma\": \"\",\r\n\t\t\t\t\t\t\t\"ten\": \"a\",\r\n\t\t\t\t\t\t\t\"dvtinh\": \"\",\r\n\t\t\t\t\t\t\t\"sluong\": 1,\r\n\t\t\t\t\t\t\t\"dgia\": 3000,\r\n\t\t\t\t\t\t\t\"thtien\": 3000,\r\n\t\t\t\t\t\t\t\"tlckhau\": 0,\r\n\t\t\t\t\t\t\t\"stckhau\": 0,\r\n\t\t\t\t\t\t\t\"tsuat\": \"10\",\r\n\t\t\t\t\t\t\t\"tthue\": 300,\r\n\t\t\t\t\t\t\t\"tgtien\": 3300,\r\n\t\t\t\t\t\t\t\"kmai\": 1\r\n\t\t\t\t\t\t},\r\n\t\t\t\t\t]\r\n\t\t\t\t}\r\n\t\t\t],\r\n            \"hoadon68_phi\": [\r\n                {\r\n                    \"data\": []\r\n                }\r\n            ],\r\n            \"is_hdcma\": 1\r\n        }\r\n    ]\r\n}"
+				},
+				"url": {
+					"raw": "https://demohoadon123.mobifoneinvoice.vn/api/Invoice68/SaveListHoadon78",
+					"protocol": "https",
+					"host": [
+						"demohoadon123",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"SaveListHoadon78"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tạo chứng từ",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear ZlJMb3ZlUzE2cit6S3NYNzNtbmx3U3p4bVBLaHZFdkZMNzNjaWxkK3RJWT06MjYwMDM3NDAyNTo2MzgwNjgxMjc3NTAzMTgwMzM6VlA=;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"editmode\": 1,\r\n\t\"data\": [\r\n\t\t{\r\n\t\t\t\"ktnhap\": \"0\",\r\n\t\t\t\"docngoaitetv\": \"0\",\r\n\t\t\t\"loaihd\": 3,\r\n\t\t\t\"cctbao_id\": \"eeaff26e-8401-4fed-bb53-426c644d78a0\",\r\n\t\t\t\"nlap\": \"2022-12-16 00:00\",\r\n\t\t\t\"shdon\": \"\",\r\n\t\t\t\"khieu\": \"LH/2022/E\",\r\n\t\t\t\"msbl_tncn\": \"03/TNCN\",\r\n\t\t\t\"ten_tc\": \"CÔNG TY TNHH TIẾN PHÁT\",\r\n\t\t\t\"mst_tc\": \"2600374025-002\",\r\n\t\t\t\"dchi_tc\": \"SN 1803, đại lộ Hùng Vương, Phường Gia Cẩm, Thành phố Việt Trì, Tỉnh Phú Thọ, Việt Nam.\",\r\n\t\t\t\"tinh_tc\": \"\",\r\n\t\t\t\"tel_tc\": \"02103852517\",\r\n\t\t\t\"mnmua\": \"\",\r\n\t\t\t\"mst\": \"2600977746\",\r\n\t\t\t\"tnmua\": \"abcd\",\r\n\t\t\t\"qtich\": \"việt nam\",\r\n\t\t\t\"cnctru\": \"1\",\r\n\t\t\t\"cnkctru\": \"0\",\r\n\t\t\t\"dchi\": \"hà nội\",\r\n\t\t\t\"sdtnmua\": \"0787171613\",\r\n\t\t\t\"cmnd\": \"132324027\",\r\n\t\t\t\"nccmnd\": \"phú thọ\",\r\n\t\t\t\"ngccmnd\": \"2022-12-09 00:00\",\r\n\t\t\t\"textGhiChu\": \"test trong dó thì ta có \",\r\n\t\t\t\"ktnhapstr\": \"lương\",\r\n\t\t\t\"kdbhbbuoc\": 10000,\r\n\t\t\t\"thang\": \"06-12\",\r\n\t\t\t\"nam\": \"2022\",\r\n\t\t\t\"dvtte\": \"VNĐ\",\r\n\t\t\t\"tgtcthue\": 5000,\r\n\t\t\t\"tgtttbso\": 2000,\r\n\t\t\t\"tgtttbso_last\": 1000,\r\n\t\t\t\"tgtttbchu\": \"\",\r\n\t\t\t\"is_hdcma\": 0\r\n\t\t}\r\n\t]\r\n}"
+				},
+				"url": {
+					"raw": "https://2600374025.mobifoneinvoice.vn/api/Invoice68/SaveListHoadon78",
+					"protocol": "https",
+					"host": [
+						"2600374025",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"SaveListHoadon78"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear NEJySjNYT2QwUzR3dFMvWE1nbVJSbXEyYm5WZ0hRdzMwMUpzeGMrMTNJST06REVWX1RFU1Q6NjM3NDY5NDU3ODI5MzcxMTA1;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"windowid\": \"WIN00187\",\r\n  \"editmode\": 2,\r\n  \"data\": [\r\n    {\r\n      \"inv_invoicecode_id\": \"e08a2369-9d7e-458d-9f24-3891939d60e6\",\r\n       \"inv_invoiceauth_id\": \"beb4128d-4b53-44e4-aeaa-a84cb44f24fc\",\r\n      \"invoice_issued_date\": \"2021/01/22\",\r\n      \"currency_code\": \"VND\",\r\n      \"exchange_rate\": \"1\",\r\n      \"buyer_display_name\": \"Cty TNHH MTV\",\r\n      \"customer_code\": \"KH001\",\r\n      \"buyer_legal_name\": \"Cty TNHH MTV\",\r\n      \"buyer_taxcode\": \"0106026495\",\r\n      \"buyer_address_line\": \"Hà Nội\",\r\n      \"buyer_email\": \"duc@gmail.com\",\r\n      \"buyer_bank_account\": null,\r\n      \"buyer_bank_name\": null,\r\n      \"payment_method_name\": \"TM\",\r\n      \"seller_bank_account\": null,\r\n      \"seller_bank_name\": null,\r\n      \"adjustment_type\": 1,\r\n      \"invoice_status\": 1,\r\n      \"total_amount_without_vat\": 200000.0,\r\n      \"vat_amount\": 20000.0,\r\n      \"discount_amount\": 0.0,\r\n      \"total_amount\": 220000.0,\r\n      \"store_code\": \"\",\r\n      \"user_new\": null,\r\n      \"amount_to_word\": null,\r\n      \"status\": \"Chờ ký\",\r\n      \"details\": [\r\n        {\r\n          \"tab_id\": \"TAB00188\",\r\n          \"tab_table\": \"inv_invoiceauthdetail\",\r\n          \"data\": [\r\n            {\r\n              \"row_ord\": \"1\",\r\n              \"item_code\": \"HH01\",\r\n              \"item_name\": \"Hàng hóa 1\",\r\n              \"unit_code\": \"Chiếc\",\r\n              \"unit_name\": \"Chiếc\",\r\n              \"unit_price\": 10000.0,\r\n              \"quantity\": 10.0,\r\n              \"total_amount_without_vat\": 100000.0,\r\n              \"vat_amount\": 10000.0,\r\n              \"total_amount\": 110000.0,\r\n              \"promotion\": 0,\r\n              \"discount_percentage\": null,\r\n              \"discount_amount\": null,\r\n              \"tax_type\": \"10\"\r\n            },\r\n            {\r\n              \"row_ord\": \"2\",\r\n              \"item_code\": \"HH02\",\r\n              \"item_name\": \"Hàng hóa 2\",\r\n              \"unit_code\": \"Cái\",\r\n              \"unit_name\": \"Cái\",\r\n              \"unit_price\": 20000.0,\r\n              \"quantity\": 5.0,\r\n              \"total_amount_without_vat\": 100000.0,\r\n              \"vat_amount\": 10000.0,\r\n              \"total_amount\": 110000.0,\r\n              \"promotion\": 0,\r\n              \"discount_percentage\": null,\r\n              \"discount_amount\": null,\r\n              \"tax_type\": \"5\"\r\n            }\r\n          ]\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://0100686209.mobifoneinvoice.vn/api/System/SavePretreatment",
+					"protocol": "http",
+					"host": [
+						"0100686209",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"System",
+						"SavePretreatment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Xóa hóa đơn mới nhất",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear NEJySjNYT2QwUzR3dFMvWE1nbVJSbXEyYm5WZ0hRdzMwMUpzeGMrMTNJST06REVWX1RFU1Q6NjM3NDY5NDU3ODI5MzcxMTA1;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"windowid\": \"WIN00187\",\r\n  \"editmode\": 3,\r\n  \"data\": [\r\n    {\r\n      \"inv_invoicecode_id\": \"e08a2369-9d7e-458d-9f24-3891939d60e6\",\r\n       \"inv_invoiceauth_id\": \"f43cd22e-8b6f-4f51-95b7-6011f7246099\",\r\n      \"invoice_issued_date\": \"2021/01/22\",\r\n      \"currency_code\": \"VND\",\r\n      \"exchange_rate\": \"1\",\r\n      \"buyer_display_name\": \"Cty TNHH MTV\",\r\n      \"customer_code\": \"KH001\",\r\n      \"buyer_legal_name\": \"Cty TNHH MTV\",\r\n      \"buyer_taxcode\": \"0106026495\",\r\n      \"buyer_address_line\": \"Hà Nội\",\r\n      \"buyer_email\": \"duc@gmail.com\",\r\n      \"buyer_bank_account\": null,\r\n      \"buyer_bank_name\": null,\r\n      \"payment_method_name\": \"TM\",\r\n      \"seller_bank_account\": null,\r\n      \"seller_bank_name\": null,\r\n      \"adjustment_type\": 1,\r\n      \"invoice_status\": 1,\r\n      \"total_amount_without_vat\": 200000.0,\r\n      \"vat_amount\": 20000.0,\r\n      \"discount_amount\": 0.0,\r\n      \"total_amount\": 220000.0,\r\n      \"store_code\": \"\",\r\n      \"user_new\": null,\r\n      \"amount_to_word\": null,\r\n      \"status\": \"Chờ ký\",\r\n      \"details\": [\r\n       \r\n      ]\r\n    }\r\n  ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "https://demohoadon123.mobifoneinvoice.vn/api/System/SavePretreatment",
+					"protocol": "https",
+					"host": [
+						"demohoadon123",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"System",
+						"SavePretreatment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Xuất XML hóa đơn trước khi ký số bằng usb token qua Plugin",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear UXYvSkhHZHVkSU8zUUFRRVZnWTh2bC9paTdwbWpaTTBGczM1ZDRvNEpVaz06QURNSU5JU1RSQVRPUjo2MzgxMzgwMjY3ODIwNTQ4ODA6VlA=;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://demohoadon123.mobifoneinvoice.vn/api/Invoice68/ExportInvoiceMTTXmlPretreatment?id=8e46354a-7c03-4103-9284-0146b975c66f",
+					"protocol": "https",
+					"host": [
+						"demohoadon123",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"ExportInvoiceMTTXmlPretreatment"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "8e46354a-7c03-4103-9284-0146b975c66f"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sinh số hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bear NEJySjNYT2QwUzR3dFMvWE1nbVJSbXEyYm5WZ0hRdzMwMUpzeGMrMTNJST06REVWX1RFU1Q6NjM3NDY5NDU3ODI5MzcxMTA1;VP"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"data\": [\r\n   \t\t{\"inv_invoiceauth_id\"  : \"77130f6d-dd44-496d-80c5-27dc652a0e69\"}\r\n        ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://0100686209.mobifoneinvoice.vn/api/Invoice/LaySoHoaDon",
+					"protocol": "http",
+					"host": [
+						"0100686209",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice",
+						"LaySoHoaDon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ký số hóa đơn HSM",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bear QUNHcmZYc0EwZ0cvaXRaeWNBY0FSdXJ4Q3FBRmcvSEFFaGJrVjJoc0JnOD06QURNSU5JU1RSQVRPUjo2Mzc5NDU0MDk3NDE1MTQxODI6VlA=;VP"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"branch_code\": \"VP\",\r\n \"username\": \"administrator\",\r\n \"lsthdon_id\": [\r\n {\r\n \"hdon_id\": \"e894375f-8631-4bdd-9d60-01e1637ede52\",\r\n \"is_hdcma\": 0\r\n },\r\n {\r\n \"hdon_id\": \"f54872ae-a642-46e3-a707-3e8da1787905\",\r\n \"is_hdcma\": 0\r\n }\r\n ],\r\n \"AllHoaDon\": \"All\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://10.3.62.16:8010/api/Invoice68/SignListInvoiceCertFile_HSM",
+					"protocol": "http",
+					"host": [
+						"10",
+						"3",
+						"62",
+						"16"
+					],
+					"port": "8010",
+					"path": [
+						"api",
+						"Invoice68",
+						"SignListInvoiceCertFile_HSM"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API Điều chỉnh định danh",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear NEJySjNYT2QwUzR3dFMvWE1nbVJSbXEyYm5WZ0hRdzMwMUpzeGMrMTNJST06REVWX1RFU1Q6NjM3NDY5NDU3ODI5MzcxMTA1;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"windowid\": \"WIN00187\",\n    \"editmode\": 1,\n    \"data\": [{\n        \"inv_invoiceauth_id\": null,\n        \"integrated_number\": \"0000023\",\n        \"status\": \"Chờ ký\",\n        \"original_invoice_id\": \"928a1b7b-b7b2-4bb4-b421-3df950130b28\",\n        \"invoice_status\": 5,\n        \"adjustment_type\": 5,\n        \"inv_invoicecode_id\": \"e08a2369-9d7e-458d-9f24-3891939d60e6\",\n        \"store_code\": \"CAP1\",\n        \"additional_reference_des\": \"123\",\n        \"additional_reference_date\": \"2021-01-22\",\n        \"additional_reference_note\": \"Điều chỉnh vì lí do gì\",\n        \"invoice_issued_date\": \"2021-01-22 00:00\",\n        \"payment_method_name\": \"TM/CK\",\n        \"currency_code\": \"VND\",\n        \"exchange_rate\": 1,\n        \"buyer_bank_account\": \"\",\n        \"buyer_bank_name\": \"\",\n        \"customer_code\": \"\",\n        \"buyer_taxcode\": \"\",\n        \"buyer_legal_name\": \"\",\n        \"buyer_display_name\": \"demo\",\n        \"order_number\": \"\",\n        \"buyer_address_line\": \"Dịa chỉ\",\n        \"buyer_email\": \"email@minvoice.com\",\n        \"total_amount_without_vat\": 0,\n        \"discount_amount\": 0,\n        \"vat_amount\": 0,\n        \"total_amount\": 0,\n        \"amount_to_word\": \"Không\",\n        \"details\": [{\n            \"tab_id\": \"TAB00188\",\n            \"tab_table\": \"inv_invoiceauthdetail\",\n            \"data\": [{\n                \"item_name\": \"Hóa đơn điều chỉnh cho hóa đơn số 0000008 ngày 10/12/2020 ký hiệu AA/20E\"\n            }]\n        }]\n    }]\n}\n"
+				},
+				"url": {
+					"raw": "http://0100686209.mobifoneinvoice.vn/api/System/SavePretreatment",
+					"protocol": "http",
+					"host": [
+						"0100686209",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"System",
+						"SavePretreatment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API Điều chỉnh tăng",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear NEJySjNYT2QwUzR3dFMvWE1nbVJSbXEyYm5WZ0hRdzMwMUpzeGMrMTNJST06REVWX1RFU1Q6NjM3NDY5NDU3ODI5MzcxMTA1;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"windowid\": \"WIN00187\",\r\n    \"editmode\": 1,\r\n    \"data\": [\r\n        {\r\n            \"inv_invoicecode_id\": \"e08a2369-9d7e-458d-9f24-3891939d60e6\",\r\n            \"invoice_issued_date\": \"2021-01-22\",\r\n            \"currency_code\": \"VND\",\r\n            \"exchange_rate\": \"1\",\r\n            \"buyer_display_name\": \"DUC\",\r\n            \"customer_code\": \"KH001\",\r\n            \"buyer_legal_name\": \"DUC\",\r\n            \"buyer_taxcode\": \"0106026495\",\r\n            \"buyer_address_line\": \"Hà Nội\",\r\n            \"buyer_email\": \"duc@gmail.com\",\r\n            \"buyer_bank_account\": null,\r\n            \"buyer_bank_name\": null,\r\n            \"payment_method_name\": \"TM\",\r\n            \"seller_bank_account\": null,\r\n            \"seller_bank_name\": null,\r\n            \"invoice_note\": \"Điều chỉnh\",\r\n            \"adjustment_type\": 19,\r\n            \"invoice_status\": 19,\r\n            \"total_amount_without_vat\": 2500,\r\n            \"vat_amount\": 200,\r\n            \"discount_amount\": 0,\r\n            \"total_amount\": 2700,\r\n            \"status\": \"Chờ ký\",\r\n            \"date_new\": \"2019-10-23T16:04:06.9343552+07:00\",\r\n            \"additional_reference_date\": \"2020-06-05\",\r\n            \"additional_reference_des\": \"123\",\r\n            \"additional_reference_note\": \"dieu chinh\",\r\n            \"original_invoice_id\": \"77130f6d-dd44-496d-80c5-27dc652a0e69\",\r\n            \"details\": [\r\n                {\r\n                    \"tab_id\": \"TAB00188\",\r\n                    \"tab_table\": \"inv_invoiceauthdetail\",\r\n                    \"data\": [\r\n                        {\r\n                            \"row_ord\": \"1\",\r\n                            \"item_code\": \"HH01\",\r\n                            \"item_name\": \"Hàng hóa sửa 01\",\r\n                            \"unit_code\": \"Chiếc\",\r\n                            \"unit_name\": \"Chiếc\",\r\n                            \"unit_price\": 100,\r\n                            \"quantity\": 15,\r\n                            \"total_amount_without_vat\": 1500,\r\n                            \"vat_amount\": 150,\r\n                            \"total_amount\": 1650,\r\n                            \"promotion\": 0,\r\n                            \"discount_percentage\": null,\r\n                            \"discount_amount\": null,\r\n                            \"tax_type\": \"10\"\r\n                        },\r\n                        {\r\n                            \"row_ord\": \"2\",\r\n                            \"item_code\": \"HH02\",\r\n                            \"item_name\": \"Hàng hóa 2\",\r\n                            \"unit_code\": \"Cái\",\r\n                            \"unit_name\": \"Cái\",\r\n                            \"unit_price\": 1000,\r\n                            \"quantity\": 1,\r\n                            \"total_amount_without_vat\": 1000,\r\n                            \"vat_amount\": 50,\r\n                            \"total_amount\": 1050,\r\n                            \"promotion\": 0,\r\n                            \"discount_percentage\": null,\r\n                            \"discount_amount\": null,\r\n                            \"tax_type\": \"5\"\r\n\r\n                        }\r\n                    ]\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://0100686209.mobifoneinvoice.vn/api/System/SavePretreatment",
+					"protocol": "http",
+					"host": [
+						"0100686209",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"System",
+						"SavePretreatment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "API Điều chỉnh giảm",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear NEJySjNYT2QwUzR3dFMvWE1nbVJSbXEyYm5WZ0hRdzMwMUpzeGMrMTNJST06REVWX1RFU1Q6NjM3NDY5NDU3ODI5MzcxMTA1;VP"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"windowid\": \"WIN00187\",\r\n    \"editmode\": 1,\r\n    \"data\": [\r\n        {\r\n            \"inv_invoicecode_id\": \"e08a2369-9d7e-458d-9f24-3891939d60e6\",\r\n            \"invoice_issued_date\": \"2021-01-22\",\r\n            \"currency_code\": \"VND\",\r\n            \"exchange_rate\": \"1\",\r\n            \"buyer_display_name\": \"DUC\",\r\n            \"customer_code\": \"KH001\",\r\n            \"buyer_legal_name\": \"DUC\",\r\n            \"buyer_taxcode\": \"0106026495\",\r\n            \"buyer_address_line\": \"Hà Nội\",\r\n            \"buyer_email\": \"duc@gmail.com\",\r\n            \"buyer_bank_account\": null,\r\n            \"buyer_bank_name\": null,\r\n            \"payment_method_name\": \"TM\",\r\n            \"seller_bank_account\": null,\r\n            \"seller_bank_name\": null,\r\n            \"invoice_note\": \"Điều chỉnh\",\r\n            \"adjustment_type\": 21,\r\n            \"invoice_status\": 21,\r\n            \"total_amount_without_vat\": 2500,\r\n            \"vat_amount\": 200,\r\n            \"discount_amount\": 0,\r\n            \"total_amount\": 2700,\r\n            \"status\": \"Chờ ký\",\r\n            \"date_new\": \"2019-10-23T16:04:06.9343552+07:00\",\r\n            \"additional_reference_date\": \"2020-06-05\",\r\n            \"additional_reference_des\": \"123\",\r\n            \"additional_reference_note\": \"dieu chinh\",\r\n            \"original_invoice_id\": \"15f4914d-437d-4f8c-8bf5-a863c93edaba\",\r\n            \"details\": [\r\n                {\r\n                    \"tab_id\": \"TAB00188\",\r\n                    \"tab_table\": \"inv_invoiceauthdetail\",\r\n                    \"data\": [\r\n                        {\r\n                            \"row_ord\": \"1\",\r\n                            \"item_code\": \"HH01\",\r\n                            \"item_name\": \"Hàng hóa sửa 01\",\r\n                            \"unit_code\": \"Chiếc\",\r\n                            \"unit_name\": \"Chiếc\",\r\n                            \"unit_price\": 100,\r\n                            \"quantity\": 15,\r\n                            \"total_amount_without_vat\": 1500,\r\n                            \"vat_amount\": 150,\r\n                            \"total_amount\": 1650,\r\n                            \"promotion\": 0,\r\n                            \"discount_percentage\": null,\r\n                            \"discount_amount\": null,\r\n                            \"tax_type\": \"10\"\r\n                        },\r\n                        {\r\n                            \"row_ord\": \"2\",\r\n                            \"item_code\": \"HH02\",\r\n                            \"item_name\": \"Hàng hóa 2\",\r\n                            \"unit_code\": \"Cái\",\r\n                            \"unit_name\": \"Cái\",\r\n                            \"unit_price\": 1000,\r\n                            \"quantity\": 1,\r\n                            \"total_amount_without_vat\": 1000,\r\n                            \"vat_amount\": 50,\r\n                            \"total_amount\": 1050,\r\n                            \"promotion\": 0,\r\n                            \"discount_percentage\": null,\r\n                            \"discount_amount\": null,\r\n                            \"tax_type\": \"5\"\r\n                        }\r\n                    ]\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://0100686209.mobifoneinvoice.vn/api/System/SavePretreatment",
+					"protocol": "http",
+					"host": [
+						"0100686209",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"System",
+						"SavePretreatment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Xóa bỏ hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bear NEJySjNYT2QwUzR3dFMvWE1nbVJSbXEyYm5WZ0hRdzMwMUpzeGMrMTNJST06REVWX1RFU1Q6NjM3NDY5NDU3ODI5MzcxMTA1;VP"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"VC\",\r\n  \"branch_code\": \"VP\",\r\n  \"template_code\": \"01GTKT0/001\",\r\n  \"invoice_series\": \"AA/20E\",\r\n  \"invoice_number\": \"0000054\", \r\n  \"ngayvb\": \"2021-01-22\",\r\n  \"sovb\": \"VBXB0001\",\r\n  \"ghi_chu\": null\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://0100686209.mobifoneinvoice.vn/api/Invoice/XoaBoHD",
+					"protocol": "http",
+					"host": [
+						"0100686209",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice",
+						"XoaBoHD"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tải filepdf",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear Wk5qdVFOaFdRV2JqWm1RaFN5MWRXdGNTT25VZkgxcWNpNHhTeVBtdVZ2Yz06MDMwMTQ3OTQ5OTo2MzgxMjU5MzQ1NTU5MTYzOTM6SE5I;HNH"
+					}
+				],
+				"url": {
+					"raw": "http://137.59.46.89:9000/api/Invoice68/inHoadon?id=3f0b193f-1d4d-4f30-ba10-44b0d1994af8&type=PDF&inchuyendoi=false",
+					"protocol": "http",
+					"host": [
+						"137",
+						"59",
+						"46",
+						"89"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"Invoice68",
+						"inHoadon"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "3f0b193f-1d4d-4f30-ba10-44b0d1994af8"
+						},
+						{
+							"key": "type",
+							"value": "PDF"
+						},
+						{
+							"key": "inchuyendoi",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy thông tin hóa đơn",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear OXQ2NDFJYlpjT0tqcXhWZFZKcGczLzJlUEc5RmUxeGVuYUxwVWZueGxrTT06MDMwMTQ3OTQ5OTo2MzgwOTcxNTAzNjAxNjQwMTI6SE5I;HNH"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://5700100104.mobifoneinvoice.vn/api/Invoice68/GetById?id=45db1c16-5b70-4590-afaf-5359f6c3a406",
+					"protocol": "https",
+					"host": [
+						"5700100104",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"GetById"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "45db1c16-5b70-4590-afaf-5359f6c3a406"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy danh sách hóa đơn chờ ký",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear c2c0cm1abUluU09veGU3eWpzYmlMN1JBc2M3R01ZV0tsN0R3Nzk5RnFDZz06NTcwMDEwMDEwNDo2MzgwMjI0NDI1MjQ0Mzc5NjQ6VlA=;VP",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://5700100104.mobifoneinvoice.vn/api/Invoice68/GetDataInvoiceListChoKy",
+					"protocol": "http",
+					"host": [
+						"5700100104",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"GetDataInvoiceListChoKy"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ký hóa đơn bằng File mềm",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear WlNZSWZ0dDVhTHJ3VFFxWVYxc3QyZG5WblVLVWVJRXJ0b1A3TzYzUU82WT06MDMwMTQ3OTQ5OTo2MzgwNTQxOTA0NzkyMDM1MjY6SE5I;HNH",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"data\":[{\r\n \"branch_code\": \"HNH\",\r\n \"username\": \"0301479499\",\r\n \"lsthdon_id\": [\"b5c1ee9b-b0c9-4ffb-934e-0bf6b272dff0\"\r\n                ],\r\n \"cer_serial\": \"00E0EC6B291E55ECC8DFDD6012FF54FD\",\r\n \"type_cmd\": \"200\"\r\n }]\r\n}\r\n"
+				},
+				"url": {
+					"raw": "http://137.59.46.89:9000/api/Invoice68/SignInvoiceCertFile68",
+					"protocol": "http",
+					"host": [
+						"137",
+						"59",
+						"46",
+						"89"
+					],
+					"port": "9000",
+					"path": [
+						"api",
+						"Invoice68",
+						"SignInvoiceCertFile68"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "In nhiều hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear WlNZSWZ0dDVhTHJ3VFFxWVYxc3QyZG5WblVLVWVJRXJ0b1A3TzYzUU82WT06MDMwMTQ3OTQ5OTo2MzgwNTQxOTA0NzkyMDM1MjY6SE5I;HNH",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"type\": \"PDF\",\r\n \"invs\": [\r\n \"b5c1ee9b-b0c9-4ffb-934e-0bf6b272dff0\"\r\n ],\r\n \"inchuyendoi\": \"false\"\r\n}"
+				},
+				"url": {
+					"raw": "https://5700100104.mobifoneinvoice.vn/api/Invoice68/InDanhSachHoaDon",
+					"protocol": "https",
+					"host": [
+						"5700100104",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"InDanhSachHoaDon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "In bảng kê đính kèm hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear bUM3eW9VWmJ5UFZLYVhTZEppdDRNcFpia1lwSU9lT2xKbWpvVnorNEFvYz06QURNSU5JU1RSQVRPUjo2MzgwODUwNTUzODAzMjUyODQ6VlA=;VP",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"type\": \"PDF\",\r\n    \"invs\": [\r\n        \"b0f808c3-a00b-4a86-8640-5bfb72e80f81\"\r\n    ],\r\n    \"inchuyendoi\": \"false\",\r\n    \"checkBangKe\": \"true\"\r\n}"
+				},
+				"url": {
+					"raw": "https://3703030155.mobifoneinvoice.vn/api/Invoice68/InDanhSachHoaDon",
+					"protocol": "https",
+					"host": [
+						"3703030155",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"InDanhSachHoaDon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Đẩy hóa đơn đã ký lên Thuế",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear S2FnYi9oamV5enJ0MHZLc2YvUUNEK3F2aU53RC9iYXEyNG9hOEFDVUFRZz06NTcwMDEwMDEwNDo2MzgwNzkwMzAxMTgwNTY5MjI6VlA=;VP",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"invs\": [\r\n\"ab04cf8e-4053-49f6-89e5-38936089577d\"\r\n ],\r\n \"mltdiep\": \"200\"\r\n}"
+				},
+				"url": {
+					"raw": "https://5700100104.mobifoneinvoice.vn/api/Invoice68/SendInvoiceToCQT68",
+					"protocol": "https",
+					"host": [
+						"5700100104",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"SendInvoiceToCQT68"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Đẩy mã Trùng thông điệp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://8370588888.mobifoneinvoice.vn/api/Invoice68/GenerateThongDiep",
+					"protocol": "https",
+					"host": [
+						"8370588888",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"GenerateThongDiep"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy danh sách hóa đơn theo khoảng thời gian",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear cEpSWFk2TkFZVmxocDlib204Vk1EVEp0eVROVGJmeEpVekxtNXN2bE9Lbz06NTcwMDEwMDEwNDo2MzgxMzIwNDcwMjc5MjMwNjA6VlA=;VP",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"tu_ngay\": \"2023-02-01\",\r\n \"den_ngay\": \"2023-02-15\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "https://5700100104.mobifoneinvoice.vn/api/Invoice68/GetInvoiceFromdateTodate",
+					"protocol": "https",
+					"host": [
+						"5700100104",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"GetInvoiceFromdateTodate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lấy danh sách ID hóa đơn theo khoảng thời gian",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear cEpSWFk2TkFZVmxocDlib204Vk1EVEp0eVROVGJmeEpVekxtNXN2bE9Lbz06NTcwMDEwMDEwNDo2MzgxMzIwNDcwMjc5MjMwNjA6VlA=;VP",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n \"tu_ngay\": \"2023-02-01\",\r\n \"den_ngay\": \"2023-02-15\"\r\n}\r\n"
+				},
+				"url": {
+					"raw": "https://5700100104.mobifoneinvoice.vn/api/Invoice68/GetInvoiceFromdateTodate",
+					"protocol": "https",
+					"host": [
+						"5700100104",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"api",
+						"Invoice68",
+						"GetInvoiceFromdateTodate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tra cứu lấy thông tin hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear aVc2TnpLMlpERVJhVTVxTjBCNHA3eU9ScjU0MTk0Tm02T0p1WTVuWHRBND06QURNSU5JU1RSQVRPUjo2MzgwNTMyMjAzNjQwNDIzNjQ6VlA=;VP",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"masothue\": \"4101447017\",\r\n    \"sobaomat\": \"d1e48b9\"\r\n}"
+				},
+				"url": {
+					"raw": "http://tracuuhoadon.mobifoneinvoice.vn/Tracuu2/GetInfoInvoice",
+					"protocol": "http",
+					"host": [
+						"tracuuhoadon",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"Tracuu2",
+						"GetInfoInvoice"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tra cứu in hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sobaomat\": \"d1e48b9\",\r\n    \"masothue\": \"4101447017\",\r\n    \"type\": \"PDF\"\r\n}"
+				},
+				"url": {
+					"raw": "http://tracuuhoadon.mobifoneinvoice.vn/Tracuu2/PrintInvoice",
+					"protocol": "http",
+					"host": [
+						"tracuuhoadon",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"Tracuu2",
+						"PrintInvoice"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tra cứu tải file hóa đơn",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bear aVc2TnpLMlpERVJhVTVxTjBCNHA3eU9ScjU0MTk0Tm02T0p1WTVuWHRBND06QURNSU5JU1RSQVRPUjo2MzgwNTMyMjAzNjQwNDIzNjQ6VlA=;VP",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"sobaomat\": \"d1e48b9\",\r\n    \"masothue\": \"4101447017\"\r\n}"
+				},
+				"url": {
+					"raw": "http://tracuuhoadon.mobifoneinvoice.vn/Tracuu2/ExportZipFileXML",
+					"protocol": "http",
+					"host": [
+						"tracuuhoadon",
+						"mobifoneinvoice",
+						"vn"
+					],
+					"path": [
+						"Tracuu2",
+						"ExportZipFileXML"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

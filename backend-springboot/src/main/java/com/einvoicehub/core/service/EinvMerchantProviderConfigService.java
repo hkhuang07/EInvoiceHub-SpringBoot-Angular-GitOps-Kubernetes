@@ -1,12 +1,12 @@
 package com.einvoicehub.core.service;
 
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.domain.entity.EinvStoreProviderEntity;
 import com.einvoicehub.core.domain.entity.EinvProviderEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantProviderConfigRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
-import com.einvoicehub.core.domain.repository.EinvServiceProviderRepository;
+import com.einvoicehub.core.domain.repository.EinvProviderRepository;
 import com.einvoicehub.core.dto.EinvMerchantProviderConfigRequest;
 import com.einvoicehub.core.dto.EinvMerchantProviderConfigResponse;
 import com.einvoicehub.core.exception.ErrorCode;
@@ -28,7 +28,7 @@ public class EinvMerchantProviderConfigService {
 
     private final EinvMerchantProviderConfigRepository repository;
     private final EinvMerchantRepository merchantRepository;
-    private final EinvServiceProviderRepository providerRepository;
+    private final EinvProviderRepository providerRepository;
     private final EinvInvoiceMetadataRepository metadataRepository;
     private final EInvoiceProviderFactory providerFactory;
     private final EinvHubMapper mapper;
@@ -78,7 +78,7 @@ public class EinvMerchantProviderConfigService {
         log.info("[Config] Đang tạo cấu hình mới cho Merchant {} với Provider {}",
                 request.getMerchantId(), request.getProviderId());
 
-        EinvMerchantEntity merchant = merchantRepository.findById(request.getMerchantId())
+        MerchantEntity merchant = merchantRepository.findById(request.getMerchantId())
                 .filter(m -> !m.getIsDeleted())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND));
 

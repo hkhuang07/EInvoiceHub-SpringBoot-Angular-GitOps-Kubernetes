@@ -20,7 +20,7 @@ public class EinvApiCredentialsEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "merchant_id", nullable = false)
-    private EinvMerchantEntity merchant;
+    private MerchantEntity merchant;
 
     @Column(name = "client_id", length = 50, nullable = false, unique = true)
     private String clientId;

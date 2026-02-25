@@ -4,22 +4,25 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-@Entity
-@Table(name = "einv_mapping_invoice_type")
+/** mapping: Loại hóa đơn (HUB) và (NCC) */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@ToString(exclude = "provider")
-public class EinvMappingInvoiceTypeEntity {
+@Entity
+@Table(name = "einv_mapping_invoice_type",
+        uniqueConstraints = { @UniqueConstraint(name = "uq_map_inv_type", columnNames = {"tenant_id", "provider_id", "system_code"}) },
+        indexes = { @Index(name = "idx_map_inv_type_lookup", columnList = "tenant_id, provider_id, system_code") })
+public class EinvMappingInvoiceTypeEntity extends TenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provider_id", nullable = false)
+    @JoinColumn(name = "provider_id", referencedColumnName = "id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_map_inv_type_provider"))
     private EinvProviderEntity provider;
 
     @Column(name = "system_code", length = 50, nullable = false)

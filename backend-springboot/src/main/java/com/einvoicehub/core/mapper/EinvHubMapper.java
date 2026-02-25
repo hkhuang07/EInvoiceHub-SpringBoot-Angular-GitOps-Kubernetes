@@ -35,8 +35,8 @@ public interface EinvHubMapper {
     EinvInvoiceSyncQueueEntity toEntity(EinvInvoiceSyncQueueResponse dto);
 
     //  2. Merchant & User
-    EinvMerchantEntity toEntity(EinvMerchantRequest request);
-    EinvMerchantResponse toResponse(EinvMerchantEntity entity);
+    MerchantEntity toEntity(EinvMerchantRequest request);
+    EinvMerchantResponse toResponse(MerchantEntity entity);
     EinvMerchantUserEntity toEntity(EinvMerchantUserRequest request);
     @Mapping(source = "merchant.id", target = "merchantId")
     @Mapping(source = "merchant.companyName", target = "merchantName")

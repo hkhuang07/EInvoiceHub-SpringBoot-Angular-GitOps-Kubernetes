@@ -5,51 +5,77 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "einv_invoices")
+/** Hóa đơn điện tử */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@ToString(exclude = {"merchant", "store", "provider", "details"})
-public class EinvInvoiceEntity {
+@Entity
+@Table(name = "einv_invoices",
+        uniqueConstraints = { @UniqueConstraint(name = "uq_biz_invoice", columnNames = {"store_id", "partner_invoice_id"}) },
+        indexes = {
+                @Index(name = "idx_inv_lookup_code", columnList = "invoice_lookup_code"),
+                @Index(name = "idx_inv_status", columnList = "status_id"),
+                @Index(name = "idx_inv_partner_inv", columnList = "partner_invoice_id")
+        })
+public class EinvInvoiceEntity extends TenantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = false)
-    private EinvMerchantEntity merchant;
+    @Column(name = "store_id", length = 36, nullable = false)
+    private String storeId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
-    private EinvStoreEntity store;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provider_id")
-    private EinvProviderEntity provider;
+    @Column(name = "provider_id", length = 36)
+    private String providerId;
 
     @Column(name = "partner_invoice_id", length = 50, nullable = false)
-    private String partnerInvoiceId; //ID POS
+    private String partnerInvoiceId; // ID từ POS
 
     @Column(name = "provider_invoice_id", length = 50)
-    private String providerInvoiceId; //ID do NCC cấp trả về
+    private String providerInvoiceId; // ID do NCC cấp
 
+    @Column(name = "provider_response_id", length = 100)
+    private String providerResponseId;
+
+    @Column(name = "status_id", nullable = false)
+    private Integer statusId = 0;
+
+    @Column(name = "tax_status_id")
+    private Integer taxStatusId = 0;
+
+    @Column(name = "cqt_response_code", length = 10)
+    private String cqtResponseCode;
+
+    @Column(name = "is_draft")
+    private Boolean isDraft = false;
+
+    @Column(name = "is_mtt")
+    private Boolean isMtt = false; // Máy tính tiền
+
+    @Column(name = "is_petrol")
+    private Boolean isPetrol = false; // Xăng dầu
+
+    @Column(name = "is_locked")
+    private Boolean isLocked = false;
+
+    // Phân loại
     @Column(name = "invoice_type_id")
     private Integer invoiceTypeId;
 
     @Column(name = "reference_type_id", nullable = false)
-    private Integer referenceTypeId; // 0=Gốc | 1=Điều chỉnh | 2=Thay thế
+    private Integer referenceTypeId = 0; // 0:Gốc, 2:Điều chỉnh, 3:Thay thế
+
+    @Column(name = "sign_type")
+    private Integer signType;
 
     @Column(name = "payment_method_id")
     private Integer paymentMethodId;
-
-    @Column(name = "status_id", nullable = false)
-    private Integer statusId;
 
     @Column(name = "invoice_form", length = 50)
     private String invoiceForm;
@@ -57,7 +83,7 @@ public class EinvInvoiceEntity {
     @Column(name = "invoice_series", length = 20)
     private String invoiceSeries;
 
-    @Column(name = "invoice_no", length = 20)
+    @Column(name = "invoice_no", length = 8)
     private String invoiceNo;
 
     @Column(name = "invoice_date")
@@ -66,20 +92,31 @@ public class EinvInvoiceEntity {
     @Column(name = "signed_date")
     private LocalDateTime signedDate;
 
+    @Lob
+    @Column(name = "hash_value")
+    private String hashValue;
+
     @Column(name = "tax_authority_code", length = 100)
-    private String taxAuthorityCode; // Mã CQT cấp
+    private String taxAuthorityCode;
 
     @Column(name = "invoice_lookup_code", length = 50)
     private String invoiceLookupCode;
 
+    @Column(name = "response_message", length = 500)
+    private String responseMessage;
+
+    @Column(name = "secret_code", length = 50)
+    private String secretCode;
+
+    // Thông tin người mua
     @Column(name = "buyer_tax_code", length = 50)
     private String buyerTaxCode;
 
+    @Column(name = "buyer_code", length = 50)
+    private String buyerCode;
+
     @Column(name = "buyer_company", length = 300)
     private String buyerCompany;
-
-    @Column(name = "buyer_id_no", length = 20)
-    private String buyerIdNo;
 
     @Column(name = "buyer_full_name", length = 200)
     private String buyerFullName;
@@ -90,45 +127,46 @@ public class EinvInvoiceEntity {
     @Column(name = "buyer_mobile", length = 50)
     private String buyerMobile;
 
-    @Column(name = "buyer_bank_account", length = 50)
-    private String buyerBankAccount;
+    @Column(name = "buyer_plate_no", length = 50)
+    private String buyerPlateNo;
 
-    @Column(name = "buyer_bank_name", length = 200)
-    private String buyerBankName;
+    @Column(name = "extra_metadata", columnDefinition = "json")
+    private String extraMetadata;
 
-    @Column(name = "buyer_budget_code", length = 20)
-    private String buyerBudgetCode;
+    @Column(name = "delivery_info", columnDefinition = "json")
+    private String deliveryInfo;
 
-    @Column(name = "receive_type_id")
-    private Integer receiveTypeId;
+    @Column(name = "tax_summary_json", columnDefinition = "json")
+    private String taxSummaryJson;
 
-    @Column(name = "receiver_email", length = 300)
-    private String receiverEmail;
-
+    // Tiền tệ
     @Column(name = "currency_code", length = 20)
-    private String currencyCode;
+    private String currencyCode = "VND";
 
-    @Column(name = "exchange_rate", precision = 15, scale = 6)
-    private BigDecimal exchangeRate;
+    @Column(name = "exchange_rate", precision = 18, scale = 6)
+    private BigDecimal exchangeRate = BigDecimal.ONE;
 
-    @Column(name = "gross_amount", precision = 15, scale = 2)
+    @Column(name = "gross_amount", precision = 20, scale = 2)
     private BigDecimal grossAmount;
 
-    @Column(name = "discount_amount", precision = 15, scale = 2)
+    @Column(name = "discount_amount", precision = 20, scale = 2)
     private BigDecimal discountAmount;
 
-    @Column(name = "net_amount", precision = 15, scale = 2)
+    @Column(name = "net_amount", precision = 20, scale = 2)
     private BigDecimal netAmount;
 
-    @Column(name = "tax_amount", precision = 15, scale = 2)
+    @Column(name = "tax_amount", precision = 20, scale = 2)
     private BigDecimal taxAmount;
 
-    @Column(name = "total_amount", precision = 15, scale = 2)
+    @Column(name = "total_amount", precision = 20, scale = 2)
     private BigDecimal totalAmount;
 
-    // --- Thông tin hóa đơn gốc (Adjustment/Replace) ---
-    @Column(name = "org_invoice_id", length = 36)
-    private String orgInvoiceId;
+    @Column(name = "total_amount_text", length = 500)
+    private String totalAmountText;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "org_invoice_id", foreignKey = @ForeignKey(name = "fk_inv_org_ref"))
+    private EinvInvoiceEntity originalInvoice;
 
     @Column(name = "org_invoice_form", length = 50)
     private String orgInvoiceForm;
@@ -145,31 +183,15 @@ public class EinvInvoiceEntity {
     @Column(name = "org_invoice_reason", length = 500)
     private String orgInvoiceReason;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<EinvInvoiceDetailEntity> details;
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<EinvInvoiceDetailEntity> details = new ArrayList<>();
 
-    @Column(name = "created_by", length = 100)
-    private String createdBy;
+    @OneToOne(mappedBy = "invoice", cascade = CascadeType.ALL)
+    private EinvInvoicePayloadEntity payload;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_by", length = 100)
-    private String updatedBy;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-        if (this.referenceTypeId == null) this.referenceTypeId = 0;
-        if (this.statusId == null) this.statusId = 0;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    public void addDetail(EinvInvoiceDetailEntity detail) {
+        details.add(detail);
+        detail.setInvoice(this);
     }
 }

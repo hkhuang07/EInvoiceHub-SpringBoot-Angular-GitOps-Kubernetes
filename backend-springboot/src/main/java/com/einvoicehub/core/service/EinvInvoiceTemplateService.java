@@ -47,7 +47,7 @@ public class EinvInvoiceTemplateService {
         log.info("[Template] Đang cấu hình mẫu mới cho Merchant ID: {}, Ký hiệu: {}",
                 request.getMerchantId(), request.getSymbolCode());
 
-        EinvMerchantEntity merchant = merchantRepository.findById(request.getMerchantId())
+        MerchantEntity merchant = merchantRepository.findById(request.getMerchantId())
                 .filter(m -> !m.getIsDeleted())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND));
 

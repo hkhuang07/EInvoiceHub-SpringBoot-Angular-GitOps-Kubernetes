@@ -3,17 +3,16 @@ package com.einvoicehub.core.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "einv_invoice_payloads")
+/** lưu trữ Payload reponse-request */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@ToString(exclude = "invoice")
-public class EinvInvoicePayloadEntity {
+@Entity
+@Table(name = "einv_invoice_payloads")
+public class EinvInvoicePayloadEntity extends BaseAuditEntity {
 
     @Id
     @Column(name = "invoice_id")
@@ -21,16 +20,16 @@ public class EinvInvoicePayloadEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "invoice_id")
+    @JoinColumn(name = "invoice_id", foreignKey = @ForeignKey(name = "fk_payload_invoice"))
     private EinvInvoiceEntity invoice;
 
     @Lob
     @Column(name = "request_json", columnDefinition = "LONGTEXT")
-    private String requestJson; //JSON record send to ServiceProvider
+    private String requestJson;
 
     @Lob
     @Column(name = "request_xml", columnDefinition = "LONGTEXT")
-    private String requestXml; // XML Record
+    private String requestXml;
 
     @Lob
     @Column(name = "response_json", columnDefinition = "LONGTEXT")
@@ -38,25 +37,13 @@ public class EinvInvoicePayloadEntity {
 
     @Lob
     @Column(name = "signed_xml", columnDefinition = "LONGTEXT")
-    private String signedXml; // XML digital signed
+    private String signedXml;
 
     @Lob
     @Column(name = "pdf_data", columnDefinition = "LONGTEXT")
-    private String pdfData; // PDF base64
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private String pdfData;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+    @Lob
+    @Column(name = "response_raw", columnDefinition = "LONGTEXT")
+    private String responseRaw;
 }

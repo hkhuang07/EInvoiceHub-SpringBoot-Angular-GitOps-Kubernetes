@@ -1,18 +1,27 @@
 package com.einvoicehub.core.domain.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Entity
-@Table(name = "einv_payment_method")
+/** danh mục Phương thức thanh toán*/
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class EinvPaymentMethodEntity {
+@SuperBuilder
+@Entity
+@Table(name = "einv_payment_method")
+public class EinvPaymentMethodEntity extends BaseAuditEntity {
 
     @Id
+    @Column(name = "id", nullable = false)
     private Integer id;
 
     @Column(name = "name", length = 100, nullable = false)

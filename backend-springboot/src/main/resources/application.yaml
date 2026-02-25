@@ -6,9 +6,8 @@ spring:
   application:
     name: einvoice-core
 
-  # =============================================================================
+  
   # MariaDB Database Configuration
-  # =============================================================================
   datasource:
     url: jdbc:mariadb://localhost:3306/einvoicehub?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
@@ -36,9 +35,7 @@ spring:
         order_inserts: true
         order_updates: true
 
-  # =============================================================================
   # Flyway Migration
-  # =============================================================================
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -57,11 +54,11 @@ server:
 app:
   # Encryption
   encryption:
-    secret-key: ${ENCRYPTION_SECRET_KEY: CHƯA CÓ!}
+    secret-key: ${ENCRYPTION_SECRET_KEY}
 
   # JWT Configuration
   jwt:
-    secret: ${JWT_SECRET: CHƯA CÓ!}
+    secret: ${JWT_SECRET}
     expiration-ms: 86400000  # 24 hours
 
   # API Key Configuration
@@ -85,7 +82,7 @@ app:
       base-url: https://einvoice.bkav.com/api/v1
       test-base-url: https://demo.ehoadon.vn/api/v1
       timeout-ms: 30000
-      encryption-key: ${BKAV_ENCRYPTION_KEY: CHƯA CÓ }  # AES-256 key từ BKAV
+      encryption-key: ${BKAV_ENCRYPTION_KEY}  # AES-256 key từ BKAV
     misa:
       base-url: https://api.meinvoice.vn/api/integration
       test-base-url: https://testapi.meinvoice.vn/api/integration

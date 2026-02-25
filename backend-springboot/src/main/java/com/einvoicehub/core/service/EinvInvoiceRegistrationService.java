@@ -1,7 +1,7 @@
 package com.einvoicehub.core.service;
 
 import com.einvoicehub.core.domain.entity.EinvInvoiceRegistrationEntity;
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.domain.entity.EinvRegistrationStatusEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceRegistrationRepository;
 import com.einvoicehub.core.domain.repository.EinvInvoiceTemplateRepository;
@@ -53,7 +53,7 @@ public class EinvInvoiceRegistrationService {
                 request.getMerchantId(), request.getRegistrationNumber());
 
         // 1. Kiểm tra trạng thái Merchant (Phải còn hoạt động)
-        EinvMerchantEntity merchant = merchantRepository.findById(request.getMerchantId())
+        MerchantEntity merchant = merchantRepository.findById(request.getMerchantId())
                 .filter(m -> !m.getIsDeleted())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND));
 

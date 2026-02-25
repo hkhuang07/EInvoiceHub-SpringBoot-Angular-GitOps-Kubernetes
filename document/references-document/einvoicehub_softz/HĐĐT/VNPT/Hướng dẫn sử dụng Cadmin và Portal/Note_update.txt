@@ -1,0 +1,3 @@
+Cadmin/Portal: file hướng dẫn sử dụng cập nhật full(nâng cấp từ file HDSD của bản V5)
+Các mục cập nhật HDSD: tham chiếu các mục thay đổi trong file Cadmin/Portal
+Tai lieu HDSD_TTu78_kich_ban_clip: hướng dẫn sử dụng tương ứng các bước trong clip

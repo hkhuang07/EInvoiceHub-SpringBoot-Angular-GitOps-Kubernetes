@@ -6177,7 +6177,7 @@ public interface EinvMerchantProviderConfigRepository extends JpaRepository<Einv
 <file path="src/main/java/com/einvoicehub/core/domain/repository/EinvMerchantRepository.java">
 package com.einvoicehub.core.domain.repository;
 
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9793,7 +9793,7 @@ package com.einvoicehub.core.service;
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
 import com.einvoicehub.core.domain.entity.EinvApiCredentialsEntity;
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.domain.repository.EinvApiCredentialRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
 import com.einvoicehub.core.dto.EinvApiCredentialDto;
@@ -10434,7 +10434,7 @@ public class EinvInvoicePayloadService {
 package com.einvoicehub.core.service;
 
 import com.einvoicehub.core.domain.entity.EinvInvoiceRegistrationEntity;
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.domain.entity.EinvRegistrationStatusEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceRegistrationRepository;
 import com.einvoicehub.core.domain.repository.EinvInvoiceTemplateRepository;
@@ -11052,13 +11052,13 @@ public class EinvInvoiceTypeService {
 <file path="src/main/java/com/einvoicehub/core/service/EinvMerchantProviderConfigService.java">
 package com.einvoicehub.core.service;
 
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.domain.entity.EinvStoreProviderEntity;
 import com.einvoicehub.core.domain.entity.EinvProviderEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantProviderConfigRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
-import com.einvoicehub.core.domain.repository.EinvServiceProviderRepository;
+import com.einvoicehub.core.domain.repository.EinvProviderRepository;
 import com.einvoicehub.core.dto.EinvMerchantProviderConfigRequest;
 import com.einvoicehub.core.dto.EinvMerchantProviderConfigResponse;
 import com.einvoicehub.core.exception.ErrorCode;
@@ -11225,7 +11225,7 @@ package com.einvoicehub.core.service;
 
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantUserRepository;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
@@ -11328,7 +11328,7 @@ package com.einvoicehub.core.service;
 
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;
-import com.einvoicehub.core.domain.entity.EinvMerchantEntity;
+import com.einvoicehub.core.domain.entity.MerchantEntity;
 import com.einvoicehub.core.domain.entity.EinvMerchantUserEntity;
 import com.einvoicehub.core.domain.repository.EinvMerchantRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantUserRepository;
@@ -11574,7 +11574,7 @@ package com.einvoicehub.core.service;
 import com.einvoicehub.core.domain.entity.EinvProviderEntity;
 import com.einvoicehub.core.domain.repository.EinvInvoiceMetadataRepository;
 import com.einvoicehub.core.domain.repository.EinvMerchantProviderConfigRepository;
-import com.einvoicehub.core.domain.repository.EinvServiceProviderRepository;
+import com.einvoicehub.core.domain.repository.EinvProviderRepository;
 import com.einvoicehub.core.dto.EinvServiceProviderDto;
 import com.einvoicehub.core.exception.ErrorCode;
 import com.einvoicehub.core.exception.InvalidDataException;

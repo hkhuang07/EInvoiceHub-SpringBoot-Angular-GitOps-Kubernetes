@@ -5,35 +5,33 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "einv_store_serial")
+/** 1uản lý Dải ký hiệu/mẫu số hóa đơn theo Store */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@ToString(exclude = {"merchant", "store", "provider", "invoiceType"})
-public class EinvStoreSerialEntity {
+@Entity
+@Table(name = "einv_store_serial",
+        indexes = { @Index(name = "idx_ss_store_provider", columnList = "store_id, provider_id, status") })
+public class EinvStoreSerialEntity extends TenantEntity {
 
     @Id
-    @Column(name = "id", length = 36)
-    private String id;
+    @Column(name = "id", length = 36, nullable = false)
+    private String id; // UUID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tenant_id", nullable = false)
-    private EinvMerchantEntity merchant;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false)
+    @JoinColumn(name = "store_id", nullable = false, foreignKey = @ForeignKey(name = "fk_ss_store"))
     private EinvStoreEntity store;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provider_id", nullable = false)
+    @JoinColumn(name = "provider_id", nullable = false, foreignKey = @ForeignKey(name = "fk_ss_provider"))
     private EinvProviderEntity provider;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "invoice_type_id", nullable = false)
+    @JoinColumn(name = "invoice_type_id", nullable = false, foreignKey = @ForeignKey(name = "fk_ss_invoice_type"))
     private EinvInvoiceTypeEntity invoiceType;
+
     @Column(name = "provider_serial_id", length = 100)
     private String providerSerialId;
 
@@ -47,29 +45,5 @@ public class EinvStoreSerialEntity {
     private LocalDateTime startDate;
 
     @Column(name = "status", nullable = false)
-    private Integer status;
-
-    @Column(name = "created_by", length = 100)
-    private String createdBy;
-
-    @Column(name = "created_date", nullable = false, updatable = false)
-    private LocalDateTime createdDate;
-
-    @Column(name = "updated_by", length = 100)
-    private String updatedBy;
-
-    @Column(name = "updated_date", nullable = false)
-    private LocalDateTime updatedDate;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.status == null) this.status = 1;
-        this.createdDate = LocalDateTime.now();
-        this.updatedDate = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedDate = LocalDateTime.now();
-    }
+    private Integer status = 1; // 1=Active 0=Inactive
 }

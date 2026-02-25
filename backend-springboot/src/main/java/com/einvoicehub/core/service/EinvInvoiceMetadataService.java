@@ -51,7 +51,7 @@ public class EinvInvoiceMetadataService {
         EinvInvoiceTemplateEntity template = templateRepository.findById(request.getInvoiceTypeId())
                 .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Mẫu hóa đơn không tồn tại"));
 
-        EinvMerchantEntity merchant = template.getMerchant();
+        MerchantEntity merchant = template.getMerchant();
         // Requirement 4: Kiểm tra trạng thái hoạt động của Merchant
         if (Boolean.TRUE.equals(merchant.getIsDeleted())) {
             log.error("[Transaction] Merchant {} đã ngừng hoạt động", merchant.getTaxCode());
