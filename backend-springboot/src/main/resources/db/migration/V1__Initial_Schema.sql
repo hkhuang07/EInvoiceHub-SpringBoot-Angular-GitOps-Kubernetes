@@ -45,7 +45,6 @@ CREATE TABLE `einv_invoice_status`
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Danh mục Trạng thái hóa đơn (chuẩn hóa, độc lập NCC)';
 
-
 -- 1.4 Tạo bảng danh mục Trạng thái Cơ quan Thuế (Mục 5.10)
 CREATE TABLE `einv_tax_status`
 (
@@ -65,8 +64,75 @@ CREATE TABLE `einv_payment_method`
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Danh mục Phương thức thanh toán';
 
+-- 1.6 Đơn vị tính
+CREATE TABLE `einv_unit`
+(
+    `code` VARCHAR(50)  NOT NULL COMMENT 'Mã đơn vị tính (DVT01, DVT02...)',
+    `name` VARCHAR(100) NOT NULL,
+    PRIMARY KEY (`code`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Đơn vị tính chuẩn HUB';
+
+-- 1.7 Loại Thuế
+CREATE TABLE `einv_tax_type`
+(
+    `code` VARCHAR(50)  NOT NULL COMMENT 'Mã thuế suất (VAT0, VAT5, VAT10, EXEMPT...)',
+    `name` VARCHAR(100) NOT NULL,
+    `rate` DECIMAL(5, 2) COMMENT 'Tỷ lệ thuế (%)',
+    PRIMARY KEY (`code`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Loại thuế chuẩn HUB';
+
+
+-- 1.8 Danh mục Hình thức nhận hóa đơn
+CREATE TABLE `einv_receive_type`
+(
+    `id`   INT PRIMARY KEY,
+    `name` VARCHAR(100) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Hình thức nhận hóa đơn';
+
+-- 1.9 Danh mục Loại hàng hóa
+CREATE TABLE `einv_item_type`
+(
+    `id`   INT PRIMARY KEY,
+    `name` VARCHAR(255) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Loại hàng hóa trên dòng HĐ';
+
+-- 1.10  Danh mục Loại tham chiếu
+CREATE TABLE IF NOT EXISTS `einv_reference_type`
+(
+    `id`   INT PRIMARY KEY,
+    `name` VARCHAR(100) NOT NULL
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Loại tham chiếu HĐ (Gốc/ĐC/TT)';
+
+
 -- NHÓM 2: QUẢN LÝ ĐƠN VỊ KINH DOANH
--- 2.1. Tenant / Merchant
+-- 2.1 Người dùng của hệ thống
+CREATE TABLE `sys_users`
+(
+    `id`         BIGINT       NOT NULL AUTO_INCREMENT,
+    `name`       VARCHAR(50)  NOT NULL COMMENT 'Username',
+    `full_name`  VARCHAR(200) NOT NULL COMMENT 'Tên đầy đủ',
+    `password`   VARCHAR(255) NOT NULL,
+    `is_active`  BOOLEAN      NOT NULL DEFAULT TRUE,
+    `created_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_username` (`name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Bảng người dùng hệ thống (giả lập từ PosORA)';
+
+-- 2.1.1 View
+CREATE OR REPLACE VIEW `vw_sys_user_author` AS
+SELECT id,
+       name,
+       full_name AS fullName
+FROM `sys_users`
+WHERE is_active = TRUE;
+
+-- 2.2. Tenant / Merchant
 CREATE TABLE `merchants`
 (
     `id`           BIGINT       NOT NULL AUTO_INCREMENT COMMENT 'Surrogate PK',
@@ -81,7 +147,7 @@ CREATE TABLE `merchants`
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Quản lý Merchant/Tenant (đơn vị sử dụng hệ thống)';
 
--- 2.2. Store / Chi nhánh
+-- 2.3. Store / Chi nhánh
 CREATE TABLE `einv_stores`
 (
     `id`         VARCHAR(36)  NOT NULL COMMENT 'UUID của Store',
@@ -146,9 +212,7 @@ CREATE TABLE `einv_store_serial`
     `id`                 VARCHAR(36) NOT NULL COMMENT 'UUID',
 
     `tenant_id`          BIGINT      NOT NULL COMMENT 'FK → merchants.id',
-    `store_id`           VARCHAR(36) NOT NULL COMMENT 'FK → einv_stores.id',
-
-    `provider_id`        VARCHAR(36) NOT NULL COMMENT 'FK → einv_provider.id',
+    `store_provider_id`  VARCHAR(36) NOT NULL COMMENT 'FK → einv_store_provider.id',
     `invoice_type_id`    INT         NOT NULL COMMENT 'FK → einv_invoice_type.id',
 
     `provider_serial_id` VARCHAR(100) COMMENT 'ID dải ký hiệu bên NCC cấp',
@@ -163,10 +227,9 @@ CREATE TABLE `einv_store_serial`
     `updated_by`         VARCHAR(100),
     `updated_date`       TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_ss_store` FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`),
-    CONSTRAINT `fk_ss_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
+    CONSTRAINT `fk_ss_store_provider` FOREIGN KEY (`store_provider_id`) REFERENCES `einv_store_provider` (`id`),
     CONSTRAINT `fk_ss_invoice_type` FOREIGN KEY (`invoice_type_id`) REFERENCES `einv_invoice_type` (`id`),
-    INDEX `idx_ss_store_provider` (`store_id`, `provider_id`, `status`)
+    INDEX `idx_ss_config_status` (`store_provider_id`, `status`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Quản lý Dải ký hiệu / Mẫu số hóa đơn theo Store (thay đổi hàng năm theo NĐ70)';
@@ -183,6 +246,7 @@ CREATE TABLE `einv_mapping_tax_type`
     `description`   VARCHAR(255) COMMENT 'Mô tả ánh xạ',
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_tax_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
+    CONSTRAINT `fk_map_tax_master` FOREIGN KEY (`system_code`) REFERENCES `einv_tax_type` (`code`),
     UNIQUE KEY `uq_map_tax` (`provider_id`, `system_code`),
     INDEX `idx_map_tax_lookup` (`provider_id`, `system_code`)
 ) ENGINE = InnoDB
@@ -193,15 +257,16 @@ CREATE TABLE `einv_mapping_tax_type`
 -- 4.2. Mapping Loại hóa đơn
 CREATE TABLE `einv_mapping_invoice_type`
 (
-    `id`            BIGINT       NOT NULL AUTO_INCREMENT,
-    `provider_id`   VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
-    `system_code`   VARCHAR(50)  NOT NULL COMMENT 'Mã loại HĐ nội bộ HUB',
-    `provider_code` VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
-    `description`   VARCHAR(255),
+    `id`              BIGINT       NOT NULL AUTO_INCREMENT,
+    `provider_id`     VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
+    `invoice_type_id` INT          NOT NULL COMMENT 'Mã loại HĐ',
+    `provider_code`   VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
+    `description`     VARCHAR(255),
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_inv_type_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
-    UNIQUE KEY `uq_map_inv_type` (`provider_id`, `system_code`),
-    INDEX `idx_map_inv_type_lookup` (`provider_id`, `system_code`)
+    CONSTRAINT `fk_map_inv_type_master` FOREIGN KEY (`invoice_type_id`) REFERENCES `einv_invoice_type` (`id`),
+    UNIQUE KEY `uq_map_inv_type` (`provider_id`, `invoice_type_id`),
+    INDEX `idx_map_inv_type_lookup` (`provider_id`, `invoice_type_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Mapping: Loại hóa đơn (HUB) ↔ (NCC)';
@@ -210,15 +275,16 @@ CREATE TABLE `einv_mapping_invoice_type`
 -- 4.3. Mapping Phương thức thanh toán
 CREATE TABLE `einv_mapping_payment_method`
 (
-    `id`            BIGINT       NOT NULL AUTO_INCREMENT,
-    `provider_id`   VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
-    `system_code`   VARCHAR(50)  NOT NULL COMMENT 'Mã PTTT nội bộ HUB',
-    `provider_code` VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
-    `description`   VARCHAR(255),
+    `id`                BIGINT       NOT NULL AUTO_INCREMENT,
+    `provider_id`       VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
+    `payment_method_id` INT          NOT NULL COMMENT 'Mã PTTT nội bộ HUB',
+    `provider_code`     VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
+    `description`       VARCHAR(255),
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_pay_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
-    UNIQUE KEY `uq_map_pay` (`provider_id`, `system_code`),
-    INDEX `idx_map_pay_lookup` (`provider_id`, `system_code`)
+    CONSTRAINT `fk_map_pay_master` FOREIGN KEY (`payment_method_id`) REFERENCES `einv_payment_method` (`id`),
+    UNIQUE KEY `uq_map_pay` (`provider_id`, `payment_method_id`),
+    INDEX `idx_map_pay_lookup` (`provider_id`, `payment_method_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Mapping: Phương thức thanh toán (HUB) ↔ (NCC)';
@@ -287,7 +353,8 @@ CREATE TABLE `einv_mapping_unit`
     `system_code`   VARCHAR(50)  NOT NULL COMMENT 'Mã đơn vị tính HUB',
     `provider_code` VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_map_unit_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
+    CONSTRAINT `fk_map_unit_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
+    CONSTRAINT `fk_map_unit_master` FOREIGN KEY (`system_code`) REFERENCES `einv_unit` (`code`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT = 'Mapping Đơn vị tính HUB & NCC';
 
@@ -327,17 +394,25 @@ CREATE TABLE `einv_invoices`
     `tax_authority_code`   VARCHAR(100) COMMENT 'Mã CQT cấp (MCCQT)',
     `invoice_lookup_code`  VARCHAR(50) COMMENT 'Mã tra cứu HĐ',
     `response_message`     VARCHAR(500) COMMENT 'Thông báo lỗi/thành công từ NCC',
+    `error_code`           VARCHAR(50) COMMENT 'Mã lỗi chi tiết từ NCC',
     `secret_code`          VARCHAR(50) COMMENT 'Mã bí mật (Viettel)',
 
     `buyer_tax_code`       VARCHAR(50),
     `buyer_code`           VARCHAR(50) COMMENT 'Mã khách hàng',
     `buyer_company`        VARCHAR(300),
-    `buyer_full_name`      VARCHAR(200),
+    `buyer_name`           VARCHAR(200),
     `buyer_address`        VARCHAR(300),
+    `buyer_id_no`          VARCHAR(20) COMMENT 'Số CMND/CCCD/Hộ chiếu người mua',
+    `buyer_bank_account`   VARCHAR(20) COMMENT 'Số tài khoản ngân hàng người mua',
+    `buyer_bank_name`      VARCHAR(100) COMMENT 'Tên ngân hàng người mua',
+    `buyer_budget_code`    VARCHAR(20) COMMENT 'Mã số đơn vị quan hệ ngân sách',
     `buyer_mobile`         VARCHAR(50),
     `buyer_plate_no`       VARCHAR(50) COMMENT 'Biển số xe (Xăng dầu)',
     `extra_metadata`       JSON COMMENT 'Trường động (MISA/VNPT)',
     `delivery_info`        JSON COMMENT 'Thông tin vận chuyển (PXK)',
+
+    `receive_type_id`      INT COMMENT 'Hình thức nhận hóa đơn (FK -> einv_receive_type)',
+    `receiver_email`       VARCHAR(50) COMMENT 'Email nhận hóa đơn (có thể khác buyer_email)',
 
     `currency_code`        VARCHAR(20)          DEFAULT 'VND',
     `exchange_rate`        DECIMAL(18, 6)       DEFAULT 1.0,
@@ -346,6 +421,7 @@ CREATE TABLE `einv_invoices`
     `net_amount`           DECIMAL(20, 2),
     `tax_amount`           DECIMAL(20, 2),
     `total_amount`         DECIMAL(20, 2),
+    `notes`                VARCHAR(300) COMMENT 'Ghi chú hóa đơn',
     `total_amount_text`    VARCHAR(500),
     `tax_summary_json`     JSON COMMENT 'Tổng hợp thuế suất cho XML CQT',
 
@@ -366,7 +442,8 @@ CREATE TABLE `einv_invoices`
     INDEX `idx_inv_lookup_code` (`invoice_lookup_code`),
     CONSTRAINT `fk_inv_store` FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`),
     CONSTRAINT `fk_inv_tax_status` FOREIGN KEY (`tax_status_id`) REFERENCES `einv_tax_status` (`id`),
-    CONSTRAINT `fk_inv_org_ref` FOREIGN KEY (`org_invoice_id`) REFERENCES `einv_invoices` (`id`)
+    CONSTRAINT `fk_inv_org_ref` FOREIGN KEY (`org_invoice_id`) REFERENCES `einv_invoices` (`id`),
+    CONSTRAINT `fk_inv_receive_type` FOREIGN KEY (`receive_type_id`) REFERENCES `einv_receive_type` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT = 'Hóa đơn điện tử (Header) - HUB Central';
 
@@ -375,24 +452,22 @@ CREATE TABLE `einv_invoices_detail`
 (
     `id`              BIGINT       NOT NULL AUTO_INCREMENT COMMENT 'Surrogate PK',
     `doc_id`          BIGINT       NOT NULL COMMENT 'FK → einv_invoices.id',
-
     `line_no`         INT COMMENT 'Số thứ tự dòng trên HĐ',
-    -- Thông tin hàng hóa / dịch vụ
     `item_id`         VARCHAR(36) COMMENT 'Mã hàng hóa trong hệ thống POS',
     `item_name`       VARCHAR(500) NOT NULL COMMENT 'Tên hàng hóa / dịch vụ',
     `item_type_id`    INT COMMENT 'Loại dòng HĐ (mapping sang NCC)',
-    `is_free`         BOOLEAN COMMENT 'true = hàng khuyến mãi, không tính tiền',
-    `unit`            VARCHAR(50) COMMENT 'Đơn vị tính',
-    -- Số lượng & giá
+    `is_free`         BOOLEAN COMMENT 'true = hàng khuyến mãi, không tí nh tiền',
+    `unit_name`       VARCHAR(50) COMMENT 'Đơn vị tính',
+
     `quantity`        DECIMAL(15, 6) COMMENT 'Số lượng',
     `price`           DECIMAL(15, 6) COMMENT 'Đơn giá chưa CK (= gross_amount / quantity)',
-    -- Tiền
+
     `gross_amount`    DECIMAL(20, 2) COMMENT 'Thành tiền chưa CK (quantity × price)',
     `discount_rate`   DECIMAL(20, 2) COMMENT 'Tỷ lệ chiết khấu (%)',
     `discount_amount` DECIMAL(20, 2) COMMENT 'Tiền chiết khấu',
     `net_amount`      DECIMAL(20, 2) COMMENT 'Thành tiền sau CK (gross - discount)',
     `net_price`       DECIMAL(20, 6) COMMENT 'Đơn giá sau CK (= net_amount / quantity)',
-    -- Thuế
+
     `tax_type_id`     VARCHAR(36) COMMENT 'Mã loại thuế HUB (mapping sang NCC)',
     `tax_rate`        DECIMAL(15, 2) COMMENT 'Thuế suất (%)',
     `tax_amount`      DECIMAL(20, 2) COMMENT 'Tiền thuế',
@@ -473,48 +548,87 @@ CREATE TABLE `einv_audit_logs`
     COMMENT = 'Nhật ký kiểm toán toàn bộ hành động trên hệ thống';
 
 
--- NHÓM 7: VIEW HỖ TRỢ
-/* 7.1. View thông tin User (ánh xạ từ hệ thống auth của PosORA)
-CREATE OR REPLACE VIEW `vw_sys_user_author` AS
-SELECT id,
-       name,
-       full_name AS fullName
-FROM `sys_users`
-WHERE is_active = TRUE;*/
+-- 1.1 Danh sách Nhà cung cấp (Provider)
+INSERT INTO `einv_provider` (`id`, `provider_code`, `provider_name`)
+VALUES ('BKAV', 'BKAV', 'Công ty cổ phần Bkav'),
+       ('MOBI', 'MOBI', 'Mobifone Invoice')
+ON DUPLICATE KEY UPDATE `provider_name` = VALUES(`provider_name`);
 
 
-INSERT INTO `einv_invoice_status` (`id`, `name`, `description`)
-VALUES (0, 'Nháp', 'Hóa đơn mới khởi tạo hoặc hóa đơn nháp'),
-       (1, 'Chờ ký', 'Hóa đơn đã gửi NCC thành công, đang chờ ký số'),
-       (2, 'Đã phát hành', 'Hóa đơn đã ký số thành công và có hiệu lực pháp lý'),
-       (3, 'Hủy', 'Hóa đơn đã bị hủy bỏ nghiệp vụ'),
-       (4, 'Chờ gửi CQT', 'Hóa đơn đang chờ HUB gửi bản tin lên Cơ quan Thuế'),
-       (5, 'CQT không chấp nhận', 'Hóa đơn bị Cơ quan Thuế từ chối cấp mã hoặc báo lỗi');
+-- 1.3 Danh sách Loại tham chiếu (ReferenceTypeID)
+INSERT INTO `einv_reference_type` (`id`, `name`)
+VALUES (0, 'Hóa đơn gốc'),
+       (2, 'Hóa đơn điều chỉnh'),
+       (3, 'Hóa đơn thay thế')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
+-- 1.4 Danh sách Loại hóa đơn (InvoiceTypeID)
+INSERT INTO `einv_invoice_type` (`id`, `invoice_type_name`)
+VALUES (1, 'Hóa đơn Giá trị gia tăng'),
+       (2, 'Hóa đơn bán hàng'),
+       (6, 'Phiếu xuất kho & vận chuyển nội bộ')
+ON DUPLICATE KEY UPDATE `invoice_type_name` = VALUES(`invoice_type_name`);
+
+-- 1.5 Danh sách Phương thức thanh toán (PaymentMethodID)
 INSERT INTO `einv_payment_method` (`id`, `name`, `note`)
 VALUES (1, 'TM', 'Tiền mặt'),
        (2, 'CK', 'Chuyển khoản'),
        (3, 'TM/CK', 'Tiền mặt/Chuyển khoản'),
-       (4, 'Xuất hàng cho chi nhánh', 'Điều chuyển nội bộ chi nhánh'),
-       (5, 'Hàng biếu tặng', 'Xuất hàng biếu tặng, quảng cáo'),
-       (6, 'Cấn trừ công nợ', 'Thanh toán bằng hình thức cấn trừ'),
-       (7, 'Trả hàng', 'Xuất hóa đơn cho hàng trả lại');
+       (4, 'Xuất hàng cho chi nhánh', 'Xuất hàng cho chi nhánh'),
+       (5, 'Hàng biếu tặng', 'Hàng biếu tặng'),
+       (6, 'Cấn trừ công nợ', 'Cấn trừ công nợ'),
+       (7, 'Trả hàng', 'Trả hàng')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`),
+                        `note` = VALUES(`note`);
 
-INSERT INTO `einv_tax_status` (`id`, `name`)
-VALUES (0, 'Chưa gửi CQT'),
-       (1, 'Đã gửi CQT'),
-       (2, 'CQT chấp nhận'),
-       (3, 'CQT không chấp nhận');
+-- 1.6 Danh sách Hình thức nhận hóa đơn (ReceiveTypeID)
+INSERT INTO `einv_receive_type` (`id`, `name`)
+VALUES (1, 'Email'),
+       (2, 'SMS'),
+       (3, 'Email & SMS')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
-INSERT INTO `einv_invoice_type` (`id`, `invoice_type_name`, `note`)
-VALUES (11, 'Chứng từ điện tử khấu trừ thuế TNCN', 'Theo Nghị định 70'),
-       (12, 'Chứng từ điện tử khấu trừ thuế (TMĐT, nền tảng số)', 'Theo Nghị định 70'),
-       (13, 'Biên lai phí, lệ phí không in sẵn mệnh giá', 'Theo Nghị định 70'),
-       (14, 'Biên lai phí, lệ phí in sẵn mệnh giá', 'Theo Nghị định 70'),
-       (15, 'Biên lai thu thuế, phí, lệ phí (CQT sử dụng - CTT50)', 'Mã CTT50'),
-       (16, 'Biên lai thu thuế, phí, lệ phí đặt in, tự in', 'Thông tư 303')
-ON DUPLICATE KEY UPDATE `invoice_type_name` = VALUES(`invoice_type_name`),
-                        `note`              = VALUES(`note`);
+-- 1.7 Danh sách Loại hàng hóa (ItemTypeID)
+INSERT INTO `einv_item_type` (`id`, `name`)
+VALUES (1, 'Hàng hóa, dịch vụ'),
+       (2, 'Khuyến mại'),
+       (3, 'Chiết khấu thương mại'),
+       (4, 'Ghi chú/diễn giải'),
+       (5, 'Hàng hóa đặc trưng')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
+-- 1.8 Danh sách Loại thuế (TaxTypeID)
+INSERT INTO `einv_tax_type` (`code`, `name`, `rate`)
+VALUES ('T00', 'Thuế suất 0%', 0.00),
+       ('T05', 'Thuế suất 5%', 5.00),
+       ('T08', 'Thuế suất 8%', 8.00),
+       ('T10', 'Thuế suất 10%', 10.00),
+       ('KCT', 'Không chịu thuế GTGT', NULL),
+       ('KKK', 'Không kê khai thuế', NULL)
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`),
+                        `rate` = VALUES(`rate`);
+
+-- 1.9 Danh sách Trạng thái hóa đơn HUB (InvoiceStatusID)
+INSERT INTO `einv_invoice_status` (`id`, `name`, `description`)
+VALUES (0, 'Hóa đơn mới tạo', 'Hóa đơn chưa có số'),
+       (1, 'Hóa đơn mới tạo (Có số)', 'Hóa đơn đã cấp số hóa đơn'),
+       (2, 'Hóa đơn đã phát hành', 'Hóa đơn đã có hiệu lực'),
+       (5, 'HĐ thay thế chờ ký', 'Hóa đơn thay thế đã cấp số, chờ ký'),
+       (6, 'HĐ thay thế đã phát hành', 'Hóa đơn thay thế đã hoàn tất'),
+       (7, 'HĐ điều chỉnh chờ ký', 'Hóa đơn điều chỉnh đã cấp số, chờ ký'),
+       (8, 'HĐ điều chỉnh đã phát hành', 'Hóa đơn điều chỉnh đã hoàn tất'),
+       (9, 'Hóa đơn bị thay thế', 'Hóa đơn gốc đã bị thay thế bởi HĐ khác'),
+       (10, 'Hóa đơn bị điều chỉnh', 'Hóa đơn gốc đã bị điều chỉnh'),
+       (99, 'Trạng thái khác', 'Các trạng thái nghiệp vụ phát sinh khác')
+ON DUPLICATE KEY UPDATE `name`        = VALUES(`name`),
+                        `description` = VALUES(`description`);
+
+-- 3. Cập nhật Mapping Lệnh Nghiệp vụ (Phụ lục 1.2)
+INSERT INTO `einv_mapping_action` (`provider_id`, `hub_action`, `provider_cmd`, `description`)
+VALUES ('BKAV', 'SUBMIT_NEW', '100', 'Tạo hóa đơn mới, chưa cấp số'),
+       ('BKAV', 'SUBMIT_ASSIGNED', '101', 'Tạo hóa đơn mới, cấp sẵn số, chưa ký'),
+       ('BKAV', 'SUBMIT_PUBLISH', '102', 'Tạo mới hóa đơn và ký phát hành luôn'),
+       ('BKAV', 'ADJUST_ASSIGNED', '111', 'Tạo HĐ điều chỉnh, cấp sẵn số, chưa ký'),
+       ('BKAV', 'ADJUST_PUBLISH', '112', 'Tạo HĐ điều chỉnh và ký phát hành luôn');
 
 SET FOREIGN_KEY_CHECKS = 1;
