@@ -25,8 +25,9 @@ public class EinvMappingPaymentMethodEntity extends TenantEntity {
             foreignKey = @ForeignKey(name = "fk_map_pay_provider"))
     private EinvProviderEntity provider;
 
-    @Column(name = "system_code", length = 50, nullable = false)
-    private String systemCode;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_method_id", nullable = false)
+    private EinvPaymentMethodEntity paymentMethod;
 
     @Column(name = "provider_code", length = 100, nullable = false)
     private String providerCode;

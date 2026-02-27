@@ -1,28 +1,23 @@
 package com.einvoicehub.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class EinvPaymentMethodDto {
+
     @JsonProperty("ID")
-    private Long id;
+    private Integer id;
 
-    @JsonProperty("MethodCode")
-    private String methodCode;
+    @JsonProperty("Name")
+    private String name;
 
-    @JsonProperty("MethodName")
-    private String methodName;
-
-    @JsonProperty("Description")
-    private String description;
-
-    @JsonProperty("IsActive")
-    private Boolean isActive;
-
-    @JsonProperty("DisplayOrder")
-    private Integer displayOrder;
+    @JsonProperty("Note")
+    private String note;
 }

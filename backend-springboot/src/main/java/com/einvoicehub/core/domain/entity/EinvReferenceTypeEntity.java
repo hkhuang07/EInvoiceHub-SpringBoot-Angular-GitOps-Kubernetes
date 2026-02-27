@@ -1,4 +1,29 @@
 package com.einvoicehub.core.domain.entity;
 
-public class EinvReferenceTypeEntity {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
+/** danh mục Loại tham chiếu hóa đơn */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@Entity
+@Table(name = "einv_reference_type")
+public class EinvReferenceTypeEntity extends BaseAuditEntity {
+
+    @Id
+    @Column(name = "id", nullable = false)
+    private Integer id;
+
+    @Column(name = "name", length = 100, nullable = false)
+    private String name;
 }

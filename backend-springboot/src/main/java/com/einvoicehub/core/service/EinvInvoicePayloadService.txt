@@ -1,0 +1,97 @@
+package com.einvoicehub.core.service;
+
+import com.einvoicehub.core.domain.entity.EinvInvoiceEntity;
+import com.einvoicehub.core.domain.entity.EinvInvoicePayloadEntity;
+import com.einvoicehub.core.domain.repository.EinvInvoiceRepository;
+import com.einvoicehub.core.domain.repository.EinvInvoicePayloadRepository;
+import com.einvoicehub.core.dto.EinvInvoicePayloadDto;
+import com.einvoicehub.core.exception.ErrorCode;
+import com.einvoicehub.core.exception.InvalidDataException;
+import com.einvoicehub.core.mapper.EinvHubMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class EinvInvoicePayloadService {
+
+    private final EinvInvoicePayloadRepository repository;
+    private final EinvInvoiceRepository metadataRepository;
+    private final EinvHubMapper mapper;
+
+    @Transactional(readOnly = true)
+    public List<EinvInvoicePayloadDto> getAll() {
+        log.info("[Infra] Truy vấn danh sách payload kỹ thuật");
+        return repository.findAll().stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public EinvInvoicePayloadDto getById(Long invoiceId) {
+        log.info("[Infra] Lấy dữ liệu payload cho hóa đơn ID: {}", invoiceId);
+        return repository.findByInvoiceId(invoiceId)
+                .map(mapper::toDto)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn chưa có dữ liệu kỹ thuật"));
+    }
+
+    @Transactional
+    public EinvInvoicePayloadDto create(EinvInvoicePayloadDto dto) {
+        log.info("[Infra] Đang khởi tạo Payload cho hóa đơn ID: {}", dto.getInvoiceId());
+        EinvInvoiceEntity invoice = metadataRepository.findById(dto.getInvoiceId())
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn gốc không tồn tại"));
+
+        if (Boolean.TRUE.equals(invoice.getMerchant().getIsDeleted())) {
+            throw new InvalidDataException(ErrorCode.MERCHANT_NOT_FOUND, "Doanh nghiệp đã bị khóa, không thể tạo dữ liệu");
+        }
+
+        if (repository.existsById(dto.getInvoiceId())) {
+            throw new InvalidDataException(ErrorCode.INVALID_DATA, "Payload cho hóa đơn này đã tồn tại");
+        }
+
+        EinvInvoicePayloadEntity entity = mapper.toEntity(dto);
+        entity.setInvoice(invoice);
+
+        entity = repository.save(entity);
+        log.info("[Infra] Đã lưu thành công Payload cho hóa đơn ID: {}", entity.getInvoiceId());
+        return mapper.toDto(entity);
+    }
+
+    @Transactional
+    public EinvInvoicePayloadDto update(Long invoiceId, EinvInvoicePayloadDto dto) {
+        log.info("[Infra] Cập nhật nội dung ký số cho hóa đơn ID: {}", invoiceId);
+
+        EinvInvoicePayloadEntity entity = repository.findByInvoiceId(invoiceId)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Không tìm thấy payload để cập nhật"));
+
+        if (entity.getInvoice().getInvoiceStatus().getId() == 5) {
+            log.error("[Infra] Chặn thao tác sửa dữ liệu hóa đơn đã phát hành thành công: {}", invoiceId);
+            throw new InvalidDataException(ErrorCode.INVALID_DATA, "Hóa đơn đã hoàn tất, không được phép thay đổi nội dung kỹ thuật");
+        }
+        entity.setSignedXml(dto.getSignedXml());
+        entity.setPdfData(dto.getPdfData());
+        entity.setJsonContent(dto.getJsonContent());
+
+        return mapper.toDto(repository.save(entity));
+    }
+
+    @Transactional
+    public void delete(Long invoiceId) {
+        log.warn("[Infra] Yêu cầu xóa vĩnh viễn Payload hóa đơn ID: {}", invoiceId);
+
+        EinvInvoicePayloadEntity entity = repository.findByInvoiceId(invoiceId)
+                .orElseThrow(() -> new InvalidDataException(ErrorCode.INVALID_DATA, "Bản ghi không tồn tại"));
+
+        if (entity.getInvoice().getInvoiceStatus().getId() != 1) {
+            throw new InvalidDataException(ErrorCode.INVALID_DATA, "Chỉ được phép xóa dữ liệu kỹ thuật của hóa đơn Nháp");
+        }
+        repository.delete(entity);
+        log.info("[Infra] Đã xóa thành công Payload của hóa đơn ID: {}", invoiceId);
+    }
+}

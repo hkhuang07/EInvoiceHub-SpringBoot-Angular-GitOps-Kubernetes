@@ -1,6 +1,6 @@
 package com.einvoicehub.core.domain.repository;
 
-import com.einvoicehub.core.domain.entity.EinvInvoiceSyncQueueEntity;
+import com.einvoicehub.core.domain.entity.EinvSyncQueueEntity;
 import com.einvoicehub.core.domain.entity.enums.SyncStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,19 +15,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EinvInvoiceSyncQueueRepository extends JpaRepository<EinvInvoiceSyncQueueEntity, Long>,
-        JpaSpecificationExecutor<EinvInvoiceSyncQueueEntity> {
+public interface EinvSyncQueueRepository extends JpaRepository<EinvSyncQueueEntity, Long>, JpaSpecificationExecutor<EinvSyncQueueEntity> {
+
+    List<EinvSyncQueueEntity> findByStatus(String status);
+    List<EinvSyncQueueEntity> findByInvoiceId(Long invoiceId);
 
     @EntityGraph(attributePaths = {"invoice"})
-    Optional<EinvInvoiceSyncQueueEntity> findWithInvoiceById(Long id);
+    Optional<EinvSyncQueueEntity> findWithInvoiceById(Long id);
 
-    List<EinvInvoiceSyncQueueEntity> findByStatusInOrderByPriorityAscCreatedAtAsc(List<SyncStatus> statuses);
+    List<EinvSyncQueueEntity> findByStatusInOrderByPriorityAscCreatedAtAsc(List<SyncStatus> statuses);
 
-    @Query("SELECT q FROM EinvInvoiceSyncQueueEntity q WHERE " +
+    @Query("SELECT q FROM EinvSyncQueueEntity q WHERE " +
             "(:status IS NULL OR q.status = :status) AND " +
             "(:search IS NULL OR LOWER(q.errorMessage) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             "LOWER(q.processedBy) LIKE LOWER(CONCAT('%', :search, '%')))")
-    Page<EinvInvoiceSyncQueueEntity> findByFilters(
+    Page<EinvSyncQueueEntity> findByFilters(
             @Param("status") SyncStatus status,
             @Param("search") String search,
             Pageable pageable
@@ -36,5 +38,5 @@ public interface EinvInvoiceSyncQueueRepository extends JpaRepository<EinvInvoic
     @Query(value = "SELECT * FROM invoice_sync_queue " +
             "WHERE status = 'RETRYING' AND next_retry_at <= NOW() " +
             "ORDER BY priority ASC LIMIT :batchSize", nativeQuery = true)
-    List<EinvInvoiceSyncQueueEntity> findReadyToRetry(@Param("batchSize") int batchSize);
+    List<EinvSyncQueueEntity> findReadyToRetry(@Param("batchSize") int batchSize);
 }

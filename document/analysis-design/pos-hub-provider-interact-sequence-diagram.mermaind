@@ -1,0 +1,13 @@
+sequenceDiagram
+    autonumber
+    participant POS as Hệ thống POS
+    participant HUB as EInvoiceHub
+    participant PRO as Provider (BKAV/Mobiphone/...)
+
+    Note over POS: Step 1:Tạo bản tin (Tạo hóa đơn/Ký hóa đơn/Điều chỉnh hóa đơn/ Lấy hóa đơn) 
+    POS->>HUB: Step 2: Gửi (SubmitInvoice(type:100,101,102)/SignInvoice/AdjustInvoice/GetInvoice...)
+    HUB->>HUB: Step 3: Lưu Data vào hệ thống/ Validate dữ liệu
+    HUB->>PRO: Step 4: Gọi API Provider (Submit/Sign)
+    PRO-->>HUB: Step 5: Trả về bản tin phản hồi (Code, Message)
+    HUB->>HUB: Step 6: Bóc tách & Mapping về chuẩn hệ thống lưu Data (InvoiceNo, MCCQT...) vào hệ thống
+    HUB->>POS: Step 7: Cập nhật trạng thái màn hình danh sách

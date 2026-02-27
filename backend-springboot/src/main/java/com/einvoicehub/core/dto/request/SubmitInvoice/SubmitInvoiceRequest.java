@@ -7,25 +7,38 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * Request Header hóa đơn từ POS gửi lên HUB để tạo mới hoặc điều chỉnh/thay thế.
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class SubmitInvoiceRequest {
 
-    @NotBlank(message = "Loại nghiệp vụ là bắt buộc")
+    @NotBlank(message = "ID tham chiếu từ POS (PartnerInvoiceID) không được để trống")
+    @JsonProperty("PartnerInvoiceID")
+    private String partnerInvoiceId;
+
+    @NotBlank(message = "Loại nghiệp vụ (SubmitInvoiceType) là bắt buộc")
     @JsonProperty("SubmitInvoiceType")
     private String submitInvoiceType;
 
-    @JsonProperty("PartnerInvoiceID")
-    private Long partnerInvoiceId;
-
-    @JsonProperty("PartnerInvoiceStringID")
-    private String partnerInvoiceStringId;
-
-    @NotNull(message = "ID loại hóa đơn là bắt buộc")
+    @NotNull(message = "Loại hóa đơn (InvoiceTypeID) là bắt buộc")
     @JsonProperty("InvoiceTypeID")
-    private Long invoiceTypeId;
+    private Integer invoiceTypeId;
+
+    @JsonProperty("ReferenceTypeID")
+    private Integer referenceTypeId;
+
+    @JsonProperty("PaymentMethodID")
+    private Integer paymentMethodId;
+
+    @JsonProperty("InvoiceForm")
+    private String invoiceForm;
+
+    @JsonProperty("InvoiceSeries")
+    private String invoiceSeries;
 
     @JsonProperty("InvoiceDate")
     private String invoiceDate;
@@ -36,13 +49,36 @@ public class SubmitInvoiceRequest {
     @JsonProperty("BuyerCompany")
     private String buyerCompany;
 
+    @NotBlank(message = "Tên người mua không được để trống")
     @JsonProperty("BuyerName")
-    private String buyerName;
+    private String BuyerName;
 
     @JsonProperty("BuyerAddress")
     private String buyerAddress;
 
-    @Email(message = "Email không hợp lệ")
+    @JsonProperty("BuyerIDNo")
+    private String buyerIdNo;
+
+    @JsonProperty("BuyerBankAccount")
+    private String buyerBankAccount;
+
+    @JsonProperty("BuyerBankName")
+    private String buyerBankName;
+
+    @JsonProperty("BuyerBudgetCode")
+    private String buyerBudgetCode;
+
+    @Email(message = "Email không đúng định dạng")
+    @JsonProperty("BuyerEmail")
+    private String buyerEmail;
+
+    @JsonProperty("BuyerMobile")
+    private String buyerMobile;
+
+    @NotNull(message = "ReceiveTypeID là bắt buộc")
+    @JsonProperty("ReceiveTypeID")
+    private Integer receiveTypeId;
+
     @JsonProperty("ReceiverEmail")
     private String receiverEmail;
 
@@ -54,8 +90,46 @@ public class SubmitInvoiceRequest {
     @JsonProperty("ExchangeRate")
     private BigDecimal exchangeRate;
 
+    @DecimalMin("0.00")
+    @JsonProperty("GrossAmount")
+    private BigDecimal grossAmount;
+
+    @DecimalMin("0.00")
+    @JsonProperty("DiscountAmount")
+    private BigDecimal discountAmount;
+
+    @DecimalMin("0.00")
+    @JsonProperty("TaxAmount")
+    private BigDecimal taxAmount;
+
+    @NotNull(message = "Tổng tiền thanh toán là bắt buộc")
+    @DecimalMin("0.00")
+    @JsonProperty("TotalAmount")
+    private BigDecimal totalAmount;
+
+    @JsonProperty("TotalAmountText")
+    private String totalAmountText;
+
+    @JsonProperty("Notes")
+    private String notes;
+
+    @JsonProperty("IsMtt")
+    private Boolean isMtt;
+
+    @JsonProperty("IsPetrol")
+    private Boolean isPetrol;
+
+    @NotEmpty(message = "Danh sách dòng hàng hóa không được để trống")
     @Valid
-    @NotEmpty(message = "Chi tiết hóa đơn không được để trống")
     @JsonProperty("Details")
     private List<SubmitInvoiceDetailRequest> details;
+
+    @JsonProperty("ExtraMetadata")
+    private String extraMetadata;
+
+    @JsonProperty("OrgInvoiceNo")
+    private String orgInvoiceNo;
+
+    @JsonProperty("OrgInvoiceDate")
+    private String orgInvoiceDate;
 }

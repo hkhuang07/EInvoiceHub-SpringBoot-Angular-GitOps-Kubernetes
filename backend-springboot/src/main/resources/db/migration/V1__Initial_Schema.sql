@@ -108,6 +108,15 @@ CREATE TABLE IF NOT EXISTS `einv_reference_type`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Loại tham chiếu HĐ (Gốc/ĐC/TT)';
 
+-- 1.11 Tạo bảng danh mục Loại nghiệp vụ Submit
+CREATE TABLE `einv_submit_invoice_type`
+(
+    `id`          VARCHAR(3)   NOT NULL COMMENT 'Mã SubmitInvoiceType (100, 120, 121...)',
+    `name`        VARCHAR(100) NOT NULL COMMENT 'Tên nghiệp vụ (Mới, Thay thế, Điều chỉnh)',
+    `description` VARCHAR(255),
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Loại nghiệp vụ Submit HĐ';
 
 -- NHÓM 2: QUẢN LÝ ĐƠN VỊ KINH DOANH
 -- 2.1 Người dùng của hệ thống
@@ -379,11 +388,13 @@ CREATE TABLE `einv_invoices`
     `is_mtt`               BOOLEAN              DEFAULT FALSE COMMENT 'Hóa đơn Máy tính tiền',
     `is_petrol`            BOOLEAN              DEFAULT FALSE COMMENT 'Hóa đơn Xăng dầu',
     `is_locked`            BOOLEAN              DEFAULT FALSE COMMENT 'Khóa hóa đơn khi đang xử lý (Tránh trùng lặp Step 1)',
+    `is_deleted`           BOOLEAN              DEFAULT FALSE COMMENT 'Khóa hóa đơn khi đang xử lý (Tránh trùng lặp Step 1)',
 
     `invoice_type_id`      INT COMMENT 'FK → einv_invoice_type.id',
     `reference_type_id`    INT         NOT NULL DEFAULT 0 COMMENT '0: Gốc, 2: Điều chỉnh, 3: Thay thế',
     `sign_type`            INT COMMENT '0: Token, 1: HSM',
     `payment_method_id`    INT COMMENT 'FK → einv_payment_method.id',
+    `submit_invoice_type` VARCHAR(3) NOT NULL COMMENT 'FK → einv_submit_invoice_type.id',
 
     `invoice_form`         VARCHAR(50) COMMENT 'Mẫu số (VD: 1/001)',
     `invoice_series`       VARCHAR(20) COMMENT 'Ký hiệu (VD: C25TAA)',
@@ -399,9 +410,10 @@ CREATE TABLE `einv_invoices`
 
     `buyer_tax_code`       VARCHAR(50),
     `buyer_code`           VARCHAR(50) COMMENT 'Mã khách hàng',
-    `buyer_company`        VARCHAR(300),
+    `buyer_unit_name`      VARCHAR(300),
     `buyer_name`           VARCHAR(200),
     `buyer_address`        VARCHAR(300),
+    `buyer_email`          VARCHAR(100),
     `buyer_id_no`          VARCHAR(20) COMMENT 'Số CMND/CCCD/Hộ chiếu người mua',
     `buyer_bank_account`   VARCHAR(20) COMMENT 'Số tài khoản ngân hàng người mua',
     `buyer_bank_name`      VARCHAR(100) COMMENT 'Tên ngân hàng người mua',
@@ -440,10 +452,13 @@ CREATE TABLE `einv_invoices`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_biz_invoice` (`store_id`, `partner_invoice_id`),
     INDEX `idx_inv_lookup_code` (`invoice_lookup_code`),
+    INDEX `idx_inv_buyer_tax` (`buyer_tax_code`),
+    INDEX `idx_inv_date` (`invoice_date`),
     CONSTRAINT `fk_inv_store` FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`),
     CONSTRAINT `fk_inv_tax_status` FOREIGN KEY (`tax_status_id`) REFERENCES `einv_tax_status` (`id`),
     CONSTRAINT `fk_inv_org_ref` FOREIGN KEY (`org_invoice_id`) REFERENCES `einv_invoices` (`id`),
-    CONSTRAINT `fk_inv_receive_type` FOREIGN KEY (`receive_type_id`) REFERENCES `einv_receive_type` (`id`)
+    CONSTRAINT `fk_inv_receive_type` FOREIGN KEY (`receive_type_id`) REFERENCES `einv_receive_type` (`id`),
+    CONSTRAINT `fk_inv_submit_type` FOREIGN KEY (`submit_invoice_type`) REFERENCES `einv_submit_invoice_type` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT = 'Hóa đơn điện tử (Header) - HUB Central';
 
@@ -453,7 +468,8 @@ CREATE TABLE `einv_invoices_detail`
     `id`              BIGINT       NOT NULL AUTO_INCREMENT COMMENT 'Surrogate PK',
     `doc_id`          BIGINT       NOT NULL COMMENT 'FK → einv_invoices.id',
     `line_no`         INT COMMENT 'Số thứ tự dòng trên HĐ',
-    `item_id`         VARCHAR(36) COMMENT 'Mã hàng hóa trong hệ thống POS',
+    `item_id`         VARCHAR(36) COMMENT 'ID của POS',
+    `item_code`       VARCHAR(50) COMMENT 'Mã hàng hóa (theo yêu cầu API)',
     `item_name`       VARCHAR(500) NOT NULL COMMENT 'Tên hàng hóa / dịch vụ',
     `item_type_id`    INT COMMENT 'Loại dòng HĐ (mapping sang NCC)',
     `is_free`         BOOLEAN COMMENT 'true = hàng khuyến mãi, không tí nh tiền',
@@ -468,9 +484,9 @@ CREATE TABLE `einv_invoices_detail`
     `net_amount`      DECIMAL(20, 2) COMMENT 'Thành tiền sau CK (gross - discount)',
     `net_price`       DECIMAL(20, 6) COMMENT 'Đơn giá sau CK (= net_amount / quantity)',
 
+    `tax_amount`      DECIMAL(20, 2) COMMENT 'Tiền thuế',
     `tax_type_id`     VARCHAR(36) COMMENT 'Mã loại thuế HUB (mapping sang NCC)',
     `tax_rate`        DECIMAL(15, 2) COMMENT 'Thuế suất (%)',
-    `tax_amount`      DECIMAL(20, 2) COMMENT 'Tiền thuế',
 
     `net_price_vat`   DECIMAL(15, 6) COMMENT 'Đơn giá sau CK + thuế (= total_amount / quantity)',
     `total_amount`    DECIMAL(20, 2) COMMENT 'Tổng thanh toán dòng (net_amount + tax_amount)',
@@ -568,6 +584,14 @@ VALUES (1, 'Hóa đơn Giá trị gia tăng'),
        (2, 'Hóa đơn bán hàng'),
        (6, 'Phiếu xuất kho & vận chuyển nội bộ')
 ON DUPLICATE KEY UPDATE `invoice_type_name` = VALUES(`invoice_type_name`);
+
+-- 2. Insert dữ liệu mẫu dựa theo API Doc
+INSERT INTO `einv_submit_invoice_type` (`id`, `name`, `description`)
+VALUES ('100', 'Tạo mới', 'Tạo hóa đơn mới'),
+       ('101', 'Cấp số hóa đơn', 'Cấp số hóa đơn'),
+       ('102', 'Ký số hóa đơn', 'Ký số hóa đơn'),
+       ('120', 'Thay thế', 'Tạo hóa đơn thay thế cho hóa đơn sai sót'),
+       ('121', 'Điều chỉnh', 'Tạo hóa đơn điều chỉnh cho hóa đơn sai sót');
 
 -- 1.5 Danh sách Phương thức thanh toán (PaymentMethodID)
 INSERT INTO `einv_payment_method` (`id`, `name`, `note`)

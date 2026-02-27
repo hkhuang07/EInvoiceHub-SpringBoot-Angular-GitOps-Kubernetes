@@ -1,7 +1,12 @@
 package com.einvoicehub.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -10,16 +15,19 @@ import lombok.*;
 public class EinvStoreSerialDto {
 
     @JsonProperty("ID")
-    private Long id;
+    private String id; // UUID
 
-    @JsonProperty("MerchantID")
-    private Long merchantId;
+    @JsonProperty("StoreProviderID")
+    private String storeProviderId;
 
     @JsonProperty("InvoiceTypeID")
-    private Long invoiceTypeId;
+    private Integer invoiceTypeId;
 
     @JsonProperty("InvoiceTypeName")
     private String invoiceTypeName;
+
+    @JsonProperty("ProviderSerialID")
+    private String providerSerialId;
 
     @JsonProperty("InvoiceForm")
     private String invoiceForm;
@@ -27,18 +35,9 @@ public class EinvStoreSerialDto {
     @JsonProperty("InvoiceSerial")
     private String invoiceSerial;
 
-    @JsonProperty("CurrentNumber")
-    private Integer currentNumber;
-
-    @JsonProperty("MaxNumber")
-    private Integer maxNumber;
-
-    @JsonProperty("ProviderSerialID")
-    private String providerSerialId;
-
-    @JsonProperty("IsActive")
-    private Boolean isActive;
-
     @JsonProperty("StartDate")
-    private String startDate;
+    private LocalDateTime startDate;
+
+    @JsonProperty("Status")
+    private Integer status;
 }

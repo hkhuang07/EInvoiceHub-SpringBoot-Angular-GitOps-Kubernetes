@@ -21,15 +21,13 @@ public class EinvStoreSerialEntity extends TenantEntity {
     private String id; // UUID
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id", nullable = false, foreignKey = @ForeignKey(name = "fk_ss_store"))
-    private EinvStoreEntity store;
+    @JoinColumn(name = "store_provider_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_ss_store_provider"))
+    private EinvStoreProviderEntity storeProvider;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provider_id", nullable = false, foreignKey = @ForeignKey(name = "fk_ss_provider"))
-    private EinvProviderEntity provider;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "invoice_type_id", nullable = false, foreignKey = @ForeignKey(name = "fk_ss_invoice_type"))
+    @JoinColumn(name = "invoice_type_id", nullable = false,
+            foreignKey = @ForeignKey(name = "fk_ss_invoice_type"))
     private EinvInvoiceTypeEntity invoiceType;
 
     @Column(name = "provider_serial_id", length = 100)

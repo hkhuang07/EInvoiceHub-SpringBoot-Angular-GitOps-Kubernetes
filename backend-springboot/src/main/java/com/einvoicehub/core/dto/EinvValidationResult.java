@@ -44,3 +44,4 @@ public class EinvValidationResult {
         this.fieldErrors.put(field, error);
     }
 }
+

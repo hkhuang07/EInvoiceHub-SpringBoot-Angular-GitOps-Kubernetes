@@ -1,7 +1,12 @@
 package com.einvoicehub.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -9,17 +14,38 @@ import lombok.*;
 @AllArgsConstructor
 public class EinvStoreProviderDto {
 
+    @JsonProperty("ID")
+    private String id; // UUID
+
+    @JsonProperty("StoreID")
+    private String storeId;
+
     @JsonProperty("ProviderID")
-    private Long providerId;
+    private String providerId;
 
-    @JsonProperty("ProviderCode")
-    private String providerCode; //MISA, BKAV, MOBIFONE...
+    @JsonProperty("SignType")
+    private Integer signType;
 
-    @JsonProperty("TaxCode")
-    private String taxCode;
+    @JsonProperty("IsTwoStepSigning")
+    private Boolean isTwoStepSigning;
 
-    @JsonProperty("IntegrationUrl")
-    private String integrationUrl;
+    @JsonProperty("PartnerID")
+    private String partnerId;
+
+    @JsonProperty("AppID")
+    private String appId;
+
+    @JsonProperty("FkeyPrefix")
+    private String fkeyPrefix;
+
+    @JsonProperty("PartnerToken")
+    private String partnerToken;
+
+    @JsonProperty("PartnerPwd")
+    private String partnerPwd;
+
+    @JsonProperty("PartnerUsr")
+    private String partnerUsr;
 
     @JsonProperty("UsernameService")
     private String usernameService;
@@ -27,12 +53,15 @@ public class EinvStoreProviderDto {
     @JsonProperty("PasswordService")
     private String passwordService;
 
-    @JsonProperty("PartnerToken")
-    private String partnerToken;
+    @JsonProperty("IntegrationUrl")
+    private String integrationUrl;
 
-    @JsonProperty("IsTestMode")
-    private Boolean isTestMode;
+    @JsonProperty("TaxCode")
+    private String taxCode;
 
-    @JsonProperty("IsActive")
-    private Boolean isActive;
+    @JsonProperty("Status")
+    private Integer status;
+
+    @JsonProperty("IntegratedDate")
+    private LocalDateTime integratedDate;
 }

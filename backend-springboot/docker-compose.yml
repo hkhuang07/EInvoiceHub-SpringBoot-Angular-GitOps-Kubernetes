@@ -10,6 +10,7 @@ services:
       MARIADB_DATABASE: einvoicehub
       MARIADB_USER: einvoice_user
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:-einvoice_pass}
+      MARIADB_ROOT_HOST: %
     ports:
       - "3306:3306"
     volumes:

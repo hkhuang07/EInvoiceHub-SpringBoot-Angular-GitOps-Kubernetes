@@ -1,10 +1,9 @@
 package com.einvoicehub.core.exception;
 
-import com.einvoicehub.core.provider.exception.ProviderException;
+import com.einvoicehub.core.dto.EinvoiceHubResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import com.einvoicehub.core.dto.ApiResponse;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -21,86 +20,72 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /** Xử lý lỗi nghiệp vụ */
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<ApiResponse<?>> handleAppException(AppException ex) {
-        log.warn("Business Exception: [{}] - {}", ex.getErrorCode().getCode(), ex.getMessage());
+    public ResponseEntity<EinvoiceHubResponse<?>> handleAppException(AppException ex) {
+        log.warn("Business Logic Exception: [{}] - {}", ex.getErrorCode().getCode(), ex.getMessage());
         return buildResponse(ex.getErrorCode(), ex.getMessage(), ex.getDetails());
     }
 
+    /** lỗi trả về từ Nhà cung cấp HĐĐT (BKAV, VNPT, MISA...) */
     @ExceptionHandler(ProviderException.class)
-    public ResponseEntity<ApiResponse<?>> handleProviderException(ProviderException ex) {
-        log.error("Provider Error [{}]: {} - Status: {}", ex.getProviderCode(), ex.getMessage(), ex.getStatusCode());
+    public ResponseEntity<EinvoiceHubResponse<?>> handleProviderException(ProviderException ex) {
+        log.error("Provider Integration Error [{}]: {}", ex.getProviderCode(), ex.getMessage());
 
-        ApiResponse<Map<String, Object>> response = ApiResponse.<Map<String, Object>>builder()
-                .code(ErrorCode.PROVIDER_ERROR)
-                .message(ex.getMessage())
-                .result(ex.getDetails())
+        EinvoiceHubResponse<Object> response = EinvoiceHubResponse.builder()
+                .responseCode(String.valueOf(ErrorCode.PROVIDER_ERROR.getCode()))
+                .responseDesc("Lỗi từ nhà cung cấp: " + ex.getMessage())
+                .data(ex.getDetails())
                 .build();
         return ResponseEntity.status(ex.getStatusCode()).body(response);
     }
 
+    /** Xử lý lỗi Validation dữ liệu đầu vào */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleValidation(MethodArgumentNotValidException ex) {
+    public ResponseEntity<EinvoiceHubResponse<?>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new LinkedHashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
 
-        ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
-        try {
-            String firstMsg = ex.getBindingResult().getFieldError().getDefaultMessage();
-            if (firstMsg != null) errorCode = ErrorCode.valueOf(firstMsg);
-        } catch (Exception ignored) {}
-
         log.warn("Validation Failed: {}", errors);
-        return buildResponse(errorCode, errorCode.getMessage(), errors);
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "Dữ liệu đầu vào không hợp lệ", errors);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<?>> handleConstraintViolation(ConstraintViolationException ex) {
-        return buildResponse(ErrorCode.VALIDATION_ERROR, "Invalid parameter: " + ex.getMessage(), null);
+    public ResponseEntity<EinvoiceHubResponse<?>> handleConstraintViolation(ConstraintViolationException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "Tham số không hợp lệ: " + ex.getMessage(), null);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiResponse<?>> handleAccessDenied(AccessDeniedException ex) {
-        return buildResponse(ErrorCode.UNAUTHORIZED, "Access denied", null);
+    public ResponseEntity<EinvoiceHubResponse<?>> handleAccessDenied(AccessDeniedException ex) {
+        return buildResponse(ErrorCode.UNAUTHORIZED, "Bạn không có quyền truy cập tài nguyên này", null);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<?>> handleInvalidJson(HttpMessageNotReadableException ex) {
-        return buildResponse(ErrorCode.VALIDATION_ERROR, "Invalid JSON format", null);
-    }
-
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ApiResponse<?>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        String msg = String.format("Parameter '%s' has an invalid data type", ex.getName());
-        return buildResponse(ErrorCode.VALIDATION_ERROR, msg, null);
+    public ResponseEntity<EinvoiceHubResponse<?>> handleInvalidJson(HttpMessageNotReadableException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "Định dạng JSON không hợp lệ", null);
     }
 
     @ExceptionHandler(NoHandlerFoundException.class)
-    public ResponseEntity<ApiResponse<?>> handleNotFound(NoHandlerFoundException ex) {
-        return buildResponse(ErrorCode.VALIDATION_ERROR, "API endpoint not found: " + ex.getRequestURL(), null);
+    public ResponseEntity<EinvoiceHubResponse<?>> handleNotFound(NoHandlerFoundException ex) {
+        return buildResponse(ErrorCode.VALIDATION_ERROR, "Không tìm thấy API: " + ex.getRequestURL(), null);
     }
 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiResponse<?>> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {
-        return buildResponse(ErrorCode.VALIDATION_ERROR, "HTTP method not supported", null);
-    }
-
+    /** Xử lý các lỗi hệ thống chưa được định nghĩa (Crash, NullPointer...) */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleGenericException(Exception ex) {
+    public ResponseEntity<EinvoiceHubResponse<?>> handleGenericException(Exception ex) {
         log.error("CRITICAL SYSTEM ERROR: ", ex);
-        return buildResponse(ErrorCode.UNCATEGORIZED_EXCEPTION, ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage(), null);
+        return buildResponse(ErrorCode.UNCATEGORIZED_EXCEPTION, "Lỗi hệ thống ngoài ý muốn", null);
     }
 
-    private ResponseEntity<ApiResponse<?>> buildResponse(ErrorCode errorCode, String message, Object result) {
-        ApiResponse<?> response = ApiResponse.builder()
-                .code(errorCode)
-                .message(message)
-                .result(result)
+    /** Helper build response theo chuẩn PascalCase của Softz */
+    private ResponseEntity<EinvoiceHubResponse<?>> buildResponse(ErrorCode errorCode, String message, Object result) {
+        EinvoiceHubResponse<?> response = EinvoiceHubResponse.builder()
+                .responseCode(String.valueOf(errorCode.getCode()))
+                .responseDesc(message)
+                .data(result)
                 .build();
         return ResponseEntity.status(errorCode.getStatusCode()).body(response);
     }
-
-
 }

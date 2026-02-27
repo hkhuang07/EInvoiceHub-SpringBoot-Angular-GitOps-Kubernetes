@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -30,6 +32,10 @@ public class EinvoiceHubResponse<T> {
     @JsonProperty("Data")
     private T data;
 
+    @Builder.Default
+    @JsonProperty("ResponseTime")
+    private LocalDateTime responseTime = LocalDateTime.now();
+
     public static <T> EinvoiceHubResponse<T> success(String requestId, T data) {
         return EinvoiceHubResponse.<T>builder()
                 .responseCode("200")
@@ -40,6 +46,17 @@ public class EinvoiceHubResponse<T> {
                 .build();
     }
 
+    public static <T> EinvoiceHubResponse<T> error(String requestId,String code,String message) {
+        return EinvoiceHubResponse.<T>builder()
+                .responseCode(code)
+                .requestId(requestId)
+                .status(1)
+                .responseDesc(message)
+                .validation(EinvValidationResult.fail(message))
+                .build();
+    }
+
+    /*
     public static <T> EinvoiceHubResponse<T> validationError(String requestId, String message) {
         return EinvoiceHubResponse.<T>builder()
                 .responseCode("400")
@@ -58,5 +75,5 @@ public class EinvoiceHubResponse<T> {
                 .responseDesc("Lỗi từ nhà cung cấp dịch vụ")
                 .validation(EinvValidationResult.fail(message))
                 .build();
-    }
+    }*/
 }

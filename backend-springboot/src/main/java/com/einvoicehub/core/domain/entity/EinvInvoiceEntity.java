@@ -43,6 +43,7 @@ public class EinvInvoiceEntity extends TenantEntity {
     @Column(name = "provider_response_id", length = 100)
     private String providerResponseId;
 
+    @Builder.Default
     @Column(name = "status_id", nullable = false)
     private Integer statusId = 0;
 
@@ -61,6 +62,10 @@ public class EinvInvoiceEntity extends TenantEntity {
     @Column(name = "is_petrol")
     private Boolean isPetrol = false; // Xăng dầu
 
+    @Column(name = "is_deleted")
+    private Boolean isDeleted = false;
+
+    @Builder.Default
     @Column(name = "is_locked")
     private Boolean isLocked = false;
 
@@ -69,7 +74,7 @@ public class EinvInvoiceEntity extends TenantEntity {
     private Integer invoiceTypeId;
 
     @Column(name = "reference_type_id", nullable = false)
-    private Integer referenceTypeId = 0; // 0:Gốc, 2:Điều chỉnh, 3:Thay thế
+    private Integer referenceTypeId = 0;
 
     @Column(name = "sign_type")
     private Integer signType;
@@ -105,6 +110,9 @@ public class EinvInvoiceEntity extends TenantEntity {
     @Column(name = "response_message", length = 500)
     private String responseMessage;
 
+    @Column(name = "error_code", length = 50)
+    private String errorCode;
+
     @Column(name = "secret_code", length = 50)
     private String secretCode;
 
@@ -115,23 +123,44 @@ public class EinvInvoiceEntity extends TenantEntity {
     @Column(name = "buyer_code", length = 50)
     private String buyerCode;
 
-    @Column(name = "buyer_company", length = 300)
-    private String buyerCompany;
+    @Column(name = "buyer_unit_name", length = 300)
+    private String buyerUnitName;
 
-    @Column(name = "buyer_full_name", length = 200)
-    private String buyerFullName;
+    @Column(name = "buyer_name", length = 200)
+    private String buyerName;
 
     @Column(name = "buyer_address", length = 300)
     private String buyerAddress;
 
+    @Column(name = "buyer_email", length = 100)
+    private String buyerEmail;
+
+    @Column(name = "buyer_id_no", length = 20)
+    private String buyerIdNo;
+
+    @Column(name = "buyer_bank_account", length = 20)
+    private String buyerBankAccount;
+
+    @Column(name = "buyer_bank_name", length = 100)
+    private String buyerBankName;
+
+    @Column(name = "buyer_budget_code", length = 20)
+    private String buyerBudgetCode;
+
     @Column(name = "buyer_mobile", length = 50)
     private String buyerMobile;
+
+    @Column(name = "receive_type_id")
+    private Integer receiveTypeId;
+
+    @Column(name = "receiver_email", length = 50)
+    private String receiverEmail;
 
     @Column(name = "buyer_plate_no", length = 50)
     private String buyerPlateNo;
 
     @Column(name = "extra_metadata", columnDefinition = "json")
-    private String extraMetadata;
+    private String extraMetaData;
 
     @Column(name = "delivery_info", columnDefinition = "json")
     private String deliveryInfo;
@@ -164,6 +193,9 @@ public class EinvInvoiceEntity extends TenantEntity {
     @Column(name = "total_amount_text", length = 500)
     private String totalAmountText;
 
+    @Column(name = "notes", length = 300)
+    private String notes;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "org_invoice_id", foreignKey = @ForeignKey(name = "fk_inv_org_ref"))
     private EinvInvoiceEntity originalInvoice;
@@ -182,6 +214,10 @@ public class EinvInvoiceEntity extends TenantEntity {
 
     @Column(name = "org_invoice_reason", length = 500)
     private String orgInvoiceReason;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "submit_invoice_type", insertable = false, updatable = false)
+    private EinvSubmitInvoiceTypeEntity submitInvoiceTypeRef;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

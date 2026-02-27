@@ -12,9 +12,10 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface EinvMerchantRepository extends JpaRepository<MerchantEntity, Long>,
+public interface MerchantRepository extends JpaRepository<MerchantEntity, Long>,
         JpaSpecificationExecutor<MerchantEntity> {
 
+    Optional<MerchantEntity> findByTenantId(String tenantId);
     Optional<MerchantEntity> findByTaxCode(String taxCode);
 
     boolean existsByTaxCodeAndIsDeletedFalse(String taxCode);

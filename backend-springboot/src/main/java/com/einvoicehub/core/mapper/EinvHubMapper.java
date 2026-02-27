@@ -2,138 +2,138 @@ package com.einvoicehub.core.mapper;
 
 import com.einvoicehub.core.domain.entity.*;
 import com.einvoicehub.core.dto.*;
-import com.einvoicehub.core.dto.request.EinvInvoiceAdjustmentRequest;
+import com.einvoicehub.core.dto.request.*;
 import com.einvoicehub.core.dto.request.SubmitInvoice.*;
 import com.einvoicehub.core.dto.response.*;
 import org.mapstruct.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface EinvHubMapper {
-    //  1. Catalog
+
+    
+    // 1. NHÓM DANH MỤC
     EinvInvoiceTypeDto toDto(EinvInvoiceTypeEntity entity);
-    EinvInvoiceTypeEntity toEntity(EinvInvoiceTypeDto dto);
     EinvInvoiceStatusDto toDto(EinvInvoiceStatusEntity entity);
-    EinvInvoiceStatusEntity toEntity(EinvInvoiceStatusDto dto);
     EinvPaymentMethodDto toDto(EinvPaymentMethodEntity entity);
+    EinvTaxTypeDto toDto(EinvTaxTypeEntity entity);
+    EinvUnitDto toDto(EinvUnitEntity entity);
+    EinvItemTypeDto toDto(EinvItemTypeEntity entity);
+    EinvReceiveTypeDto toDto(EinvReceiveTypeEntity entity);
+    EinvReferenceTypeDto toDto(EinvReferenceTypeEntity entity);
+    EinvTaxStatusDto toDto(EinvTaxStatusEntity entity);
+
+    EinvInvoiceTypeEntity toEntity(EinvInvoiceTypeDto dto);
+    EinvInvoiceStatusEntity toEntity(EinvInvoiceStatusDto dto);
     EinvPaymentMethodEntity toEntity(EinvPaymentMethodDto dto);
-    EinvVatRateDto toDto(EinvVatRateEntity entity);
-    EinvVatRateEntity toEntity(EinvVatRateDto dto);
-    EinvRegistrationStatusDto toDto(EinvRegistrationStatusEntity entity);
-    EinvRegistrationStatusEntity toEntity(EinvRegistrationStatusDto dto);
-    EinvServiceProviderDto toDto(EinvProviderEntity entity);
-    EinvProviderEntity toEntity(EinvServiceProviderDto dto);
-    EinvInvoicePayloadDto toDto(EinvInvoicePayloadEntity entity);
-    EinvInvoicePayloadEntity toEntity(EinvInvoicePayloadDto dto);
-    EinvSystemConfigDto toDto(EinvSystemConfigEntity entity);
-    EinvSystemConfigEntity toEntity(EinvSystemConfigDto dto);
+    EinvTaxTypeEntity toEntity(EinvTaxTypeDto dto);
+    EinvUnitEntity toEntity(EinvUnitDto dto);
+    EinvItemTypeEntity toEntity(EinvItemTypeDto dto);
+    EinvReceiveTypeEntity toEntity(EinvReceiveTypeDto dto);
+    EinvReferenceTypeEntity toEntity(EinvReferenceTypeDto dto);
+    EinvTaxStatusEntity toEntity(EinvTaxStatusDto dto);
 
-    EinvTaxAuthorityResponseDto toDto(EinvTaxAuthorityResponseEntity entity);
-    EinvTaxAuthorityResponseEntity toEntity(EinvTaxAuthorityResponseDto dto);
-    EinvInvoiceSyncQueueResponse toDto(EinvInvoiceSyncQueueEntity entity);
-    EinvInvoiceSyncQueueEntity toEntity(EinvInvoiceSyncQueueResponse dto);
+    // 2. NHÓM MAPPING
+    EinvMappingTaxTypeDto toDto(EinvMappingTaxTypeEntity entity);
+    EinvMappingInvoiceTypeDto toDto(EinvMappingInvoiceTypeEntity entity);
+    EinvMappingPaymentMethodDto toDto(EinvMappingPaymentMethodEntity entity);
+    EinvMappingItemTypeDto toDto(EinvMappingItemTypeEntity entity);
+    EinvMappingUnitDto toDto(EinvMappingUnitEntity entity);
+    EinvMappingStatusDto toDto(EinvMappingStatusEntity entity);
+    EinvMappingActionDto toDto(EinvMappingActionEntity entity);
 
-    //  2. Merchant & User
-    MerchantEntity toEntity(EinvMerchantRequest request);
-    EinvMerchantResponse toResponse(MerchantEntity entity);
-    EinvMerchantUserEntity toEntity(EinvMerchantUserRequest request);
-    @Mapping(source = "merchant.id", target = "merchantId")
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    @Mapping(source = "merchant.taxCode", target = "merchantTaxCode")
-    EinvMerchantUserResponse toResponse(EinvMerchantUserEntity entity);
+    EinvMappingTaxTypeEntity toEntity(EinvMappingTaxTypeDto dto);
+    EinvMappingInvoiceTypeEntity toEntity(EinvMappingInvoiceTypeDto dto);
+    EinvMappingPaymentMethodEntity toEntity(EinvMappingPaymentMethodDto dto);
+    EinvMappingItemTypeEntity toEntity(EinvMappingItemTypeDto dto);
+    EinvMappingUnitEntity toEntity(EinvMappingUnitDto dto);
+    EinvMappingStatusEntity toEntity(EinvMappingStatusDto dto);
+    EinvMappingActionEntity toEntity(EinvMappingActionDto dto);
 
 
-    //  3. Config & Registration
-    EinvStoreProviderEntity toEntity(EinvMerchantProviderConfigRequest request);
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    @Mapping(source = "provider.providerName", target = "providerName")
-    @Mapping(source = "provider.providerCode", target = "providerCode")
-    EinvMerchantProviderConfigResponse toResponse(EinvStoreProviderEntity entity);
 
-    EinvInvoiceRegistrationEntity toEntity(EinvInvoiceRegistrationRequest request);
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    @Mapping(source = "status.name", target = "statusName")
-    EinvInvoiceRegistrationResponse toResponse(EinvInvoiceRegistrationEntity entity);
+    // 3. NHÓM NGƯỜI DÙNG & MERCHANT
+    SysUserDto toDto(SysUserEntity entity);
+    MerchantDto toDto(MerchantEntity entity);
+    EinvStoreDto toDto(EinvStoreEntity entity);
 
-    EinvInvoiceTemplateEntity toEntity(EinvInvoiceTemplateRequest request);
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    @Mapping(source = "invoiceType.typeName", target = "invoiceTypeName")
-    @Mapping(source = "registration.registrationNumber", target = "registrationNumber")
-    EinvInvoiceTemplateResponse toResponse(EinvInvoiceTemplateEntity entity);
+    SysUserEntity toEntity(SysUserDto dto);
+    MerchantEntity toEntity(MerchantDto dto);
+    EinvStoreEntity toEntity(EinvStoreDto dto);
 
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    @Mapping(source = "invoiceStatus.name", target = "statusName")
-    @Mapping(source = "invoiceStatus.note", target = "statusMessage")
-    @Mapping(source = "paymentMethodEntity.methodName", target = "paymentMethod")
-    EinvInvoiceMetadataResponse toResponse(EinvInvoiceEntity entity);
 
-    EinvInvoiceItemDto toDto(EinvInvoiceDetailEntity entity);
-    List<EinvInvoiceItemDto> toItemDtoList(List<EinvInvoiceDetailEntity> entities);
 
-    EinvInvoiceTaxBreakdownDto toDto(EinvInvoiceTaxBreakDownEntity entity);
-    List<EinvInvoiceTaxBreakdownDto> toTaxDtoList(List<EinvInvoiceTaxBreakDownEntity> entities);
 
-    //Tọa hóa đơn
+    // 4. NGHIỆP VỤ HÓA ĐƠN CHÍNH
+    //Entity to DTO
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "statusId", target = "statusId")
+    @Mapping(source = "invoiceDate", target = "invoiceDate", qualifiedByName = "dateTimeToString")
+    EinvInvoiceDto toInvoiceDto(EinvInvoiceEntity entity);
+
+    @Mapping(source = "itemCode", target = "itemCode")
+    EinvInvoiceDetailDto toDetailDto(EinvInvoiceDetailEntity entity);
+
+    //POS Request to Entity
     @Mapping(target = "id", ignore = true)
-    @Mapping(source = "invoiceTypeId", target = "invoiceTemplate.id")
-    @Mapping(source = "buyerCompany", target = "buyerName")
+    @Mapping(source = "invoiceDate", target = "invoiceDate", qualifiedByName = "stringToDateTime")
+    @Mapping(source = "details", target = "details")
     EinvInvoiceEntity toEntity(SubmitInvoiceRequest request);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(source = "itemName", target = "productName")
-    @Mapping(source = "price", target = "unitPrice")
-    @Mapping(source = "taxTypeId", target = "vatRate.id")
+    @Mapping(source = "unitName", target = "unitName")
     EinvInvoiceDetailEntity toEntity(SubmitInvoiceDetailRequest request);
-    EinvInvoiceDetailEntity toEntity(EinvInvoiceItemDto dto);
 
-    @Mapping(source = "invoiceNumber", target = "invoiceNumber")
-    @Mapping(source = "lookupCode", target = "lookupCode")
-    @Mapping(source = "taxAuthorityCode", target = "taxAuthorityCode")
-    SubmitInvoiceResponse toDto(EinvInvoiceEntity entity);
-
-    //Danh sách và tra cứu
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    @Mapping(source = "invoiceStatus.name", target = "statusName")
-    @Mapping(source = "paymentMethodEntity.methodName", target = "paymentMethodName")
-    @Mapping(source = "createdAt", target = "createdAt")
-    ListInvoicesResponse toListResponse(EinvInvoiceEntity entity);
-    List<ListInvoicesResponse> toListResponseList(List<EinvInvoiceEntity> entities);
-    List<ListInvoicesResponse> toDto(List<EinvInvoiceEntity> entities);
-
+    
+    // 5. NHÓM PHẢN HỒI NGHIỆP VỤ
+    //Phản hồi sau Submit
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "partnerInvoiceId", target = "partnerInvoiceId")
+    @Mapping(source = "statusId", target = "statusId")
+    @Mapping(source = "providerId", target = "provider")
+    SubmitInvoiceResponse toSubmitResponse(EinvInvoiceEntity entity);
+    //Phản hồi sau  Ký số
     @Mapping(source = "id", target = "invoiceId")
-    @Mapping(source = "invoiceStatus.id", target = "invoiceStatusId")
-    GetInvoicesResponse toGetInvoicesResponse(EinvInvoiceEntity entity);
-    GetInvoicesResponse toEntity(EinvInvoiceEntity entity);
-
-    //  5. Adjustment & Operationss
-    EinvInvoiceAdjustmentsEntity toEntity(EinvInvoiceAdjustmentRequest request);
-    @Mapping(source = "originalInvoice.invoiceNumber", target = "originalInvoiceNumber")
-    @Mapping(source = "originalInvoice.symbolCode", target = "originalSymbolCode")
-    EinvInvoiceAdjustmentResponse toResponse(EinvInvoiceAdjustmentsEntity entity);
-
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    @Mapping(source = "user.username", target = "userName")
-    EinvAuditLogResponse toResponse(EinvAuditLogsEntity entity);
-
-    @Mapping(source = "invoice.invoiceNumber", target = "invoiceNumber")
-    EinvInvoiceSyncQueueResponse toResponse(EinvInvoiceSyncQueueEntity entity);
-
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    EinvApiCredentialDto toDto(EinvApiCredentialsEntity entity);
-
-
-    //Ký số
-    @Mapping(source = "signedAt", target = "signedAt")
-    @Mapping(target = "status", constant = "SIGNED")
+    @Mapping(source = "signedDate", target = "signedDate", qualifiedByName = "dateTimeToString")
+    @Mapping(target = "isSuccess", expression = "java(entity.getStatusId() == 2)")
     SignInvoiceResponse toSignResponse(EinvInvoiceEntity entity);
+    // Danh sách
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "statusId", target = "statusId")
+    ListInvoicesResponse toListResponse(EinvInvoiceEntity entity);
 
-    @Mapping(source = "merchant.companyName", target = "merchantName")
-    @Mapping(source = "user.username", target = "userName")
-    EinvAuditLogResponse toAuditResponse(EinvAuditLogsEntity entity);
-    EinvAuditLogResponse toDto(EinvAuditLogsEntity entity);
+    
+    // 6. CẤU HÌNH VẬN HÀNH
+    EinvStoreProviderEntity toEntity(EinvStoreProviderRequest request);
+    EinvStoreSerialEntity toEntity(EinvStoreSerialRequest request);
 
-    @Mapping(source = "invoice.invoiceNumber", target = "invoiceNumber")
-    EinvInvoiceSyncQueueResponse toSyncResponse(EinvInvoiceSyncQueueEntity entity);
+    EinvStoreProviderRequest toDto(EinvStoreProviderEntity entity);
+    @Mapping(source = "storeProvider.id", target = "storeProviderId")
+    EinvStoreSerialDto toDto(EinvStoreSerialEntity entity);
 
+    
+    // 7. DATETIME
+    @Named("dateTimeToString")
+    default String dateTimeToString(LocalDateTime dateTime) {
+        if (dateTime == null) return null;
+        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    @Named("stringToDateTime")
+    default LocalDateTime stringToDateTime(String dateStr) {
+        if (dateStr == null || dateStr.isEmpty()) return null;
+        try {
+            if (dateStr.length() == 10) dateStr += " 00:00:00";
+            return LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

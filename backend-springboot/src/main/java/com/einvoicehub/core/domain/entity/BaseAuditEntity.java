@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @MappedSuperclass
 public abstract class BaseAuditEntity {
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_date", nullable = false, updatable = false)
+    private LocalDateTime createdDate;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_date")
+    private LocalDateTime updatedDate;
 
     @Column(name = "created_by", length = 100)
     private String createdBy;
@@ -31,11 +31,11 @@ public abstract class BaseAuditEntity {
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        this.createdDate = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedDate = LocalDateTime.now();
     }
 }

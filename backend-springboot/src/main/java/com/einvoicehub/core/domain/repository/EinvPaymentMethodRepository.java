@@ -25,4 +25,5 @@ public interface EinvPaymentMethodRepository extends JpaRepository<EinvPaymentMe
             "LOWER(p.methodName) LIKE LOWER(CONCAT('%', :search, '%'))) " +
             "AND p.isActive = true")
     List<EinvPaymentMethodEntity> searchActiveMethods(@Param("search") String search);
+
 }

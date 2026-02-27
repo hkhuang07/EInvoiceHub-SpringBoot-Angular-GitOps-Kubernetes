@@ -1,23 +1,32 @@
 package com.einvoicehub.core.mapper;
 
 import com.einvoicehub.core.domain.entity.EinvStoreProviderEntity;
-import com.einvoicehub.core.dto.EinvMerchantProviderConfigRequest;
 import com.einvoicehub.core.dto.EinvStoreProviderDto;
+import com.einvoicehub.core.dto.request.EinvStoreProviderRequest;
 import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+/** Mapper chuyển đổi giữa Entity, DTO và Request cho cấu hình tích hợp Store-Provider.*/
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface EinvStoreProviderMapper {
-
-    @Mapping(source = "provider.id", target = "providerId")
-    @Mapping(source = "provider.providerCode", target = "providerCode")
+    // 1. MAPPING ENTITY -> DTO
     EinvStoreProviderDto toDto(EinvStoreProviderEntity entity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(source = "merchantId", target = "merchant.id")
-    @Mapping(source = "providerId", target = "provider.id")
-    @Mapping(source = "passwordService", target = "encryptedPasswordStorage") // Logic mã hóa sẽ xử lý tại Service
-    EinvStoreProviderEntity toEntity(EinvMerchantProviderConfigRequest request);
+    // 2. MAPPING REQUEST -> ENTITY
+    @Mapping(target = "id", ignore = true) // ID sẽ được sinh UUID ở Service hoặc DB
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "updatedDate", ignore = true)
+    @Mapping(target = "integratedDate", ignore = true)
+    EinvStoreProviderEntity toEntity(EinvStoreProviderRequest request);
 
-    @InheritConfiguration
-    void updateEntityFromRequest(EinvMerchantProviderConfigRequest request, @MappingTarget EinvStoreProviderEntity entity);
+
+    // 3. CẬP NHẬT ENTITY TỪ REQUEST
+    @InheritConfiguration(name = "toEntity")
+    void updateEntityFromRequest(EinvStoreProviderRequest request, @MappingTarget EinvStoreProviderEntity entity);
+
+    /** Hỗ trợ chuyển đổi nhanh cho danh sách */
+    java.util.List<EinvStoreProviderDto> toDtoList(java.util.List<EinvStoreProviderEntity> entities);
 }

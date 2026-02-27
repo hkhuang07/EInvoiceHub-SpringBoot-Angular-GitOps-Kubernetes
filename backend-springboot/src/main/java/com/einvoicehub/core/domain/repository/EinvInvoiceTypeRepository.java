@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EinvInvoiceTypeRepository extends JpaRepository<EinvInvoiceTypeEntity, Long>,
-        JpaSpecificationExecutor<EinvInvoiceTypeEntity> {
+public interface EinvInvoiceTypeRepository extends JpaRepository<EinvInvoiceTypeEntity, Integer>, JpaSpecificationExecutor<EinvInvoiceTypeEntity> {
 
     List<EinvInvoiceTypeEntity> findByIsActiveTrueOrderByDisplayOrderAsc();
 
@@ -25,3 +24,4 @@ public interface EinvInvoiceTypeRepository extends JpaRepository<EinvInvoiceType
             "ORDER BY t.displayOrder ASC")
     List<EinvInvoiceTypeEntity> searchActiveTypes(@Param("search") String search);
 }
+

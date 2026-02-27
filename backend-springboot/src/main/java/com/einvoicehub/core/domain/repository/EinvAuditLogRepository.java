@@ -1,6 +1,6 @@
 package com.einvoicehub.core.domain.repository;
 
-import com.einvoicehub.core.domain.entity.EinvAuditLogsEntity;
+import com.einvoicehub.core.domain.entity.EinvAuditLogEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,11 +9,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface EinvAuditLogRepository extends JpaRepository<EinvAuditLogsEntity, Long>,
-        JpaSpecificationExecutor<EinvAuditLogsEntity> {
+import java.util.List;
 
-    Page<EinvAuditLogsEntity> findByEntityTypeAndEntityIdOrderByCreatedAtDesc(
+@Repository
+public interface EinvAuditLogRepository extends JpaRepository<EinvAuditLogEntity, Long>,
+        JpaSpecificationExecutor<EinvAuditLogEntity> {
+
+    List<EinvAuditLogEntity> findByEntityNameAndEntityId(String entityName, String entityId);
+
+    Page<EinvAuditLogEntity> findByEntityTypeAndEntityIdOrderByCreatedAtDesc(
             String entityType, Long entityId, Pageable pageable);
 
     @Query("SELECT l FROM EinvAuditLogsEntity l WHERE " +
@@ -22,7 +26,7 @@ public interface EinvAuditLogRepository extends JpaRepository<EinvAuditLogsEntit
             "(:action IS NULL OR l.action = :action) AND " +
             "(:search IS NULL OR LOWER(l.requestId) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             " LOWER(l.ipAddress) LIKE LOWER(CONCAT('%', :search, '%')))")
-    Page<EinvAuditLogsEntity> searchAuditLogs(
+    Page<EinvAuditLogEntity> searchAuditLogs(
             @Param("merchantId") Long merchantId,
             @Param("entityType") String entityType,
             @Param("action") String action,

@@ -1,28 +1,40 @@
 package com.einvoicehub.core.mapper;
 
-import com.einvoicehub.core.domain.entity.EinvInvoiceTemplateEntity;
+import com.einvoicehub.core.domain.entity.EinvStoreSerialEntity;
 import com.einvoicehub.core.dto.EinvStoreSerialDto;
+import com.einvoicehub.core.dto.request.EinvStoreSerialRequest;
 import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+/** Mapper chuyển đổi cho cấu hình Dải ký hiệu / Mẫu số hóa đơn (einv_store_serial).*/
+@Mapper(
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface EinvStoreSerialMapper {
 
-    @Mapping(source = "merchant.id", target = "merchantId")
+    
+    // 1. MAPPING ENTITY -> DTO
+    @Mapping(source = "storeProvider.id", target = "storeProviderId")
     @Mapping(source = "invoiceType.id", target = "invoiceTypeId")
-    @Mapping(source = "invoiceType.typeName", target = "invoiceTypeName")
-    @Mapping(source = "templateCode", target = "invoiceForm")
-    @Mapping(source = "symbolCode", target = "invoiceSerial")
-    @Mapping(source = "currentNumber", target = "currentNumber")
-    EinvStoreSerialDto toDto(EinvInvoiceTemplateEntity entity);
+    @Mapping(source = "invoiceType.invoiceTypeName", target = "invoiceTypeName")
+    EinvStoreSerialDto toDto(EinvStoreSerialEntity entity);
 
-    List<EinvStoreSerialDto> toDtoList(List<EinvInvoiceTemplateEntity> entities);
+    List<EinvStoreSerialDto> toDtoList(List<EinvStoreSerialEntity> entities);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(source = "merchantId", target = "merchant.id")
+    
+    // 2. MAPPING REQUEST -> ENTITY
+    @Mapping(target = "id", ignore = true) // UUID sinh tự động hoặc từ logic Service
+    @Mapping(source = "storeProviderId", target = "storeProvider.id")
     @Mapping(source = "invoiceTypeId", target = "invoiceType.id")
-    @Mapping(source = "invoiceForm", target = "templateCode")
-    @Mapping(source = "invoiceSerial", target = "symbolCode")
-    EinvInvoiceTemplateEntity toEntity(EinvStoreSerialDto dto);
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "updatedBy", ignore = true)
+    EinvStoreSerialEntity toEntity(EinvStoreSerialRequest request);
+
+    
+    // 3. CẬP NHẬT ENTITY
+    @InheritConfiguration(name = "toEntity")
+    void updateEntityFromRequest(EinvStoreSerialRequest request, @MappingTarget EinvStoreSerialEntity entity);
 }

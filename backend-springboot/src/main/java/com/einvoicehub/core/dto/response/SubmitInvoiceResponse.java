@@ -9,24 +9,39 @@ import lombok.*;
 @AllArgsConstructor
 public class SubmitInvoiceResponse {
 
+    @JsonProperty("InvoiceID")
+    private String id;
+
     @JsonProperty("PartnerInvoiceID")
     private String partnerInvoiceId;
 
-    @JsonProperty("InvoiceID")
-    private Long invoiceId;
+    @JsonProperty("InvoiceForm")
+    private String invoiceForm;
 
-    @JsonProperty("InvoiceNumber")
-    private String invoiceNumber;
+    @JsonProperty("InvoiceNo")
+    private String invoiceNo;
 
-    @JsonProperty("LookupCode")
-    private String lookupCode;
+    @JsonProperty("InvoiceSeries")
+    private String invoiceSeries;
+
+    @JsonProperty("InvoiceLookupCode")
+    private String invoiceLookupCode;
 
     @JsonProperty("TaxAuthorityCode")
     private String taxAuthorityCode;
 
-    @JsonProperty("URLLookup")
-    private String urlLookup;
+    @JsonProperty("Provider")
+    private String provider;
 
     @JsonProperty("ProviderInvoiceID")
     private String providerInvoiceId;
+
+    @JsonProperty("UrlLookup")
+    private String urlLookup;
+
+    @JsonProperty("Status")
+    private Integer statusId;
+
+    @JsonProperty("ResponseMessage")
+    private String responseMessage;
 }

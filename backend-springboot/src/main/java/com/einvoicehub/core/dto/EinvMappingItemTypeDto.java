@@ -3,9 +3,7 @@ package com.einvoicehub.core.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
-/**
- * Mapping: Loại hàng hóa trên dòng HĐ (HUB) ↔ (NCC)
- */
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -18,8 +16,8 @@ public class EinvMappingItemTypeDto {
     @JsonProperty("ProviderID")
     private String providerId;
 
-    @JsonProperty("SystemCode")
-    private String systemCode; // Mã loại item nội bộ HUB
+    @JsonProperty("InvoiceTypeID")
+    private Integer invoiceTypeId;
 
     @JsonProperty("ProviderCode")
     private String providerCode;

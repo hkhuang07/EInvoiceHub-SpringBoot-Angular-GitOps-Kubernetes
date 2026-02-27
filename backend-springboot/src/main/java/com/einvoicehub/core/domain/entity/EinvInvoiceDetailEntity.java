@@ -30,6 +30,9 @@ public class EinvInvoiceDetailEntity extends TenantEntity {
     @Column(name = "item_id", length = 36)
     private String itemId;
 
+    @Column(name = "item_code", length = 50)
+    private String itemCode;
+
     @Column(name = "item_name", length = 500, nullable = false)
     private String itemName;
 
@@ -39,14 +42,14 @@ public class EinvInvoiceDetailEntity extends TenantEntity {
     @Column(name = "is_free")
     private Boolean isFree = false;
 
-    @Column(name = "unit", length = 50)
-    private String unit;
+    @Column(name = "unit_name", length = 50)
+    private String unitName;
 
     @Column(name = "quantity", precision = 15, scale = 6)
     private BigDecimal quantity;
 
     @Column(name = "price", precision = 15, scale = 6)
-    private BigDecimal price;
+    private BigDecimal Price;
 
     @Column(name = "gross_amount", precision = 20, scale = 2)
     private BigDecimal grossAmount;
