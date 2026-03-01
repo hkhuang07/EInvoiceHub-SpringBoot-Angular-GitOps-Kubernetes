@@ -19,9 +19,7 @@ public class EinvMappingActionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provider_id", referencedColumnName = "id", nullable = false,
-               foreignKey = @ForeignKey(name = "fk_map_action_provider"))
+    @Column(name = "provider_id", length = 36, nullable = false)
     private String providerId;
 
     @Column(name = "hub_action", length = 50, nullable = false)

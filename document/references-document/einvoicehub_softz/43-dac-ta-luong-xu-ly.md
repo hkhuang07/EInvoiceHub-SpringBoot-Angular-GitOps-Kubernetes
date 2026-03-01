@@ -133,7 +133,7 @@ Mục 3.4 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://so
             - - Nếu status\_id nằm trong danh sách: Hóa đơn đã phát hành, Hóa đơn điều chỉnh đã ký, Hóa đơn thay thế đã ký, Hóa đơn Bị điều chỉnh, Hóa đơn bị thay thế --&gt; **Thì dùng data của eInvoice trả về** luôn mà ko cần gọi qua Provider để cập nhật trạng thái
         - Step 4: implentment function riêng để update thông tin từ Provider, tùy theo provider để call API 
             - <table border="1" style="border-collapse: collapse; width: 100.018%;"><colgroup><col style="width: 41.3654%;"></col><col style="width: 58.6389%;"></col></colgroup><tbody style="padding-left: 80px;"><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">**Provider**</td><td class="align-center" style="padding-left: 80px;">**Lệnh/API**</td></tr><tr style="padding-left: 80px;"><td style="padding-left: 80px;">BKAV</td><td style="padding-left: 80px;">CmdType800</td></tr></tbody></table>
-            - <table border="1" style="border-collapse: collapse; width: 100.018%;"><colgroup><col style="width: 41.3654%;"></col><col style="width: 58.6389%;"></col></colgroup><tbody style="padding-left: 80px;"><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">**Provider**</td><td class="align-center" style="padding-left: 80px;">**Lệnh/API**</td></tr><tr style="padding-left: 80px;"><td style="padding-left: 80px;">MOBI</td><td>  
+            - <table border="1" style="border-collapse: collapse; width: 100.018%;"><colgroup><col style="width: 41.3654%;"></col><col style="width: 58.6389%;"></col></colgroup><tbody style="padding-left: 80px;"><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">**Provider**</td><td class="align-center" style="padding-left: 80px;">**Lệnh/API**</td></tr><tr style="padding-left: 80px;"><td style="padding-left: 80px;">MOBI</td><td>{{base\_url}}/api/Invoice68/GetListHoadon78  
                 </td></tr></tbody></table>
             -
         - Step 5: Nhận bản tin trả về từ provider, nếu thành công thì parse data để thực hiện lưu data
@@ -153,5 +153,45 @@ Mục 3.4 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://so
 #### 2.4. API GetStatusInvoices
 
 #### 2.5. API AdjustInvoice
+
+ 2.5.1. Mô hình flow[![api_adjustinvoice_sequence_diagra.png](https://bookstack.softz.vn/uploads/images/gallery/2026-02/scaled-1680-/api-adjustinvoice-sequence-diagra.png)](https://bookstack.softz.vn/uploads/images/gallery/2026-02/api-adjustinvoice-sequence-diagra.png)
+
+ 2.5.2 Thông số kỹ thuật
+
+ Mục 3.5 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi)
+
+ 2.5.3 Logic xử lý: Các step tại mục 2.5.1
+
+- - Step 1: Hệ thống build bản tin đáp ứng API AdjustInvoice, trong đó: 
+        - ParterID: là sys\_store\_id
+        - ParterInvoiceID: là biz\_invoice\_id của chứng từ điều chỉnh
+        - ReferenceTypeID = 2 (hóa đơn điều chỉnh theo mục 4.3 Danh sách ReferenceTypeID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
+        - SubmitInvoiceType = 111 (PMKT cấp số) hoặc 112 (<span lang="vi" style="font-size: 12.0pt; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Bkav cấp khi tạo hoá đơn thành công và trả về PMKT</span>)
+        - Lưu ý nghiệp vụ điều chỉnh 
+            - Cần phải xác định thông tin hóa đơn gốc bị điều chỉnh để điền vào trường OriginmalInvoiceIdentify.
+            - Đối với từng dòng hàng hóa trong Details, cần xác định tính chất điều chỉnh qua trường IsIncrease (True: tăng, False: giảm, Null: điều chỉnh thông tin)
+    - Step 2: Gửi bản tin từ Step 1 đến Hub - phần mềm tích hợp nhà cung cấp hóa đơn điện tử với API SubmitAdjustInvoice với SubmitInvoiceType = 111, 112.
+    - Step 3: Lưu các value từ request vào table einv\_invoces và einv\_invoice\_detail, cập nhật các field mặc định 
+        - reference\_type\_id= 2
+        - status\_id: 
+            - Nếu SubmitInvoiceType = 111: status\_id = 7 (Hóa đơn điều chỉnh đã cấp số, chờ ký (theo 2.Danh sách InvoiceStatusID tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") )
+            - Nếu SubmitInvoiceType = 112: status\_id = 8 (Hóa đơn điều chỉnh đã phát hành)
+    - Step 4: Tùy theo provider để call API: 
+        - BKAV Provider (theo D. Phụ Lục tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") ) 
+            - <table border="1" style="border-collapse: collapse; width: 108.649%;"><colgroup><col style="width: 24.8732%;"></col><col style="width: 12.7719%;"></col><col style="width: 62.3028%;"></col></colgroup><tbody><tr><td style="height: 30.125px;">**SubmitInvoiceType**</td><td style="height: 30.125px;">**Provider**</td><td style="height: 30.125px;">**Lệnh/API (CmdType)**</td></tr><tr><td style="height: 32.25px;">111</td><td style="height: 32.25px;">BKAV</td><td style="height: 32.25px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">CmdType 124 (Điều chỉnh, Bkav cấp số) </span></span><span data-path-to-node="8,3,1,0,0,3"><span class="citation-73 citation-end-73"><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup></span></span></td></tr><tr><td style="height: 30.125px;">112</td><td style="height: 30.125px;">BKAV</td><td style="height: 30.125px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">CmdType 124 + CmdType 205 (Ký HSM)</span></span></td></tr></tbody></table>
+
+- - - MOBI Provider (theo <span class="fontstyle0">4. Các API liên quan đến Hóa đơn </span>tài liệu [ver 4\_7\_MobiFone Invoice\_ Tài liệu API tích hợp theo Nghị định 70 với đơn vị tích hợp.pdf](https://drive.google.com/file/d/1jqHw3ivh1MzgcxS0Q3KuHeuwP3cKIQcn/view?usp=sharing "ver 4_7_MobiFone Invoice_ Tài liệu API tích hợp theo Nghị định 70 với đơn vị tích hợp.pdf") ) 
+            - <table border="1" style="border-collapse: collapse; width: 100.024%;"><colgroup><col style="width: 24.7216%;"></col><col style="width: 12.8981%;"></col><col style="width: 62.3282%;"></col></colgroup><tbody><tr><td style="height: 30.125px;">**SubmitInvoiceType**</td><td style="height: 30.125px;">**Provider**</td><td style="height: 30.125px;">**Lệnh/API (CmdType)**</td></tr><tr><td style="height: 32.25px;">111</td><td style="height: 32.25px;">MOBI</td><td style="height: 32.25px;">{{base\_url}}/api/Invoice68/SaveListHoadon78 (Editmode: 2)  
+                <span data-path-to-node="8,3,1,0,0,3"><span class="citation-73 citation-end-73"><sup class="superscript" data-turn-source-index="15"></sup></span></span></td></tr><tr><td style="height: 30.125px;">112</td><td style="height: 30.125px;">MOBI</td><td style="height: 30.125px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">{{base\_url}}/api/Invoice68/SaveAndSignHoadon78 (Editmode: 2)</span></span></td></tr></tbody></table>
+
+- - Step 5: Hub nhận record trả về từ Provider, nếu thành công (Reponse có Status = 0) thì thực hiện parse data (C. Sample Code theo tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx"))
+    - Step 6: Lưu các thông tin định danh mới của hóa đơn điều chỉnh vào Database 
+        - provider\_invoice\_id: ID hóa đơn từ nhà cung cấp
+        - status\_id: Cập nhật theo kết quả trả về 7 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh chưa ký</span>) hoặc 8 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh đã ký</span>) (theo 2.Danh sách InvoiceStatusID tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") )
+        - invoice\_no: Số hóa đơn được trả về với các lệnh 101, 111, 112
+        - invoice\_series: Ký hiệu Hoá đơn trên Bkav
+        - invoice\_lookup\_code: Mã tra cứu của Hoá đơn trên Website: http://tracuu.ehoadon.vn (với hệ thống test là [https://demo.ehoadon.vn/TCHD)](https://demo.ehoadon.vn/TCHD))
+    - Step 7: Phản hồi kết quả API cho PosORA. 
+        - - Lưu ý: sử dụng dữ liệu từ table einv\_invoice để phản hồi từ url\_lookup (Link tra cứu của NCC HĐĐT) và invoice\_lookup\_code mới (Mã tra cứu hóa đơn)
 
 #### 2.6. API ReplaceInvoice

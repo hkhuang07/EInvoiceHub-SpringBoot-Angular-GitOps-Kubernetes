@@ -11,7 +11,7 @@ spring:
   datasource:
     url: jdbc:mariadb://localhost:3306/einvoicehub?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
-    password: ${DB_PASSWORD:root}
+    password: root
     driver-class-name: org.mariadb.jdbc.Driver
 
     hikari:
@@ -52,9 +52,14 @@ server:
 
 # Application Custom Properties
 app:
-  # Encryption
+
+  security:
+    encryption:
+      key: ${ENCRYPTION_SECRET_KEY:11024cb4828ab763322ef1685b41d5143d43694a21ef92e412b2b9cd145a323d}
+
+    # Encryption
   encryption:
-    secret-key: ${ENCRYPTION_SECRET_KEY}
+    secret-key: "11024cb4828ab763322ef1685b41d5143d43694a21ef92e412b2b9cd145a323d"
 
   # JWT Configuration
   jwt:

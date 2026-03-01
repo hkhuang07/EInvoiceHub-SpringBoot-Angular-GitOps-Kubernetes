@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface EinvMappingInvoiceTypeRepository extends JpaRepository<EinvMappingInvoiceTypeEntity, Long>, JpaSpecificationExecutor<EinvMappingInvoiceTypeEntity> {
 
-    Optional<EinvMappingInvoiceTypeEntity> findByProviderIdAndSystemCode(String providerId, String systemCode);
+    Optional<EinvMappingInvoiceTypeEntity> findByProviderId(String providerId);
     Optional<EinvMappingInvoiceTypeEntity> findByProviderIdAndInvoiceTypeId(String providerId, Integer invoiceTypeId);
 }

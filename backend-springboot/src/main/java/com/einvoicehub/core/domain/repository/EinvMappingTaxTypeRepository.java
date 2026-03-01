@@ -11,5 +11,4 @@ import java.util.Optional;
 public interface EinvMappingTaxTypeRepository extends JpaRepository<EinvMappingTaxTypeEntity, Long>, JpaSpecificationExecutor<EinvMappingTaxTypeEntity> {
 
     Optional<EinvMappingTaxTypeEntity> findByProviderIdAndSystemCode(String providerId, String systemCode);
-    Optional<EinvMappingTaxTypeEntity> findByProviderIdAndSystemCodeCode(String providerId, String systemCode);
 }

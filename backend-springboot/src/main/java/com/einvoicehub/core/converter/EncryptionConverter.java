@@ -20,12 +20,15 @@ public class EncryptionConverter implements AttributeConverter<String, String> {
     private static final String ALGORITHM = "AES/GCM/NoPadding";
     private static final int IV_LENGTH = 12;
     private static final int TAG_LENGTH = 128;
+    /*@Value("${app.security.encryption.key}")
+    private String secretKey;*/
 
-    @Value("${app.security.encryption.key}")
-    private String secretKey;
+    @Value("${app.encryption.secret-key}")
+    private String encryptionKey;
+
 
     private SecretKeySpec getSecretKey() {
-        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = encryptionKey.getBytes(StandardCharsets.UTF_8);
         byte[] adjustedKey = new byte[32];
         System.arraycopy(keyBytes, 0, adjustedKey, 0, Math.min(keyBytes.length, 32));
         return new SecretKeySpec(adjustedKey, "AES");

@@ -7,13 +7,18 @@ SET FOREIGN_KEY_CHECKS = 0;
 CREATE TABLE `einv_provider`
 (
     `id`               VARCHAR(36)  NOT NULL COMMENT 'UUID của NCC',
-    `provider_code`    VARCHAR(20)  NOT NULL COMMENT 'Mã ngắn: BKAV, VNPT, MOBI, MISA, VIETTEL',
+    `provider_code`    VARCHAR(36)  NOT NULL COMMENT 'Mã ngắn: BKAV, VNPT, MOBI, MISA, VIETTEL',
     `provider_name`    VARCHAR(100) NOT NULL COMMENT 'Tên đầy đủ nhà cung cấp',
     `integration_url`  VARCHAR(500) COMMENT 'Endpoint tích hợp chính',
     `url_lookup`       VARCHAR(500) COMMENT 'Base URL tra cứu hóa đơn (ghép với invoice_lookup_code)',
     `integration_type` INT                   DEFAULT 1 COMMENT '1: Ký 1 bước (HSM - Gửi bản tin là xong), 2: Ký 2 bước (Token/SmartCA - Get Hash -> Sign -> Publish)',
     `is_inactive`      BOOLEAN      NOT NULL DEFAULT FALSE COMMENT 'true = tạm ngưng sử dụng',
-    `created_at`       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    `created_by`       VARCHAR(100),
+    `created_date`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`       VARCHAR(100),
+    `updated_date`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_provider_code` (`provider_code`)
 ) ENGINE = InnoDB
@@ -25,8 +30,14 @@ CREATE TABLE `einv_invoice_type`
 (
     `id`                INT          NOT NULL COMMENT 'ID loại hóa đơn',
     `invoice_type_name` VARCHAR(100) NOT NULL COMMENT 'Tên loại hóa đơn',
-    `sort_order`        INT          NOT NULL DEFAULT 0,
+    `sort_order`        INT          DEFAULT 0,
     `note`              VARCHAR(500) COMMENT 'Ghi chú nghiệp vụ',
+
+    `created_by`        VARCHAR(100),
+    `created_date`      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`        VARCHAR(100),
+    `updated_date`      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -36,29 +47,49 @@ CREATE TABLE `einv_invoice_type`
 -- 1.3. Trạng thái hóa đơn
 CREATE TABLE `einv_invoice_status`
 (
-    `id`          INT          NOT NULL COMMENT 'Mã trạng thái hệ thống HUB',
-    `name`        VARCHAR(100) NOT NULL COMMENT 'Tên trạng thái',
-    `description` VARCHAR(500) COMMENT 'Mô tả chi tiết',
-    `note`        VARCHAR(500) COMMENT 'Ghi chú',
-    PRIMARY KEY (`id`)
+    `id`           INT          NOT NULL COMMENT 'Mã trạng thái hệ thống HUB',
+    `name`         VARCHAR(100) NOT NULL COMMENT 'Tên trạng thái',
+    `description`  VARCHAR(500) COMMENT 'Mô tả chi tiết',
+    `note`         VARCHAR(500) COMMENT 'Ghi chú',
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_inv_status_name` (`name`)
+
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Danh mục Trạng thái hóa đơn (chuẩn hóa, độc lập NCC)';
 
--- 1.4 Tạo bảng danh mục Trạng thái Cơ quan Thuế (Mục 5.10)
+-- 1.4 Tạo bảng danh mục Trạng thái Cơ quan Thuế
 CREATE TABLE `einv_tax_status`
 (
-    `id`   INT PRIMARY KEY COMMENT 'Mã trạng thái CQT',
-    `name` VARCHAR(100) NOT NULL COMMENT 'Tên trạng thái'
+    `id`           INT PRIMARY KEY COMMENT 'Mã trạng thái CQT',
+    `name`         VARCHAR(100) NOT NULL COMMENT 'Tên trạng thái',
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục trạng thái phản hồi từ CQT (Mục 5.10)';
 
 -- 1.5. Phương thức thanh toán
 CREATE TABLE `einv_payment_method`
 (
-    `id`   INT          NOT NULL COMMENT 'Mã phương thức thanh toán HUB',
-    `name` VARCHAR(100) NOT NULL COMMENT 'Tên phương thức',
-    `note` VARCHAR(500) COMMENT 'Ghi chú',
+    `id`           INT          NOT NULL COMMENT 'Mã phương thức thanh toán HUB',
+    `name`         VARCHAR(100) NOT NULL COMMENT 'Tên phương thức',
+    `note`         VARCHAR(500) COMMENT 'Ghi chú',
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -67,8 +98,14 @@ CREATE TABLE `einv_payment_method`
 -- 1.6 Đơn vị tính
 CREATE TABLE `einv_unit`
 (
-    `code` VARCHAR(50)  NOT NULL COMMENT 'Mã đơn vị tính (DVT01, DVT02...)',
-    `name` VARCHAR(100) NOT NULL,
+    `code`         VARCHAR(50)  NOT NULL COMMENT 'Mã đơn vị tính (DVT01, DVT02...)',
+    `name`         VARCHAR(100) NOT NULL,
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`code`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Đơn vị tính chuẩn HUB';
@@ -76,9 +113,15 @@ CREATE TABLE `einv_unit`
 -- 1.7 Loại Thuế
 CREATE TABLE `einv_tax_type`
 (
-    `code` VARCHAR(50)  NOT NULL COMMENT 'Mã thuế suất (VAT0, VAT5, VAT10, EXEMPT...)',
-    `name` VARCHAR(100) NOT NULL,
-    `rate` DECIMAL(5, 2) COMMENT 'Tỷ lệ thuế (%)',
+    `code`         VARCHAR(50)  NOT NULL COMMENT 'Mã thuế suất (VAT0, VAT5, VAT10, EXEMPT...)',
+    `name`         VARCHAR(100) NOT NULL,
+    `rate`         DECIMAL(5, 2) COMMENT 'Tỷ lệ thuế (%)',
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`code`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Loại thuế chuẩn HUB';
@@ -87,24 +130,42 @@ CREATE TABLE `einv_tax_type`
 -- 1.8 Danh mục Hình thức nhận hóa đơn
 CREATE TABLE `einv_receive_type`
 (
-    `id`   INT PRIMARY KEY,
-    `name` VARCHAR(100) NOT NULL
+    `id`           INT PRIMARY KEY,
+    `name`         VARCHAR(100) NOT NULL,
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Hình thức nhận hóa đơn';
 
 -- 1.9 Danh mục Loại hàng hóa
 CREATE TABLE `einv_item_type`
 (
-    `id`   INT PRIMARY KEY,
-    `name` VARCHAR(255) NOT NULL
+    `id`           INT PRIMARY KEY,
+    `name`         VARCHAR(255) NOT NULL,
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Loại hàng hóa trên dòng HĐ';
 
 -- 1.10  Danh mục Loại tham chiếu
 CREATE TABLE IF NOT EXISTS `einv_reference_type`
 (
-    `id`   INT PRIMARY KEY,
-    `name` VARCHAR(100) NOT NULL
+    `id`           INT PRIMARY KEY,
+    `name`         VARCHAR(100) NOT NULL,
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='Danh mục Loại tham chiếu HĐ (Gốc/ĐC/TT)';
 
@@ -122,12 +183,17 @@ CREATE TABLE `einv_submit_invoice_type`
 -- 2.1 Người dùng của hệ thống
 CREATE TABLE `sys_users`
 (
-    `id`         BIGINT       NOT NULL AUTO_INCREMENT,
-    `name`       VARCHAR(50)  NOT NULL COMMENT 'Username',
-    `full_name`  VARCHAR(200) NOT NULL COMMENT 'Tên đầy đủ',
-    `password`   VARCHAR(255) NOT NULL,
-    `is_active`  BOOLEAN      NOT NULL DEFAULT TRUE,
-    `created_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`           BIGINT       NOT NULL AUTO_INCREMENT,
+    `name`         VARCHAR(50)  NOT NULL COMMENT 'Username',
+    `full_name`    VARCHAR(200) NOT NULL COMMENT 'Tên đầy đủ',
+    `password`     VARCHAR(255) NOT NULL,
+    `is_active`    BOOLEAN      NOT NULL DEFAULT TRUE,
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_username` (`name`)
 ) ENGINE = InnoDB
@@ -149,7 +215,12 @@ CREATE TABLE `merchants`
     `company_name` VARCHAR(255) NOT NULL COMMENT 'Tên doanh nghiệp',
     `tax_code`     VARCHAR(20)  NOT NULL COMMENT 'Mã số thuế chính',
     `is_active`    BOOLEAN      NOT NULL DEFAULT TRUE,
-    `created_at`   TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_tenant_id` (`tenant_id`)
 ) ENGINE = InnoDB
@@ -159,14 +230,19 @@ CREATE TABLE `merchants`
 -- 2.3. Store / Chi nhánh
 CREATE TABLE `einv_stores`
 (
-    `id`         VARCHAR(36)  NOT NULL COMMENT 'UUID của Store',
-    `tenant_id`  BIGINT       NOT NULL COMMENT 'FK → merchants.id',
-    `store_name` VARCHAR(255) NOT NULL COMMENT 'Tên chi nhánh',
-    `tax_code`   VARCHAR(20) COMMENT 'MST chi nhánh (nếu khác tenant)',
-    `is_active`  BOOLEAN      NOT NULL DEFAULT TRUE,
-    `created_at` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`           VARCHAR(36)  NOT NULL COMMENT 'UUID của Store',
+    `tenant_id`    VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.id',
+    `store_name`   VARCHAR(255) NOT NULL COMMENT 'Tên chi nhánh',
+    `tax_code`     VARCHAR(20) COMMENT 'MST chi nhánh (nếu khác tenant)',
+    `is_active`    BOOLEAN      NOT NULL DEFAULT TRUE,
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
-    CONSTRAINT `fk_store_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`id`)
+    CONSTRAINT `fk_store_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`tenant_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Quản lý Chi nhánh (Store) thuộc Merchant';
@@ -178,7 +254,7 @@ CREATE TABLE `einv_store_provider`
 (
     `id`                  VARCHAR(36) NOT NULL COMMENT 'UUID',
 
-    `tenant_id`           BIGINT      NOT NULL COMMENT 'FK → merchants.id (denorm để truy vấn nhanh)',
+    `tenant_id`           VARCHAR(50) NOT NULL COMMENT 'FK → merchants.id (denorm để truy vấn nhanh)',
     `store_id`            VARCHAR(36) NOT NULL COMMENT 'FK → einv_stores.id',
 
     `provider_id`         VARCHAR(36) NOT NULL COMMENT 'FK → einv_provider.id',
@@ -220,7 +296,7 @@ CREATE TABLE `einv_store_serial`
 (
     `id`                 VARCHAR(36) NOT NULL COMMENT 'UUID',
 
-    `tenant_id`          BIGINT      NOT NULL COMMENT 'FK → merchants.id',
+    `tenant_id`          VARCHAR(50) NOT NULL COMMENT 'FK → merchants.id',
     `store_provider_id`  VARCHAR(36) NOT NULL COMMENT 'FK → einv_store_provider.id',
     `invoice_type_id`    INT         NOT NULL COMMENT 'FK → einv_invoice_type.id',
 
@@ -238,7 +314,8 @@ CREATE TABLE `einv_store_serial`
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_ss_store_provider` FOREIGN KEY (`store_provider_id`) REFERENCES `einv_store_provider` (`id`),
     CONSTRAINT `fk_ss_invoice_type` FOREIGN KEY (`invoice_type_id`) REFERENCES `einv_invoice_type` (`id`),
-    INDEX `idx_ss_config_status` (`store_provider_id`, `status`)
+    INDEX `idx_ss_config_status` (`store_provider_id`, `status`),
+    INDEX `idx_ss_tenant` (`tenant_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Quản lý Dải ký hiệu / Mẫu số hóa đơn theo Store (thay đổi hàng năm theo NĐ70)';
@@ -249,10 +326,17 @@ CREATE TABLE `einv_store_serial`
 CREATE TABLE `einv_mapping_tax_type`
 (
     `id`            BIGINT       NOT NULL AUTO_INCREMENT,
+    `tenant_id`     VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.tenant_id',
     `provider_id`   VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
     `system_code`   VARCHAR(50)  NOT NULL COMMENT 'Mã thuế nội bộ HUB (VD: VAT0, VAT5, VAT10, EXEMPT)',
     `provider_code` VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
     `description`   VARCHAR(255) COMMENT 'Mô tả ánh xạ',
+
+    `created_by`    VARCHAR(100),
+    `created_date`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`    VARCHAR(100),
+    `updated_date`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_tax_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
     CONSTRAINT `fk_map_tax_master` FOREIGN KEY (`system_code`) REFERENCES `einv_tax_type` (`code`),
@@ -267,10 +351,17 @@ CREATE TABLE `einv_mapping_tax_type`
 CREATE TABLE `einv_mapping_invoice_type`
 (
     `id`              BIGINT       NOT NULL AUTO_INCREMENT,
+    `tenant_id`       VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.tenant_id',
     `provider_id`     VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
     `invoice_type_id` INT          NOT NULL COMMENT 'Mã loại HĐ',
     `provider_code`   VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
     `description`     VARCHAR(255),
+
+    `created_by`      VARCHAR(100),
+    `created_date`    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`      VARCHAR(100),
+    `updated_date`    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_inv_type_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
     CONSTRAINT `fk_map_inv_type_master` FOREIGN KEY (`invoice_type_id`) REFERENCES `einv_invoice_type` (`id`),
@@ -285,10 +376,17 @@ CREATE TABLE `einv_mapping_invoice_type`
 CREATE TABLE `einv_mapping_payment_method`
 (
     `id`                BIGINT       NOT NULL AUTO_INCREMENT,
+    `tenant_id`       VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.tenant_id',
     `provider_id`       VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
     `payment_method_id` INT          NOT NULL COMMENT 'Mã PTTT nội bộ HUB',
     `provider_code`     VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
     `description`       VARCHAR(255),
+
+    `created_by`        VARCHAR(100),
+    `created_date`      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`        VARCHAR(100),
+    `updated_date`      TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_pay_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
     CONSTRAINT `fk_map_pay_master` FOREIGN KEY (`payment_method_id`) REFERENCES `einv_payment_method` (`id`),
@@ -303,10 +401,17 @@ CREATE TABLE `einv_mapping_payment_method`
 CREATE TABLE `einv_mapping_item_type`
 (
     `id`            BIGINT       NOT NULL AUTO_INCREMENT,
+    `tenant_id`     VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.tenant_id',
     `provider_id`   VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
     `system_code`   VARCHAR(50)  NOT NULL COMMENT 'Mã loại item nội bộ HUB',
     `provider_code` VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
     `description`   VARCHAR(255),
+
+    `created_by`    VARCHAR(100),
+    `created_date`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`    VARCHAR(100),
+    `updated_date`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_item_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
     UNIQUE KEY `uq_map_item` (`provider_id`, `system_code`),
@@ -318,14 +423,23 @@ CREATE TABLE `einv_mapping_item_type`
 -- 4.5 Mapping Trạng thái
 CREATE TABLE `einv_mapping_status`
 (
-    `id`                   BIGINT      NOT NULL AUTO_INCREMENT,
-    `provider_id`          VARCHAR(36) NOT NULL,
+    `id`            BIGINT       NOT NULL AUTO_INCREMENT,
+    `tenant_id`     VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.tenant_id',
+    `provider_id`   VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
     `provider_status_code` VARCHAR(50) NOT NULL COMMENT 'Trạng thái NCC trả về (VD: 1, Success, Sent)',
     `hub_status_id`        INT         NOT NULL COMMENT 'Mã chuẩn của HUB (FK -> einv_invoice_status.id)',
+
+    `created_by`           VARCHAR(100),
+    `created_date`         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`           VARCHAR(100),
+    `updated_date`         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_status_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
     CONSTRAINT `fk_map_status_hub` FOREIGN KEY (`hub_status_id`) REFERENCES `einv_invoice_status` (`id`)
-) ENGINE = InnoDB COMMENT ='Mapping trạng thái hóa đơn NCC ↔ HUB (Tài liệu 4.1)';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+    COMMENT ='Mapping trạng thái hóa đơn NCC ↔ HUB (Tài liệu 4.1)';
 /* -- 4.5. Mapping Loại tham chiếu (ReferenceType) — điều chỉnh / thay thế
 CREATE TABLE `einv_mapping_reference_type`
 (
@@ -349,6 +463,12 @@ CREATE TABLE `einv_mapping_action`
     `hub_action`   VARCHAR(50)  NOT NULL COMMENT 'SUBMIT, SIGN, CANCEL, REPLACE, ADJUST',
     `provider_cmd` VARCHAR(100) NOT NULL COMMENT 'BKAV: 100 | VNPT: ImportAndPublishInv',
     `description`  VARCHAR(255),
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_action_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
 ) ENGINE = InnoDB
@@ -358,22 +478,31 @@ CREATE TABLE `einv_mapping_action`
 CREATE TABLE `einv_mapping_unit`
 (
     `id`            BIGINT       NOT NULL AUTO_INCREMENT,
-    `provider_id`   VARCHAR(36)  NOT NULL,
+    `tenant_id`     VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.tenant_id',
+    `provider_id`   VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
     `system_code`   VARCHAR(50)  NOT NULL COMMENT 'Mã đơn vị tính HUB',
     `provider_code` VARCHAR(100) NOT NULL COMMENT 'Mã tương ứng bên NCC',
+    `description`   VARCHAR(255) COMMENT 'Mô tả ánh xạ',
+
+    `created_by`    VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`    VARCHAR(100),
+    `updated_date`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_map_unit_provider` FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`),
-    CONSTRAINT `fk_map_unit_master` FOREIGN KEY (`system_code`) REFERENCES `einv_unit` (`code`)
+    CONSTRAINT `fk_map_unit_master` FOREIGN KEY (`system_code`) REFERENCES `einv_unit` (`code`),
+    UNIQUE KEY `uq_map_unit` (`provider_id`, `system_code`),
+    INDEX `idx_map_unit_lookup` (`provider_id`, `system_code`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT = 'Mapping Đơn vị tính HUB & NCC';
-
 
 -- NHÓM 5: NGHIỆP VỤ HÓA ĐƠN
 -- 5.1. Hóa đơn
 CREATE TABLE `einv_invoices`
 (
     `id`                   BIGINT      NOT NULL AUTO_INCREMENT COMMENT 'Surrogate PK',
-    `tenant_id`            BIGINT      NOT NULL COMMENT 'FK → merchants.id',
+    `tenant_id`            VARCHAR(50) NOT NULL COMMENT 'FK → merchants.id',
     `store_id`             VARCHAR(36) NOT NULL COMMENT 'FK → einv_stores.id',
     `provider_id`          VARCHAR(36) COMMENT 'FK → einv_provider.id',
 
@@ -394,7 +523,7 @@ CREATE TABLE `einv_invoices`
     `reference_type_id`    INT         NOT NULL DEFAULT 0 COMMENT '0: Gốc, 2: Điều chỉnh, 3: Thay thế',
     `sign_type`            INT COMMENT '0: Token, 1: HSM',
     `payment_method_id`    INT COMMENT 'FK → einv_payment_method.id',
-    `submit_invoice_type` VARCHAR(3) NOT NULL COMMENT 'FK → einv_submit_invoice_type.id',
+    `submit_invoice_type`  VARCHAR(3)  NOT NULL COMMENT 'FK → einv_submit_invoice_type.id',
 
     `invoice_form`         VARCHAR(50) COMMENT 'Mẫu số (VD: 1/001)',
     `invoice_series`       VARCHAR(20) COMMENT 'Ký hiệu (VD: C25TAA)',
@@ -445,15 +574,16 @@ CREATE TABLE `einv_invoices`
     `org_invoice_reason`   VARCHAR(500),
 
     `created_by`           VARCHAR(100),
-    `created_at`           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_date`         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_by`           VARCHAR(100),
-    `updated_at`           TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_date`         TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_biz_invoice` (`store_id`, `partner_invoice_id`),
     INDEX `idx_inv_lookup_code` (`invoice_lookup_code`),
     INDEX `idx_inv_buyer_tax` (`buyer_tax_code`),
     INDEX `idx_inv_date` (`invoice_date`),
+    INDEX `idx_inv_tenant` (`tenant_id`),
     CONSTRAINT `fk_inv_store` FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`),
     CONSTRAINT `fk_inv_tax_status` FOREIGN KEY (`tax_status_id`) REFERENCES `einv_tax_status` (`id`),
     CONSTRAINT `fk_inv_org_ref` FOREIGN KEY (`org_invoice_id`) REFERENCES `einv_invoices` (`id`),
@@ -467,6 +597,7 @@ CREATE TABLE `einv_invoices_detail`
 (
     `id`              BIGINT       NOT NULL AUTO_INCREMENT COMMENT 'Surrogate PK',
     `doc_id`          BIGINT       NOT NULL COMMENT 'FK → einv_invoices.id',
+    `tenant_id`       VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.tenant_id',
     `line_no`         INT COMMENT 'Số thứ tự dòng trên HĐ',
     `item_id`         VARCHAR(36) COMMENT 'ID của POS',
     `item_code`       VARCHAR(50) COMMENT 'Mã hàng hóa (theo yêu cầu API)',
@@ -491,8 +622,14 @@ CREATE TABLE `einv_invoices_detail`
     `net_price_vat`   DECIMAL(15, 6) COMMENT 'Đơn giá sau CK + thuế (= total_amount / quantity)',
     `total_amount`    DECIMAL(20, 2) COMMENT 'Tổng thanh toán dòng (net_amount + tax_amount)',
 
-    `adjustment_type` INT DEFAULT 0 COMMENT 'Dành cho HĐ Điều chỉnh: 1: Thông tin, 2: Tăng, 3: Giảm (Mục IV.28 Excel)',
+    `adjustment_type` INT                   DEFAULT 0 COMMENT 'Dành cho HĐ Điều chỉnh: 1: Thông tin, 2: Tăng, 3: Giảm (Mục IV.28 Excel)',
     `notes`           VARCHAR(500) COMMENT 'Ghi chú riêng cho dòng hàng',
+
+    `created_by`      VARCHAR(100),
+    `created_date`    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`      VARCHAR(100),
+    `updated_date`    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_detail_invoice` FOREIGN KEY (`doc_id`) REFERENCES `einv_invoices` (`id`) ON DELETE CASCADE,
     INDEX `idx_detail_doc` (`doc_id`)
@@ -512,8 +649,12 @@ CREATE TABLE `einv_invoice_payloads`
     `signed_xml`    LONGTEXT COMMENT 'XML đã ký số (nếu có)',
     `pdf_data`      LONGTEXT COMMENT 'Dữ liệu PDF base64 (nếu NCC trả về)',
     `response_raw`  LONGTEXT COMMENT 'Lưu phản hồi thô JSON từ NCC',
-    `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    `created_by`    VARCHAR(100),
+    `created_date`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`    VARCHAR(100),
+    `updated_date`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`invoice_id`),
     CONSTRAINT `fk_payload_invoice` FOREIGN KEY (`invoice_id`) REFERENCES `einv_invoices` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB
@@ -523,7 +664,9 @@ CREATE TABLE `einv_invoice_payloads`
 -- 6.2. Hàng chờ đồng bộ
 CREATE TABLE `einv_sync_queue`
 (
-    `id`             BIGINT      NOT NULL AUTO_INCREMENT,
+    `id`            BIGINT       NOT NULL AUTO_INCREMENT,
+    `tenant_id`     VARCHAR(50)  NOT NULL COMMENT 'FK → merchants.tenant_id',
+    `provider_id`   VARCHAR(36)  NOT NULL COMMENT 'FK → einv_provider.id',
     `invoice_id`     BIGINT      NOT NULL COMMENT 'FK → einv_invoices.id',
     `cqt_message_id` VARCHAR(100) COMMENT 'ID thông điệp truyền nhận với Cơ quan Thuế (Theo quy chuẩn truyền nhận PDF)',
     `sync_type`      VARCHAR(50) NOT NULL COMMENT 'SUBMIT | SIGN | GET_STATUS | GET_INVOICE',
@@ -533,8 +676,12 @@ CREATE TABLE `einv_sync_queue`
     `last_error`     TEXT COMMENT 'Thông báo lỗi lần cuối',
     `error_code`     VARCHAR(50) COMMENT 'Mã lỗi từ NCC (Dùng để mapping trạng thái ở bảng mapping_status)',
     `next_retry_at`  TIMESTAMP COMMENT 'Thời điểm retry tiếp theo',
-    `created_at`     TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`     TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    `created_by`     VARCHAR(100),
+    `created_date`   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`     VARCHAR(100),
+    `updated_date`   TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_queue_invoice` FOREIGN KEY (`invoice_id`) REFERENCES `einv_invoices` (`id`),
     INDEX `idx_queue_status_retry` (`status`, `next_retry_at`),
@@ -546,19 +693,23 @@ CREATE TABLE `einv_sync_queue`
 -- 6.3. Nhật ký kiểm toán
 CREATE TABLE `einv_audit_logs`
 (
-    `id`          BIGINT       NOT NULL AUTO_INCREMENT,
-    `action`      VARCHAR(100) NOT NULL COMMENT 'VD: SUBMIT_INVOICE, SIGN_INVOICE, GET_STATUS',
-    `entity_name` VARCHAR(100) COMMENT 'Tên bảng liên quan',
-    `entity_id`   VARCHAR(100) COMMENT 'ID bản ghi bị tác động',
-    `payload`     JSON COMMENT 'Dữ liệu tại thời điểm action',
-    `result`      VARCHAR(20) COMMENT 'SUCCESS | FAILURE',
-    `error_msg`   TEXT COMMENT 'Chi tiết lỗi nếu thất bại',
-    `created_by`  VARCHAR(100) COMMENT 'User/System thực hiện action',
-    `created_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`           BIGINT       NOT NULL AUTO_INCREMENT,
+    `action`       VARCHAR(100) NOT NULL COMMENT 'VD: SUBMIT_INVOICE, SIGN_INVOICE, GET_STATUS',
+    `entity_name`  VARCHAR(100) COMMENT 'Tên bảng liên quan',
+    `entity_id`    VARCHAR(100) COMMENT 'ID bản ghi bị tác động',
+    `payload`      JSON COMMENT 'Dữ liệu tại thời điểm action',
+    `result`       VARCHAR(20) COMMENT 'SUCCESS | FAILURE',
+    `error_msg`    TEXT COMMENT 'Chi tiết lỗi nếu thất bại',
+
+    `created_by`   VARCHAR(100),
+    `created_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_by`   VARCHAR(100),
+    `updated_date` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
     PRIMARY KEY (`id`),
     INDEX `idx_audit_entity` (`entity_name`, `entity_id`),
     INDEX `idx_audit_action` (`action`),
-    INDEX `idx_audit_created` (`created_at`)
+    INDEX `idx_audit_created` (`created_date`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
     COMMENT = 'Nhật ký kiểm toán toàn bộ hành động trên hệ thống';

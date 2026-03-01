@@ -1,0 +1,40 @@
+sequenceDiagram
+    autonumber
+    participant Pos as Chứng từ (PosORA)
+    participant Hub as eInvoice Hub
+    participant Prov as Nhà cung cấp (Provider)
+
+    Note over Pos, Prov: Tác vụ: Tạo / Cấp số / Ký / Điều chỉnh / Thay thế / Hủy
+    Pos->>Hub: 1. Gửi yêu cầu nghiệp vụ
+    activate Hub
+
+    rect rgb(240, 240, 240)
+    Note over Hub: Hub lưu bản tin tạm & Xác định CmdType
+    Hub->>Hub: 2. Lưu DB (einv_invoices, einv_invoices_detail)
+    end
+
+    %% Logic dựa trên FAQ_WebServices_Bkav.docx và MobiFone API
+    alt Tác vụ Cấp số (Tạo hóa đơn)
+        Hub->>Prov: 3. Gọi API (BKAV CmdType: 101 | Mobi Editmode: 1)
+    else Tác vụ Ký số (HSM)
+        Hub->>Prov: 3. Gọi API (BKAV CmdType: 205 | Mobi SaveAndSign)
+    else Tác vụ Điều chỉnh
+        Hub->>Prov: 3. Gọi API (BKAV CmdType: 124 | Mobi Editmode: 2)
+    else Tác vụ Thay thế
+        Hub->>Prov: 3. Gọi API (BKAV CmdType: 123 | Mobi Editmode: 3)
+    else Tác vụ Hủy hóa đơn
+        Hub->>Prov: 3. Gọi API (BKAV CmdType: 300)
+    end
+
+    activate Prov
+    Prov-->>Hub: 4. Phản hồi (Status = 0 + InvoiceData)
+    deactivate Prov
+
+    alt Thành công (Status = 0)
+        Hub->>Hub: 5. Cập nhật DB (status_id, invoice_no, lookup_code,...)
+    else Thất bại
+        Hub->>Hub: 6. Lưu log lỗi và giữ trạng thái cũ
+    end
+
+    Hub-->>Pos: 7. Trả về kết quả hiển thị trên UI
+    deactivate Hub

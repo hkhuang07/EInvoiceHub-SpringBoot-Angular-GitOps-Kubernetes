@@ -98,7 +98,7 @@ public class EinvInvoiceEntity extends TenantEntity {
     private LocalDateTime signedDate;
 
     @Lob
-    @Column(name = "hash_value")
+    @Column(columnDefinition = "TEXT")
     private String hashValue;
 
     @Column(name = "tax_authority_code", length = 100)

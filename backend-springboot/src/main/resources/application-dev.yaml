@@ -18,10 +18,18 @@ spring:
   flyway:
     enabled: true
     clean-disabled: false
+    baseline-on-migrate: true
 
 app:
+
+  security:
+    encryption:
+      key: ${ENCRYPTION_SECRET_KEY:11024cb4828ab763322ef1685b41d5143d43694a21ef92e412b2b9cd145a323d}
+
+    # Encryption
   encryption:
-    secret-key: "dev-secret-key-32-chars-long-abc"
+    secret-key: "11024cb4828ab763322ef1685b41d5143d43694a21ef92e412b2b9cd145a323d"
+
   jwt:
     secret: "dev-jwt-secret-key-very-long-and-secure-for-testing"
     expiration-ms: 36000000

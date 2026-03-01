@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    participant C as Chứng từ
+    participant E as eInvoice 
+    participant P as Provider 
+
+    Note over C: 1. Tạo bản tin điều chỉnh<br/>(PartnerID, OriginalInvoiceIdentify, IsIncrease...)
+    
+    C->>E: 2. SubmitAdjustInvoice (type: 111, 112)
+    activate E
+    
+    rect rgb(250, 250, 210)
+    Note right of E: 3. Lưu data & Set status_id<br/>111 -> ID: 7 (Chờ ký)<br/>112 -> ID: 8 (Đã phát hành)
+    E->>E: Lưu einv_invoices /einv_invoice_detail
+    end
+
+    E->>P: 4. AdjustInvoice By Provider<br/>(BKAV: Cmd 124 | MOBI: Editmode 2)
+    activate P
+    P-->>E: 5. Return (Status = 0)
+    deactivate P
+
+    rect rgb(250, 250, 210)
+    Note right of E: 6. Lưu data định danh mới<br/>(invoice_no, series, invoice_lookup_code, provider_id)
+    E->>E: Cập nhật Database
+    end
+
+    E-->>C: 7. Return (UrlLookup, invoice_lookup_code)
+    deactivate E

@@ -21,6 +21,7 @@ public class EinvStoreEntity extends TenantEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id", referencedColumnName = "id", nullable = false,
+            insertable = false, updatable = false,
             foreignKey = @ForeignKey(name = "fk_store_tenant"))
     private MerchantEntity merchant;
 
