@@ -1,0 +1,3 @@
+INSERT INTO PosORA_Pro.einv_provider (id, provider_name, integration_url, lookup_url, inactive, created_by, updated_by, created_date, updated_date) VALUES ('VNPT', 'VNPT Invoice', null, null, 1, null, null, null, null);
+INSERT INTO PosORA_Pro.einv_provider (id, provider_name, integration_url, lookup_url, inactive, created_by, updated_by, created_date, updated_date) VALUES ('MOBI', 'Mobifone - Invoice', 'http://mobiinvoice.vn:9000', null, 0, null, null, null, null);
+INSERT INTO PosORA_Pro.einv_provider (id, provider_name, integration_url, lookup_url, inactive, created_by, updated_by, created_date, updated_date) VALUES ('BKAV', 'Công ty cổ phần Bkav', 'https://wsdemo.ehoadon.vn/WSPublicEHoaDon.asmx', 'https://demo.ehoadon.vn/TCHD?MTC=', 0, null, null, null, null);

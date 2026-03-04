@@ -1,0 +1,15 @@
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bb760-4b21-7544-b457-cc784f8c50a0', 'BKAV', 1, '1', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bb760-5528-79d8-9172-d58ad3641d0a', 'BKAV', 2, '2', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bb760-5fa1-7350-a491-f526fee41869', 'BKAV', 9, '10', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfebc-25c8-713c-b716-bc77fd689539', 'BKAV', 3, '4', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfebc-2621-7074-b6f3-bbaf07ad3bc5', 'BKAV', 4, '5', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfebc-2639-79e8-bbca-71481aae145e', 'BKAV', 5, '6', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfebc-2649-7900-83c3-f6d5665ff8ed', 'BKAV', 6, '7', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfebc-2667-78dc-aaa5-587e6f68b1ee', 'BKAV', 7, '8', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfebc-267f-7110-a67b-d2c0c83592ef', 'BKAV', 8, '9', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfebc-2693-7988-95fc-057331ce4140', 'BKAV', 10, '11', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfec3-60ae-7818-b475-9f067ff6bee4', 'MOBI', 1, '1', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfec3-60c5-7f30-bb45-737f94944063', 'MOBI', 2, '2', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfec3-60e2-73e0-934d-050da3998504', 'MOBI', 3, '4', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfec3-6114-782c-b75a-042758cebace', 'MOBI', 4, '5', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_invoice_type (id, provider_id, invoice_type_id, provider_invoice_type_id, inactive, note) VALUES ('019bfec3-612d-7950-bca2-3c338578117b', 'MOBI', 5, '6', 0, null);

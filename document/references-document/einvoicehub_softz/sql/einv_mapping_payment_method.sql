@@ -1,0 +1,7 @@
+INSERT INTO PosORA_Pro.einv_mapping_payment_method (id, provider_id, payment_method_id, provider_payment_method_id, inactive, note) VALUES ('019bb763-71f4-715c-b6f7-607c2df1dfb6', 'BKAV', 1, '1', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_payment_method (id, provider_id, payment_method_id, provider_payment_method_id, inactive, note) VALUES ('019bb763-7d47-7ef4-acd2-0d097bc27d1f', 'BKAV', 2, '2', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_payment_method (id, provider_id, payment_method_id, provider_payment_method_id, inactive, note) VALUES ('019bb763-899f-7924-a757-22c3aaeb0b26', 'BKAV', 3, '3', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_payment_method (id, provider_id, payment_method_id, provider_payment_method_id, inactive, note) VALUES ('019bb763-929b-7060-959f-f1982dd2117a', 'BKAV', 4, '4', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_payment_method (id, provider_id, payment_method_id, provider_payment_method_id, inactive, note) VALUES ('019bc6f8-8709-728c-afc3-0ad1e51bf076', 'MOBI', 1, 'Tiền mặt', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_payment_method (id, provider_id, payment_method_id, provider_payment_method_id, inactive, note) VALUES ('019bc6f8-a150-76a0-ba18-528ebdd7bf5f', 'MOBI', 2, 'Chuyển khoản', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_payment_method (id, provider_id, payment_method_id, provider_payment_method_id, inactive, note) VALUES ('019bc6f8-e7b0-768c-a3dc-c852297ceca4', 'MOBI', 3, 'Tiền mặt/Chuyển khoản', 0, null);

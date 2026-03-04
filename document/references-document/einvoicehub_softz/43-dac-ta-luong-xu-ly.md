@@ -152,46 +152,809 @@ Mục 3.4 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://so
 
 #### 2.4. API GetStatusInvoices
 
-#### 2.5. API AdjustInvoice
+#### 2.5. API SubmitAdjustInvoice
 
- 2.5.1. Mô hình flow[![api_adjustinvoice_sequence_diagra.png](https://bookstack.softz.vn/uploads/images/gallery/2026-02/scaled-1680-/api-adjustinvoice-sequence-diagra.png)](https://bookstack.softz.vn/uploads/images/gallery/2026-02/api-adjustinvoice-sequence-diagra.png)
+ **2.5.1. Mô hình flow**
 
- 2.5.2 Thông số kỹ thuật
+[![api_adjustinvoice_sequence_diagra.png](https://bookstack.softz.vn/uploads/images/gallery/2026-02/scaled-1680-/api-adjustinvoice-sequence-diagra.png)](https://bookstack.softz.vn/uploads/images/gallery/2026-02/api-adjustinvoice-sequence-diagra.png)
 
- Mục 3.5 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi)
+ **2.5.2 Thông số kỹ thuật**
 
- 2.5.3 Logic xử lý: Các step tại mục 2.5.1
+ Mục 3.5 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx ](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) cập nhật mới nhất bên dưới
 
-- - Step 1: Hệ thống build bản tin đáp ứng API AdjustInvoice, trong đó: 
+<table border="1" id="bkmrk-3.5.%C2%A0%C2%A0%C2%A0-api-submitad" style="border-collapse: collapse; width: 100%; height: 29.8785px;"><colgroup><col style="width: 99.881%;"></col></colgroup><tbody><tr style="height: 29.8785px;"><td style="height: 29.8785px;">## **<span style="font-size: 14.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"><span style="mso-list: Ignore;">3.5.<span style="font: 7.0pt 'Times New Roman';"> </span></span></span>****<span style="font-size: 14.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">API SubmitAdjustInvoice</span>**
+
+**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Header</span>**
+
+<table border="1" cellpadding="0" cellspacing="0" class="MsoTableGrid" style="border-collapse: collapse; border: none; mso-border-alt: solid windowtext .5pt; mso-yfti-tbllook: 1184; mso-padding-alt: 0in 5.4pt 0in 5.4pt;"><tbody><tr style="mso-yfti-irow: 0; mso-yfti-firstrow: yes; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">STT</span>**
+
+</td><td style="width: 117.0pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Name</span>**
+
+</td><td style="width: 67.5pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="90">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Values</span>**
+
+</td><td style="width: 252.75pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="337">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Description</span>**
+
+</td></tr><tr style="mso-yfti-irow: 1; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Content type</span>
+
+</td><td style="width: 67.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="90"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Text/plain</span>
+
+</td><td style="width: 252.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="337"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Content type</span>
+
+</td></tr><tr style="mso-yfti-irow: 2; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">X-Session-ID</span>
+
+</td><td style="width: 67.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="90"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Uuid.v4()</span>
+
+</td><td style="width: 252.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="337"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Self-generated ID</span>
+
+</td></tr><tr style="mso-yfti-irow: 3; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Signature</span>
+
+</td><td style="width: 67.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="90"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>
+
+</td><td style="width: 252.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="337"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Payload data signature</span>
+
+</td></tr><tr style="mso-yfti-irow: 4; mso-yfti-lastrow: yes; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">4</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">PartnerID</span>
+
+</td><td style="width: 67.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="90"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>
+
+</td><td style="width: 252.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="337">*<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Uuid(). Mã này do eInvoice cấp</span>*
+
+</td></tr></tbody></table>
+
+**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>**
+
+**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Request</span>**
+
+<table border="1" cellpadding="0" cellspacing="0" class="MsoTableGrid" style="border-collapse: collapse; border: none; width: 79.5695%; height: 1371.22px;"><tbody><tr style="height: 21.0938px;"><td style="width: 7.35985%; border: 1pt solid windowtext; background: rgb(191, 191, 191); padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Lv</span>**
+
+</td><td style="width: 28.6727%; border-top: 1pt solid windowtext; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-image: initial; border-left: none; background: rgb(191, 191, 191); padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Parameter</span>**
+
+</td><td style="width: 9.19981%; border-top: 1pt solid windowtext; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-image: initial; border-left: none; background: rgb(191, 191, 191); padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Re\*</span>**
+
+</td><td style="width: 13.953%; border-top: 1pt solid windowtext; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-image: initial; border-left: none; background: rgb(191, 191, 191); padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Data Type</span>**
+
+</td><td style="width: 40.9391%; border-top: 1pt solid windowtext; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-image: initial; border-left: none; background: rgb(191, 191, 191); padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Description</span>**
+
+</td></tr><tr style="height: 61.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 61.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 61.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">RequestDateTime</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 61.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 61.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 61.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Request submission time</span>
+
+<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Format: YYYY-MM-DDTHH:mm:ssZ</span>
+
+<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Ex: 2024-01-02T10:16:01Z</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">RequestID</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ID of the request</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">UserAgent</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Data</span>**
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Object</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitInvoiceType</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(3)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257">*<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Xem bảng SubmitInvoiceType</span>*
+
+</td></tr><tr style="height: 61.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 61.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 61.0938px;">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ReferenceTypeID</span>**
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 61.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 61.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 61.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Giá trị cố định = 2: Xác định đây là hóa đơn điều chỉnh. Xem bảng ReferenceTypeID</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceForm</span>**
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mẫu số hóa đơn gốc</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceSeries</span>**
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Ký hiệu hóa đơn gốc</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceNo</span>**
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Số hóa đơn gốc</span>
+
+</td></tr><tr style="height: 41.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 41.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceReason</span>**
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(500)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Lý do điều chỉnh hóa đơn gốc (sẽ hiển thị trên bản in hóa đơn điều chỉnh)</span>
+
+</td></tr><tr style="height: 96px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 96px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 96px;">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">IsIncrease</span>**
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 96px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 96px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Boolean</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 96px;"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Trường đặc biệt cho điều chỉnh: </span>
+
+<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">true = Điều chỉnh tăng số tiền; </span>
+
+<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">false = Điều chỉnh giảm số tiền; null/không truyền = Điều chỉnh thông tin (không thay đổi số tiền)</span>
+
+</td></tr><tr style="height: 38.6406px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 38.6406px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 38.6406px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">PartnerInvoiceID</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 38.6406px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 38.6406px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(50)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 38.6406px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ID Hóa đơn của Partner gửi đến eInvoice</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">InvoiceTypeID</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257">*<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Xem bảng InvoiceTypeID</span>*
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">InvoiceDate</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(10)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Format: YYYY-MM-DD</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">InvoiceForm</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Mẫu số hóa đơn điều chỉnh</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">InvoiceSeries</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Ký hiệu hóa đơn điều chỉnh</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">PaymentMethodID</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257">*<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Xem bảng PaymentMethodID</span>*
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerTaxCode</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mã số thuế người mua</span>
+
+</td></tr><tr style="height: 39px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 39px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerCompany</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">C</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,300)</span>
+
+</td><td rowspan="3" style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 117px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Phải có 1 trong 3 thông tin: BuyerCompany, BuyerName, BuyerAddress</span>
+
+</td></tr><tr style="height: 39px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 39px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerName</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">C</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,200)</span>
+
+</td></tr><tr style="height: 39px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 39px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerAddress</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">C</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,300)</span>
+
+</td></tr><tr style="height: 22.4375px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 22.4375px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 22.4375px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerIDNo</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 22.4375px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 22.4375px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 22.4375px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Số CCCD/Hộ chiếu người mua</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerMobile</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Số điện thoại người mua</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerBankAccount</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Tài khoản ngân hàng người mua</span>
+
+</td></tr><tr style="height: 39px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 39px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerBankName</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,200)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Tên tài khoản ngân hàng người mua</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">BuyerBudgetCode</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Mã số đơn vị quan hệ ngân sách</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ReceiveTypeID</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257">*<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Xem bảng ReceiveTypeID</span>*
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ReceiverEmail</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,50)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Email nhận hóa đơn của người mua</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">CurrencyCode</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,3)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mã tiền tệ. Mặc định = "VND"</span>
+
+</td></tr><tr style="height: 22.1875px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 22.1875px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 22.1875px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ExchangeRate</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 22.1875px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 22.1875px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 22.1875px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Tỷ giá. Mặc định = 1.0</span>
+
+</td></tr><tr style="height: 39px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 39px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Notes</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,300)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Ghi chú trên hóa đơn điều chỉnh</span>
+
+</td></tr><tr style="height: 41.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="203">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Details</span>**
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">JSONArray</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Danh sách chi tiết hàng hóa/dịch vụ điều chỉnh</span>
+
+</td></tr><tr style="height: 41.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ItemTypeID</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="257">*<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Xem bảng ItemTypeID</span>*
+
+<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mặc định = 1 (Hàng hóa, dịch vụ)</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ItemCode</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(0,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Mã hàng hóa, dịch vụ</span>
+
+</td></tr><tr style="height: 39px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 39px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ItemName</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(1,300)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 39px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Tên hàng hóa, dịch vụ</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">UnitName</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String(1,20)</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Đơn vị tính</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Quantity</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Số lượng hàng hóa, dịch vụ</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Price</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Đơn giá hàng hóa (Chưa thuế)</span>
+
+</td></tr><tr style="height: 41.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">GrossAmount</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 41.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Thành tiền. </span>
+
+<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mặc định = Quantity \* Price</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">DiscountRate</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">% Chiết khấu. Vd: 10.0</span>
+
+</td></tr><tr style="height: 54.7656px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 54.7656px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 54.7656px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">DiscountAmount</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 54.7656px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 54.7656px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 54.7656px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Số tiền Chiết khấu.</span>
+
+<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mặc định = GrossAmount \* DiscountRate/100</span>
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">TaxTypeID</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257">*<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Xem bảng TaxTypeID</span>*
+
+</td></tr><tr style="height: 21.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">TaxRate</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 21.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">% Thuế. Vd: 8.0</span>
+
+</td></tr><tr style="height: 47.0938px;"><td style="width: 7.35985%; border-right: 1pt solid windowtext; border-bottom: 1pt solid windowtext; border-left: 1pt solid windowtext; border-image: initial; border-top: none; padding: 0in 5.4pt; height: 47.0938px;" valign="top" width="36"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">3</span>
+
+</td><td style="width: 28.6727%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 47.0938px;" valign="top" width="203"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">TaxAmount</span>
+
+</td><td style="width: 9.19981%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 47.0938px;" valign="top" width="42"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 13.953%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 47.0938px;" valign="top" width="114"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number</span>
+
+</td><td style="width: 40.9391%; border-top: none; border-left: none; border-bottom: 1pt solid windowtext; border-right: 1pt solid windowtext; padding: 0in 5.4pt; height: 47.0938px;" valign="top" width="257"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Số tiền thuế. Mặc định = (GrossAmount – DiscountAmount) \* TaxRate/100</span>
+
+</td></tr></tbody></table>
+
+<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>
+
+**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Response success</span>**
+
+<table border="1" cellpadding="0" cellspacing="0" class="MsoTableGrid" style="border-collapse: collapse; border: none; mso-border-alt: solid windowtext .5pt; mso-yfti-tbllook: 1184; mso-padding-alt: 0in 5.4pt 0in 5.4pt;"><tbody><tr style="mso-yfti-irow: 0; mso-yfti-firstrow: yes; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Level</span>**
+
+</td><td style="width: 130.5pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Parameter</span>**
+
+</td><td style="width: 48.75pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Require</span>**
+
+</td><td style="width: 74.25pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Data Type</span>**
+
+</td><td style="width: 182.25pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Description</span>**
+
+</td></tr><tr style="mso-yfti-irow: 1; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ResponseCode</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">= 200</span>
+
+</td></tr><tr style="mso-yfti-irow: 2; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">RequestID</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">RequestID</span>
+
+</td></tr><tr style="mso-yfti-irow: 3; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Status</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Number </span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">= 0: Thành công</span>
+
+</td></tr><tr style="mso-yfti-irow: 4; height: 43.5pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 43.5pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 43.5pt;" valign="top" width="174">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Data</span>**
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 43.5pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 43.5pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 43.5pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Object</span>
+
+</td></tr><tr style="mso-yfti-irow: 5; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">PartnerInvoiceID</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> ID Hóa đơn của Partner</span>
+
+</td></tr><tr style="mso-yfti-irow: 6; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">InvoiceID</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> ID hóa đơn trên eInvoice</span>
+
+</td></tr><tr style="mso-yfti-irow: 7; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">InvoiceForm</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Mẫu số hóa đơn điều chỉnh</span>
+
+</td></tr><tr style="mso-yfti-irow: 8; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">InvoiceNo</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Số hóa đơn điều chỉnh</span>
+
+</td></tr><tr style="mso-yfti-irow: 9; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">InvoiceLookupCode </span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mã tra cứu hóa đơn</span>
+
+</td></tr><tr style="mso-yfti-irow: 10; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">TaxAuthorityCode</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mã của Cơ quan thuế</span>
+
+</td></tr><tr style="mso-yfti-irow: 11; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Provider</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mã của NCC HĐĐT</span>
+
+</td></tr><tr style="mso-yfti-irow: 12; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ProviderInvoiceID</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ID hóa đơn của NCC HĐĐT</span>
+
+</td></tr><tr style="mso-yfti-irow: 13; mso-yfti-lastrow: yes; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">2</span>
+
+</td><td style="width: 130.5pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="174"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">UrlLookup</span>
+
+</td><td style="width: 48.75pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="65"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Link tra cứu của NCC HĐĐT</span>
+
+</td></tr></tbody></table>
+
+**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>**
+
+**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Response error</span>**
+
+<table border="1" cellpadding="0" cellspacing="0" class="MsoTableGrid" style="border-collapse: collapse; border: none; mso-border-alt: solid windowtext .5pt; mso-yfti-tbllook: 1184; mso-padding-alt: 0in 5.4pt 0in 5.4pt;"><tbody><tr style="mso-yfti-irow: 0; mso-yfti-firstrow: yes; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Level</span>**
+
+</td><td style="width: 117.0pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Parameter</span>**
+
+</td><td style="width: 63.0pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="84">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Require</span>**
+
+</td><td style="width: 74.25pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Data Type</span>**
+
+</td><td style="width: 182.25pt; border: solid windowtext 1.0pt; border-left: none; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; background: #BFBFBF; mso-background-themecolor: background1; mso-background-themeshade: 191; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243">**<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Description</span>**
+
+</td></tr><tr style="mso-yfti-irow: 1; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ResponseCode</span>
+
+</td><td style="width: 63.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="84"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">&lt;&gt; 200; Xem bảng Phụ lục mã lỗi trả về</span>
+
+</td></tr><tr style="mso-yfti-irow: 2; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">RequestID</span>
+
+</td><td style="width: 63.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="84"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">RequestID</span>
+
+</td></tr><tr style="mso-yfti-irow: 3; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Status</span>
+
+</td><td style="width: 63.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="84"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String </span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">= 1: thất bại</span>
+
+</td></tr><tr style="mso-yfti-irow: 4; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">ResponseDesc</span>
+
+</td><td style="width: 63.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="84"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Y</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Mô tả nội dung</span>
+
+</td></tr><tr style="mso-yfti-irow: 5; mso-yfti-lastrow: yes; height: 15.0pt;"><td style="width: 53.75pt; border: solid windowtext 1.0pt; border-top: none; mso-border-top-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="72"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">1</span>
+
+</td><td style="width: 117.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="156"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Data</span>
+
+</td><td style="width: 63.0pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="84"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">N</span>
+
+</td><td style="width: 74.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="99"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">String</span>
+
+</td><td style="width: 182.25pt; border-top: none; border-left: none; border-bottom: solid windowtext 1.0pt; border-right: solid windowtext 1.0pt; mso-border-top-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-alt: solid windowtext .5pt; padding: 0in 5.4pt 0in 5.4pt; height: 15.0pt;" valign="top" width="243"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Object</span>
+
+</td></tr></tbody></table>
+
+</td></tr></tbody></table>
+
+ **2.5.3 Mô tả nghiệp vụ**
+
+ API AdjustInvoice dùng để tạo và phát hành hóa đơn điều chỉnh cho một hóa đơn đã tồn tại. Hóa đơn điều chỉnh được sử dụng khi phát hiện sai sót trên hóa đơn đã phát hành và cần điều chỉnh nội dung. Có 3 loại điều chỉnh:
+
+- - **Điều chỉnh tăng (IsIncrease = true)**: Điều chỉnh tăng số tiền hàng hóa/dịch vụ hoặc thuế so với hóa đơn gốc
+    - **Điều chỉnh giảm (IsIncrease = false)**: Điều chỉnh giảm số tiền hàng hóa/dịch vụ hoặc thuế so với hóa đơn gốc
+    - **Điều chỉnh thông tin (IsIncrease = null)**: Chỉ thay đổi thông tin trên hóa đơn như tên người mua, địa chỉ, mã số thuế mà không thay đổi số tiền
+
+ **2.5.4 Logic xử lý: Các step tại mục 2.5.1**
+
+- - **Step 1:** Hệ thống build bản tin đáp ứng API AdjustInvoice, trong đó: 
         - ParterID: là sys\_store\_id
         - ParterInvoiceID: là biz\_invoice\_id của chứng từ điều chỉnh
-        - ReferenceTypeID = 2 (hóa đơn điều chỉnh theo mục 4.3 Danh sách ReferenceTypeID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
-        - SubmitInvoiceType = 111 (PMKT cấp số) hoặc 112 (<span lang="vi" style="font-size: 12.0pt; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Bkav cấp khi tạo hoá đơn thành công và trả về PMKT</span>)
-        - Lưu ý nghiệp vụ điều chỉnh 
-            - Cần phải xác định thông tin hóa đơn gốc bị điều chỉnh để điền vào trường OriginmalInvoiceIdentify.
-            - Đối với từng dòng hàng hóa trong Details, cần xác định tính chất điều chỉnh qua trường IsIncrease (True: tăng, False: giảm, Null: điều chỉnh thông tin)
-    - Step 2: Gửi bản tin từ Step 1 đến Hub - phần mềm tích hợp nhà cung cấp hóa đơn điện tử với API SubmitAdjustInvoice với SubmitInvoiceType = 111, 112.
-    - Step 3: Lưu các value từ request vào table einv\_invoces và einv\_invoice\_detail, cập nhật các field mặc định 
+        - Master: 
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.ReferenceTypeID = 2</span> (hóa đơn điều chỉnh theo mục 4.3 Danh sách ReferenceTypeID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceForm = einv\_invoice.orginvoiceform</span>
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceSeries</span><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">= einv\_invoice.orginvoiceseries</span>
+            - <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">API SubmitAdjustInvoice.OrgInvoiceNo= einv\_invoice.orginvoiceno</span>
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceIdentify</span><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif;"> = </span></span><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif;">\[einv\_invoice.org\_invoice\_form\]\_<span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"> \[einv\_invoice.org\_invoice\_series\]\_<span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"> \[einv\_invoice.org\_invoice\_no\]</span></span></span></span>
+                - <span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);"><span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: maroon;"><span style="color: rgb(0, 0, 0);">Định dạng: \[InvoiceForm\]\_<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);"><span style="color: maroon;"><span style="color: rgb(0, 0, 0);">\[InvoiceSeries\]</span></span></span></span><span class="italic">\_</span>\[InvoiceNo\]</span></span></span></span></span>
+                - <span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);">Ví dụ:</span> OriginalInvoiceIdentify"</span><span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">: <span style="color: maroon;">"\[1\]\_\[C22TAA\]\_\[0000001\]"</span></span>
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.IsIncrease: False</span> (hệ thống đang xử lý cho hóa đơn giảm) 
+                - (True: tăng , False: giảm, Null: điều chỉnh thông tin)
+    - **Step 2:** Gửi bản tin từ Step 1 đến Hub - phần mềm tích hợp nhà cung cấp hóa đơn điện tử với API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice </span>với <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoicetype= 111, 112</span>.
+    - **Step 3:** Lưu các value từ request vào table einv\_invoces và einv\_invoice\_detail, cập nhật các field mặc định 
         - reference\_type\_id= 2
         - status\_id: 
-            - Nếu SubmitInvoiceType = 111: status\_id = 7 (Hóa đơn điều chỉnh đã cấp số, chờ ký (theo 2.Danh sách InvoiceStatusID tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") )
-            - Nếu SubmitInvoiceType = 112: status\_id = 8 (Hóa đơn điều chỉnh đã phát hành)
-    - Step 4: Tùy theo provider để call API: 
+            - Nếu SubmitInvoiceType = 111: status\_id = 7 (Hóa đơn điều chỉnh đã cấp số, chờ ký (theo 2.Danh sách InvoiceStatusID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
+            - Nếu SubmitInvoiceType = 112: status\_id = 7 (Hóa đơn điều chỉnh<span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"> mới hóa đơn điều chỉnh và ký phát hành luôn)</span>
+    - **Step 4:** Tùy theo provider để call API: 
         - BKAV Provider (theo D. Phụ Lục tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") ) 
+            - SubmitInvoiceType = 111 (Tạo hóa đơn điều chỉnh ) hoặc 112 (Tạo hóa đơn điều chỉnh và ký gửi HSM)
+            - Đối với Master thông tin chung hóa đơn, cần xác định tính chất điều chỉnh qua trường IsIncrease = False (giảm) (True: tăng , False: giảm, Null: điều chỉnh thông tin)
             - <table border="1" style="border-collapse: collapse; width: 108.649%;"><colgroup><col style="width: 24.8732%;"></col><col style="width: 12.7719%;"></col><col style="width: 62.3028%;"></col></colgroup><tbody><tr><td style="height: 30.125px;">**SubmitInvoiceType**</td><td style="height: 30.125px;">**Provider**</td><td style="height: 30.125px;">**Lệnh/API (CmdType)**</td></tr><tr><td style="height: 32.25px;">111</td><td style="height: 32.25px;">BKAV</td><td style="height: 32.25px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">CmdType 124 (Điều chỉnh, Bkav cấp số) </span></span><span data-path-to-node="8,3,1,0,0,3"><span class="citation-73 citation-end-73"><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup></span></span></td></tr><tr><td style="height: 30.125px;">112</td><td style="height: 30.125px;">BKAV</td><td style="height: 30.125px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">CmdType 124 + CmdType 205 (Ký HSM)</span></span></td></tr></tbody></table>
 
 - - - MOBI Provider (theo <span class="fontstyle0">4. Các API liên quan đến Hóa đơn </span>tài liệu [ver 4\_7\_MobiFone Invoice\_ Tài liệu API tích hợp theo Nghị định 70 với đơn vị tích hợp.pdf](https://drive.google.com/file/d/1jqHw3ivh1MzgcxS0Q3KuHeuwP3cKIQcn/view?usp=sharing "ver 4_7_MobiFone Invoice_ Tài liệu API tích hợp theo Nghị định 70 với đơn vị tích hợp.pdf") ) 
-            - <table border="1" style="border-collapse: collapse; width: 100.024%;"><colgroup><col style="width: 24.7216%;"></col><col style="width: 12.8981%;"></col><col style="width: 62.3282%;"></col></colgroup><tbody><tr><td style="height: 30.125px;">**SubmitInvoiceType**</td><td style="height: 30.125px;">**Provider**</td><td style="height: 30.125px;">**Lệnh/API (CmdType)**</td></tr><tr><td style="height: 32.25px;">111</td><td style="height: 32.25px;">MOBI</td><td style="height: 32.25px;">{{base\_url}}/api/Invoice68/SaveListHoadon78 (Editmode: 2)  
-                <span data-path-to-node="8,3,1,0,0,3"><span class="citation-73 citation-end-73"><sup class="superscript" data-turn-source-index="15"></sup></span></span></td></tr><tr><td style="height: 30.125px;">112</td><td style="height: 30.125px;">MOBI</td><td style="height: 30.125px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">{{base\_url}}/api/Invoice68/SaveAndSignHoadon78 (Editmode: 2)</span></span></td></tr></tbody></table>
+            - SubmitInvoiceType = 111 (Tạo hóa đơn bán hàng từ máy tính tiền) hoặc 112 (Tạo hóa đơn điều chỉnh và ký gửi HSM)
+            - JSON editmode: 2 (chế độ chỉnh sửa) 
+                - 1. Tạo mới 2. Chỉnh sửa 3. Xóa hóa đơn
+            - Đối với Master thông tin chung hóa đơn, cần xác định tính chất thông báo điều chỉnh qua trường  
+                
+                - JSON hdon\_id : einv\_invoice.id
+                - JSON hdon\_id\_old: einv\_ivoice.org\_invoice\_id
+                - JSON nlap: einv\_invoice.org\_invoice\_date
+                - JSON khieu: einv\_invoice.org\_invoice\_series
+                - JSON shdon: einv\_invoice.org\_invoice\_no
+                - 
+                - Nếu IsIncrease = False thì Thông tin JSON cung cấp : tthdon = 21 (Trạng thái hóa đơn điều chỉnh giảm)  
+                    
+                    - 19: Điều chỉnh tăng , 21: Điều chỉnh giảm , 23: Điều chỉnh thông tin
+            - <table border="1" style="border-collapse: collapse; width: 100.024%; height: 123.958px;"><colgroup><col style="width: 24.7216%;"></col><col style="width: 12.8981%;"></col><col style="width: 62.3282%;"></col></colgroup><tbody><tr style="height: 30.125px;"><td style="height: 30.125px;">**SubmitInvoiceType**</td><td style="height: 30.125px;">**Provider**</td><td style="height: 30.125px;">**Lệnh/API (CmdType)**</td></tr><tr style="height: 46.9167px;"><td style="height: 46.9167px;">111</td><td style="height: 46.9167px;">MOBI</td><td style="height: 46.9167px;">{{base\_url}}/api/Invoice68/SaveListHoadon78MTT (Editmode: 2)  
+                <span data-path-to-node="8,3,1,0,0,3"><span class="citation-73 citation-end-73"><sup class="superscript" data-turn-source-index="15"></sup></span></span></td></tr><tr style="height: 46.9167px;"><td style="height: 46.9167px;">112</td><td style="height: 46.9167px;">MOBI</td><td style="height: 46.9167px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">{{base\_url}}/api/Invoice68/SaveAndSignHoadon78 (Editmode: 2)</span></span></td></tr></tbody></table>
 
 - - Step 5: Hub nhận record trả về từ Provider, nếu thành công (Reponse có Status = 0) thì thực hiện parse data (C. Sample Code theo tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx"))
     - Step 6: Lưu các thông tin định danh mới của hóa đơn điều chỉnh vào Database 
         - provider\_invoice\_id: ID hóa đơn từ nhà cung cấp
-        - status\_id: Cập nhật theo kết quả trả về 7 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh chưa ký</span>) hoặc 8 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh đã ký</span>) (theo 2.Danh sách InvoiceStatusID tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") )
-        - invoice\_no: Số hóa đơn được trả về với các lệnh 101, 111, 112
+        - status\_id: Cập nhật theo kết quả trả về 7 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh chưa ký</span>) hoặc 8 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh và gửi ký</span>) (theo 2.Danh sách InvoiceStatusID tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") )
+        - invoice\_no: Số hóa đơn được trả về với các lệnh 111, 112
         - invoice\_series: Ký hiệu Hoá đơn trên Bkav
         - invoice\_lookup\_code: Mã tra cứu của Hoá đơn trên Website: http://tracuu.ehoadon.vn (với hệ thống test là [https://demo.ehoadon.vn/TCHD)](https://demo.ehoadon.vn/TCHD))
-    - Step 7: Phản hồi kết quả API cho PosORA. 
-        - - Lưu ý: sử dụng dữ liệu từ table einv\_invoice để phản hồi từ url\_lookup (Link tra cứu của NCC HĐĐT) và invoice\_lookup\_code mới (Mã tra cứu hóa đơn)
+    - Step 7: Phản hồi kết quả API cho PosORA.
+
+ **2.5.5 Validation nghiệp vụ**
+
+- - Hóa đơn gốc phải tồn tại trong hệ thống (tham chiếu qua OrgInvoiceID)
+    - Hóa đơn gốc phải có trạng thái đã phát hành (status\_id = 2 (đã ký), hoặc 8 (điều chỉnh)) (theo Danh sách InvoiceStatusID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
+    - Hóa đơn gốc chưa bị thay thế (không có hóa đơn thay thế reference\_type\_id = 3 (<span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn thay thế) </span>) (theo Danh sách ReferrenceTypeID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
+    - Lý do điều chỉnh (OrgInvoiceReason) là bắt buộc và phải có nội dung hợp lệ
 
 #### 2.6. API ReplaceInvoice

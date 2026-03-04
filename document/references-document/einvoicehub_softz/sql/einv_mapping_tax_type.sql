@@ -1,0 +1,6 @@
+INSERT INTO PosORA_Pro.einv_mapping_tax_type (id, provider_id, tax_type_id, provider_tax_type_id, provider_tax_rate, inactive, note) VALUES ('019c09b0-bd22-7f68-a829-21d616e49eb4', 'BKAV', 'T00', '1', '0', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_tax_type (id, provider_id, tax_type_id, provider_tax_type_id, provider_tax_rate, inactive, note) VALUES ('019c09b4-63ed-7988-9cf9-b2231f83ab4e', 'BKAV', 'T05', '2', '5', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_tax_type (id, provider_id, tax_type_id, provider_tax_type_id, provider_tax_rate, inactive, note) VALUES ('019c09b4-89ba-7144-b7a5-647975a8b8b9', 'BKAV', 'T08', '9', '8', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_tax_type (id, provider_id, tax_type_id, provider_tax_type_id, provider_tax_rate, inactive, note) VALUES ('019c09b4-fbcb-7474-b28d-53be4893fda9', 'BKAV', 'T10', '3', '10', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_tax_type (id, provider_id, tax_type_id, provider_tax_type_id, provider_tax_rate, inactive, note) VALUES ('019c09b7-7883-77c0-9e6b-22321fd5e966', 'BKAV', 'KCT', '4', '-1', 0, null);
+INSERT INTO PosORA_Pro.einv_mapping_tax_type (id, provider_id, tax_type_id, provider_tax_type_id, provider_tax_rate, inactive, note) VALUES ('019c09b7-c039-7c64-a016-e2b2d2d94c2c', 'BKAV', 'KKK', '5', '-2', 0, null);

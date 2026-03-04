@@ -1,0 +1,23 @@
+package vn.softz.app.einvoicehub.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.Instant;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class EinvStoreSerialRequest {
+    private String id;
+    private String providerId;
+    private Integer invoiceTypeId;
+    private String providerSerialId;
+    private String invoiceForm;
+    private String invoiceSerial;
+    private Instant startDate;
+    private Integer status;
+}

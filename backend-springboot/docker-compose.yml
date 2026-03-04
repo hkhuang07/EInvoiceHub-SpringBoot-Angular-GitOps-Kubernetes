@@ -6,7 +6,7 @@ services:
     container_name: einvoice-mariadb
     hostname: mariadb
     environment:
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-einvoice_root_pass}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-root}
       MARIADB_DATABASE: einvoicehub
       MARIADB_USER: einvoice_user
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:-einvoice_pass}
