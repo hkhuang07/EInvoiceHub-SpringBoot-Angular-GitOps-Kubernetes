@@ -1,6 +1,6 @@
 spring:
   application:
-    name: einvoicehub-core
+    name: einvoicehub-server
     
   # MySQL Configuration
   datasource:

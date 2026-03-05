@@ -23,6 +23,7 @@ spring:
 
   # JPA/Hibernate Configuration - Sử dụng MariaDBDialect
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     show-sql: false

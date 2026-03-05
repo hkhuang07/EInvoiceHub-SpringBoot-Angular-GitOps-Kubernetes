@@ -133,7 +133,7 @@ Mục 3.4 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://so
             - - Nếu status\_id nằm trong danh sách: Hóa đơn đã phát hành, Hóa đơn điều chỉnh đã ký, Hóa đơn thay thế đã ký, Hóa đơn Bị điều chỉnh, Hóa đơn bị thay thế --&gt; **Thì dùng data của eInvoice trả về** luôn mà ko cần gọi qua Provider để cập nhật trạng thái
         - Step 4: implentment function riêng để update thông tin từ Provider, tùy theo provider để call API 
             - <table border="1" style="border-collapse: collapse; width: 100.018%;"><colgroup><col style="width: 41.3654%;"></col><col style="width: 58.6389%;"></col></colgroup><tbody style="padding-left: 80px;"><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">**Provider**</td><td class="align-center" style="padding-left: 80px;">**Lệnh/API**</td></tr><tr style="padding-left: 80px;"><td style="padding-left: 80px;">BKAV</td><td style="padding-left: 80px;">CmdType800</td></tr></tbody></table>
-            - <table border="1" style="border-collapse: collapse; width: 100.018%;"><colgroup><col style="width: 41.3654%;"></col><col style="width: 58.6389%;"></col></colgroup><tbody style="padding-left: 80px;"><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">**Provider**</td><td class="align-center" style="padding-left: 80px;">**Lệnh/API**</td></tr><tr style="padding-left: 80px;"><td style="padding-left: 80px;">MOBI</td><td>{{base\_url}}/api/Invoice68/GetListHoadon78  
+            - <table border="1" style="border-collapse: collapse; width: 100.018%;"><colgroup><col style="width: 41.3654%;"></col><col style="width: 58.6389%;"></col></colgroup><tbody style="padding-left: 80px;"><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">**Provider**</td><td class="align-center" style="padding-left: 80px;">**Lệnh/API**</td></tr><tr style="padding-left: 80px;"><td style="padding-left: 80px;">MOBI</td><td>  
                 </td></tr></tbody></table>
             -
         - Step 5: Nhận bản tin trả về từ provider, nếu thành công thì parse data để thực hiện lưu data
@@ -148,9 +148,74 @@ Mục 3.4 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://so
                         - tax\_authority\_code
                         - invoice\_lookup\_code
                         - provider\_invoice\_id
-        - Step 7: Phản hồi kết quả API, **lưu ý:** dùng data của các table trong eInvoice, ko dùng data của provider map vào
+        - Step 7: Phản hồi kết quả API,<span style="background-color: rgb(251, 238, 184);"> **lưu ý:** dùng data của các table trong eInvoice, ko dùng data của provider map vào</span>
 
 #### 2.4. API GetStatusInvoices
+
+  **2.4.1. Mô hình flow**
+
+ [![api_getinvoice_status.jpg](https://bookstack.softz.vn/uploads/images/gallery/2026-03/scaled-1680-/api-getinvoice-status.jpg)](https://bookstack.softz.vn/uploads/images/gallery/2026-03/api-getinvoice-status.jpg)
+
+ **2.5.2 Thông số kỹ thuật**
+
+ Mục 3.4 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi)
+
+ **2.5.3 Logic xử lý: Các step tại mục 2.5.1**
+
+- - **Step 1:** Hệ thống build bản tin tra cứu trạng thái hóa đơn đáp ứng API GetStatusInvoice 
+        - ParnerID : là sys\_store\_id
+        - Data: Là 1 JSONArray, đáp ứng 1 danh sách hóa đơn, giới hạn 30 hóa đơn 1 lần
+        - <span class="TextRun SCXW84188182 BCX8" data-contrast="auto" lang="EN-US" xml:lang="EN-US"><span class="NormalTextRun SpellingErrorV2Themed SCXW84188182 BCX8">ID</span><span class="NormalTextRun SpellingErrorV2Themed SCXW84188182 BCX8">Type</span></span><span class="EOP SCXW84188182 BCX8" data-ccp-props="{"134233117":false,"134233118":false,"201341983":0,"335551550":1,"335551620":1,"335559685":270,"335559737":0,"335559738":0,"335559739":0,"335559740":240}"> </span>: <span class="NormalTextRun SCXW76838374 BCX8">0: </span><span class="NormalTextRun SpellingErrorV2Themed SCXW76838374 BCX8">thì</span><span class="NormalTextRun SCXW76838374 BCX8"> </span><span class="NormalTextRun SpellingErrorV2Themed SCXW76838374 BCX8">gửi</span><span class="NormalTextRun SCXW76838374 BCX8"> einv\_einvoice.id; **1**: thì gửi einv\_einvoice.partner\_invoice\_id</span>
+        - InvoiceID: Dựa theo IDType để truyền vào
+        - ForceSyn : flag cho biết hệ thống bán hàng có muốn đồng bộ trạng thái từ CQT qua Provider hay không (true: có , false: không)
+    - **Step 2:** Hệ thống bán hàng gửi API GetInvoiceStatus cho Hệ thống eInvoice . eInvoice xác định đối tượng hóa đơn dựa trên ParnerID (mã chi nhánh) và InvoiceID
+    - **Step 3:** Phân loại trạng thái và Validation
+        
+        
+        - Không tồn tại ID theo IDType 3.1 Validate data**:** Kiểm tra hóa đơn có thuộc quyền quản lý của ParnerId gửi lên không ?
+        - 3.2
+            
+            
+            - Nếu status\_id thuộc các trạng thái:<span style="background-color: rgb(191, 237, 210);"> 2, 6, 8, 9,10</span>
+                
+                
+                - 2 : Đã phát hành (HĐ Gốc).
+                - 6: HĐ thay thế đã phát hành.
+                - 8: HĐ điều chỉnh đã phát hành.
+                - 9: Hóa đơn bị thay thế.
+                - 10 : Hóa đơn bị điều chỉnh.
+            - Nếu status\_id thuộc các trạng thái:<span style="background-color: rgb(191, 237, 210);"> 0,1, 5, 7</span>
+                
+                
+                - 0: HĐ mới tạo (chưa cấp số).
+                - 1: HĐ đã cấp số (chờ ký).
+                - 5: HĐ thay thế chờ ký.
+                - 7: HĐ điều chỉnh chờ ký.
+        - 3.3 Return
+            
+            
+            - Điều kiện: Nếu status\_id thuộc (2, 6, 8, 9,10) AND tham số ForceSync = False
+            - Trả kết quả trực tiếp từ Database nội bộ về POS (Chuyển đến Step 7).
+    - **Step 4:** Nếu status\_id thuộc (0, 1, 5, 7) HOẶC ForceSync = False, Hub thực hiện gọi API từ Provider
+        
+        
+        - <table border="1" style="border-collapse: collapse; width: 100.018%;"><colgroup><col style="width: 22.8089%;"></col><col style="width: 77.1194%;"></col></colgroup><tbody style="padding-left: 80px;"><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">**Provider**</td><td class="align-center" style="padding-left: 80px;">**Lệnh/API**</td></tr><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">BKAV</td><td class="align-center" style="padding-left: 80px;">CmdType801</td></tr></tbody></table>
+        - <table border="1" style="border-collapse: collapse; width: 100.018%;"><colgroup><col style="width: 22.8468%;"></col><col style="width: 77.2173%;"></col></colgroup><tbody style="padding-left: 80px;"><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">**Provider**</td><td class="align-center" style="padding-left: 80px;">**Lệnh/API**</td></tr><tr style="padding-left: 80px;"><td class="align-center" style="padding-left: 80px;">MOBI</td><td class="align-center">  
+            </td></tr></tbody></table>
+    - **Step 5:** Hub nhận bản tin phản hồi từ Provider nếu Status = 0 (Thành công với BKAV), thực hiện bóc tách các trường thông tin pháp lý do Provider trả về
+    - **Step 6:** Hệ thống thực hiện lưu trữ các giá trị mới nhất vào bảng einv\_invoices
+        
+        
+        - Cập nhật status\_id
+        - Cập nhật signed\_date
+        - Cập nhật invoice\_lookup\_code
+    - **Step 7:**  Hub đóng gói record và phản hồi cho Hệ thống bán hàng. Dữ liệu trả về là các thông tin
+        
+        
+        - InvoiceStatusID: Trạng thái đã được chuẩn hóa.
+        - InvoiceNo: Số hóa đơn chính thức.
+        - InvoiceLookupCode: Mã tra cứu.
+        - UrlLookup : Link tra cứu (ghép từ einv\_provider.url\_lookup + invoice\_lookup\_code).
 
 #### 2.5. API SubmitAdjustInvoice
 
@@ -898,57 +963,85 @@ Mục 3.4 của tài liệu API: [API INTEGRATION DOCUMENTATION.docx](https://so
 
  **2.5.4 Logic xử lý: Các step tại mục 2.5.1**
 
-- - **Step 1:** Hệ thống build bản tin đáp ứng API AdjustInvoice, trong đó: 
+- - **Step 1:** <span class="">Hệ thống Hub thực hiện chuẩn hóa dữ liệu từ PosORA truyền vào để build bản tin đáp ứng API SubmitAdjustinvoice</span><span class="">.</span><span class=""> Các thông tin định danh hóa đơn gốc được trích xuất từ bảng einv\_invoice</span>  
+        
         - ParterID: là sys\_store\_id
         - ParterInvoiceID: là biz\_invoice\_id của chứng từ điều chỉnh
-        - Master: 
+        - **Master:**  
+            
             - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.ReferenceTypeID = 2</span> (hóa đơn điều chỉnh theo mục 4.3 Danh sách ReferenceTypeID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
-            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceForm = einv\_invoice.orginvoiceform</span>
-            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceSeries</span><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">= einv\_invoice.orginvoiceseries</span>
-            - <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">API SubmitAdjustInvoice.OrgInvoiceNo= einv\_invoice.orginvoiceno</span>
-            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceIdentify</span><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif;"> = </span></span><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif;">\[einv\_invoice.org\_invoice\_form\]\_<span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"> \[einv\_invoice.org\_invoice\_series\]\_<span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"> \[einv\_invoice.org\_invoice\_no\]</span></span></span></span>
-                - <span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);"><span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: maroon;"><span style="color: rgb(0, 0, 0);">Định dạng: \[InvoiceForm\]\_<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);"><span style="color: maroon;"><span style="color: rgb(0, 0, 0);">\[InvoiceSeries\]</span></span></span></span><span class="italic">\_</span>\[InvoiceNo\]</span></span></span></span></span>
-                - <span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);">Ví dụ:</span> OriginalInvoiceIdentify"</span><span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">: <span style="color: maroon;">"\[1\]\_\[C22TAA\]\_\[0000001\]"</span></span>
-            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.IsIncrease: False</span> (hệ thống đang xử lý cho hóa đơn giảm) 
-                - (True: tăng , False: giảm, Null: điều chỉnh thông tin)
-    - **Step 2:** Gửi bản tin từ Step 1 đến Hub - phần mềm tích hợp nhà cung cấp hóa đơn điện tử với API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice </span>với <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoicetype= 111, 112</span>.
-    - **Step 3:** Lưu các value từ request vào table einv\_invoces và einv\_invoice\_detail, cập nhật các field mặc định 
-        - reference\_type\_id= 2
-        - status\_id: 
-            - Nếu SubmitInvoiceType = 111: status\_id = 7 (Hóa đơn điều chỉnh đã cấp số, chờ ký (theo 2.Danh sách InvoiceStatusID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
-            - Nếu SubmitInvoiceType = 112: status\_id = 7 (Hóa đơn điều chỉnh<span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"> mới hóa đơn điều chỉnh và ký phát hành luôn)</span>
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.IsIncrease: False</span> (hệ thống đang xử lý cho hóa đơn giảm) (True: tăng , False: giảm, Null: điều chỉnh thông tin)
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceID = einv\_invoice.org\_invoice\_id</span>
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceForm = einv\_invoice.org\_invoice\_form</span>
+            - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceSeries</span><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">= einv\_invoice.org\_invoice\_series</span>
+            - <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">API SubmitAdjustInvoice.OrgInvoiceNo= einv\_invoice.org\_invoice\_no</span>
+            - <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">API SubmitAdjustInvoice.OrgInvoiceReason = einv\_invoice.org\_invoice\_reason</span>
+            - <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">API SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceIdentify</span><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif;"> = </span></span><span style="background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; background-color: rgb(255, 255, 255);">\[</span></span><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">einv\_invoice.org\_invoice\_form<span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; background-color: rgb(255, 255, 255);">\]\_\[</span></span>einv\_invoice.org\_invoice\_series<span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">\]</span></span></span></span><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; background-color: rgb(255, 255, 255);">\_<span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">\[</span></span></span></span> einv\_invoice.org\_invoice\_no\]</span></span>
+                - <span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);"><span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: maroon;"><span style="color: rgb(0, 0, 0);">Định dạng: \[InvoiceForm\]\_<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);"><span style="color: maroon;"><span style="color: rgb(0, 0, 0);">\[InvoiceSeries\]</span></span></span></span><span class="italic">\_</span>\[InvoiceNo\]. </span></span></span></span></span>
+                - <span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; color: #8000ff; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"><span style="color: rgb(0, 0, 0);">Ví dụ: OriginalInvoiceIdentify"</span></span><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0);">: "\[1\]\_\[C22TAA\]\_\[0000001\]"</span>
+            - **Details**  
+                
+                - API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.Details = danh sách thông tin hàng hóa dịch vụ cần điều chỉnh từ table einv\_invoice\_detail</span>
+    - **Step 2:** Gửi bản tin từ Step 1 đến Hub - phần mềm tích hợp nhà cung cấp hóa đơn điện tử với API <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice </span>với 
+        - <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoicetype= 111 (Tạo hóa đơn điều chỉnh chỉ cấp số, chờ ký),</span>
+        - <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoicetype = 112 (Tạo hóa đơn điều chỉnh và ký phát hành luôn)</span>.
+    - **Step 3:** Lưu các value từ request vào table einv\_invoces và einv\_invoice\_detail 
+        - Master: 
+            - reference\_type\_id= 2
+            - status\_id: 
+                - SubmitInvoiceType = 111: status\_id = 7 (Hóa đơn điều chỉnh đã cấp số, chờ ký (theo 2.Danh sách InvoiceStatusID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
+                - SubmitInvoiceType = 112: status\_id = 7 (Hóa đơn điều chỉnh<span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;"> mới hóa đơn điều chỉnh và ký phát hành luôn)</span>
+            - <span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">org\_invoice\_form: </span>
+            - <span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">org\_invoice\_series</span>
+            - <span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">org\_invoice\_no</span>
+            - <span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">org\_invoice\_reason</span>
+            - <span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">org\_invoice\_id</span>
+            -
+        - <span style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: EN-US; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Details:</span>
+            - gross\_amount
+            - discount\_amount
+            - net\_amount
+            - tax\_amount
+            - total\_amount
+            - net\_amount
+            - total\_amount
+            - net\_price
+            - net\_price\_vat
     - **Step 4:** Tùy theo provider để call API: 
-        - BKAV Provider (theo D. Phụ Lục tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") ) 
-            - SubmitInvoiceType = 111 (Tạo hóa đơn điều chỉnh ) hoặc 112 (Tạo hóa đơn điều chỉnh và ký gửi HSM)
-            - Đối với Master thông tin chung hóa đơn, cần xác định tính chất điều chỉnh qua trường IsIncrease = False (giảm) (True: tăng , False: giảm, Null: điều chỉnh thông tin)
+        - BKAV Provider (theo D. Phụ Lục tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") )  
+            
+            - Đối với Master thông tin chung hóa đơn, cần xác định tính chất điều chỉnh qua trường
+            - <span style="color: rgb(0, 0, 0);"><span style="background-color: rgb(191, 237, 210);"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; background-color: rgb(191, 237, 210);"> OriginalInvoiceIdentify = </span>SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceIdentify</span></span></span>
+            - <span style="color: rgb(0, 0, 0);"> <span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; background-color: rgb(191, 237, 210);">IsIncrease = </span></span><span style="background-color: rgb(191, 237, 210);"><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"><span style="color: rgb(0, 0, 0);">SubmitAd</span>justInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">IsIncrease =</span> (True: tăng , False: giảm, Null: điều chỉnh thông tin)</span>
+            - <span style="background-color: rgb(191, 237, 210);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif; color: rgb(0, 0, 0); background-color: rgb(191, 237, 210);"> Reason = </span><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"><span style="color: rgb(0, 0, 0);">SubmitAd</span>justInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Reason</span></span>
+            - <span style="font-family: 'Times New Roman', serif; color: rgb(0, 0, 0);"><span lang="vi" style="font-size: 12pt; line-height: 115%; font-family: 'Times New Roman', serif;">ListInvoiceDetailsWS = </span></span><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"><span style="color: rgb(0, 0, 0);">SubmitAd</span>justInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">Details</span>
             - <table border="1" style="border-collapse: collapse; width: 108.649%;"><colgroup><col style="width: 24.8732%;"></col><col style="width: 12.7719%;"></col><col style="width: 62.3028%;"></col></colgroup><tbody><tr><td style="height: 30.125px;">**SubmitInvoiceType**</td><td style="height: 30.125px;">**Provider**</td><td style="height: 30.125px;">**Lệnh/API (CmdType)**</td></tr><tr><td style="height: 32.25px;">111</td><td style="height: 32.25px;">BKAV</td><td style="height: 32.25px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">CmdType 124 (Điều chỉnh, Bkav cấp số) </span></span><span data-path-to-node="8,3,1,0,0,3"><span class="citation-73 citation-end-73"><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup><sup class="superscript" data-turn-source-index="15"></sup></span></span></td></tr><tr><td style="height: 30.125px;">112</td><td style="height: 30.125px;">BKAV</td><td style="height: 30.125px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">CmdType 124 + CmdType 205 (Ký HSM)</span></span></td></tr></tbody></table>
 
-- - - MOBI Provider (theo <span class="fontstyle0">4. Các API liên quan đến Hóa đơn </span>tài liệu [ver 4\_7\_MobiFone Invoice\_ Tài liệu API tích hợp theo Nghị định 70 với đơn vị tích hợp.pdf](https://drive.google.com/file/d/1jqHw3ivh1MzgcxS0Q3KuHeuwP3cKIQcn/view?usp=sharing "ver 4_7_MobiFone Invoice_ Tài liệu API tích hợp theo Nghị định 70 với đơn vị tích hợp.pdf") ) 
-            - SubmitInvoiceType = 111 (Tạo hóa đơn bán hàng từ máy tính tiền) hoặc 112 (Tạo hóa đơn điều chỉnh và ký gửi HSM)
+- - - MOBI Provider (theo <span class="fontstyle0">4. Các API liên quan đến Hóa đơn </span>tài liệu [ver 4\_7\_MobiFone Invoice\_ Tài liệu API tích hợp theo Nghị định 70 với đơn vị tích hợp.pdf](https://drive.google.com/file/d/1jqHw3ivh1MzgcxS0Q3KuHeuwP3cKIQcn/view?usp=sharing "ver 4_7_MobiFone Invoice_ Tài liệu API tích hợp theo Nghị định 70 với đơn vị tích hợp.pdf") )  
+            
             - JSON editmode: 2 (chế độ chỉnh sửa) 
                 - 1. Tạo mới 2. Chỉnh sửa 3. Xóa hóa đơn
-            - Đối với Master thông tin chung hóa đơn, cần xác định tính chất thông báo điều chỉnh qua trường  
-                
-                - JSON hdon\_id : einv\_invoice.id
-                - JSON hdon\_id\_old: einv\_ivoice.org\_invoice\_id
-                - JSON nlap: einv\_invoice.org\_invoice\_date
-                - JSON khieu: einv\_invoice.org\_invoice\_series
-                - JSON shdon: einv\_invoice.org\_invoice\_no
-                - 
-                - Nếu IsIncrease = False thì Thông tin JSON cung cấp : tthdon = 21 (Trạng thái hóa đơn điều chỉnh giảm)  
-                    
-                    - 19: Điều chỉnh tăng , 21: Điều chỉnh giảm , 23: Điều chỉnh thông tin
+            - Đối với Master thông tin chung hóa đơn, cần xác định tính chất thông báo điều chỉnh qua trường 
+                - Master 
+                    - <span style="background-color: rgb(191, 237, 210);">JSON <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">khieu</span>: <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice</span>.<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">OrgInvoiceSeries</span></span>
+                    - <span style="background-color: rgb(191, 237, 210);">JSON <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">shdon</span>: <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.OrgInvoiceNo</span></span>
+                    - <span style="background-color: rgb(191, 237, 210);">JSON <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">tthdon</span>: <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.IsIncrease = Fals -&gt; (21 : Điều chỉnh giảm ) , True -&gt; ( 19 : Điều chỉnh tăng) , Null -&gt; </span>(23<span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>: <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> Điều chỉnh thông tin</span>)</span>
+                    - JSON ... : <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">SubmitAdjustInvoice.OrgInvoiceReason</span><span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';"> </span>
+                    - <span style="font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman';">JSON details: SubmitAdjustInvoice.Details </span>
             - <table border="1" style="border-collapse: collapse; width: 100.024%; height: 123.958px;"><colgroup><col style="width: 24.7216%;"></col><col style="width: 12.8981%;"></col><col style="width: 62.3282%;"></col></colgroup><tbody><tr style="height: 30.125px;"><td style="height: 30.125px;">**SubmitInvoiceType**</td><td style="height: 30.125px;">**Provider**</td><td style="height: 30.125px;">**Lệnh/API (CmdType)**</td></tr><tr style="height: 46.9167px;"><td style="height: 46.9167px;">111</td><td style="height: 46.9167px;">MOBI</td><td style="height: 46.9167px;">{{base\_url}}/api/Invoice68/SaveListHoadon78MTT (Editmode: 2)  
                 <span data-path-to-node="8,3,1,0,0,3"><span class="citation-73 citation-end-73"><sup class="superscript" data-turn-source-index="15"></sup></span></span></td></tr><tr style="height: 46.9167px;"><td style="height: 46.9167px;">112</td><td style="height: 46.9167px;">MOBI</td><td style="height: 46.9167px;"><span data-path-to-node="8,3,1,0,0,2"><span class="citation-73">{{base\_url}}/api/Invoice68/SaveAndSignHoadon78 (Editmode: 2)</span></span></td></tr></tbody></table>
 
-- - Step 5: Hub nhận record trả về từ Provider, nếu thành công (Reponse có Status = 0) thì thực hiện parse data (C. Sample Code theo tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx"))
+- - Step 5: Hub nhận record trả về từ Provider, nếu thành công (Reponse có BKAV return Status = 0, Mobifone return code 200 ) thì thực hiện parse data (C. Sample Code theo tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx"))
     - Step 6: Lưu các thông tin định danh mới của hóa đơn điều chỉnh vào Database 
         - provider\_invoice\_id: ID hóa đơn từ nhà cung cấp
-        - status\_id: Cập nhật theo kết quả trả về 7 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh chưa ký</span>) hoặc 8 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh và gửi ký</span>) (theo 2.Danh sách InvoiceStatusID tài liệu [FAQ\_WebServices\_Bkav.docx](https://1drv.ms/w/c/cd3ce7f17db28040/IQBCrl55Ir0WS5eDMB1IhpqrATHQVqQ_Vu86O0V7Y5gZaqQ?e=hE7ukI "FAQ_WebServices_Bkav.docx") )
+        - status\_id: Cập nhật theo kết quả trả về 7 (<span lang="vi" style="font-size: 12.0pt; line-height: 115%; font-family: 'Times New Roman',serif; mso-fareast-font-family: 'Times New Roman'; mso-ansi-language: #002A; mso-fareast-language: EN-US; mso-bidi-language: AR-SA;">Hóa đơn điều chỉnh chưa ký</span>) (theo 2.Danh sách InvoiceStatusID tài liệu [API INTEGRATION DOCUMENTATION.docx](https://softzvn.sharepoint.com/:w:/s/ERPforSOFTZ/IQBkyN2AMFx5R6XqlEcqCioiAZnc66yq4TXq1pTkspHDrEU?e=E0dDJi) )
         - invoice\_no: Số hóa đơn được trả về với các lệnh 111, 112
         - invoice\_series: Ký hiệu Hoá đơn trên Bkav
         - invoice\_lookup\_code: Mã tra cứu của Hoá đơn trên Website: http://tracuu.ehoadon.vn (với hệ thống test là [https://demo.ehoadon.vn/TCHD)](https://demo.ehoadon.vn/TCHD))
-    - Step 7: Phản hồi kết quả API cho PosORA.
+    - Step 7: Phản hồi kết quả API cho PosORA. **lưu ý:** dùng data của các table trong eInvoice, ko dùng data của provider map vào, trong đó 
+        - <span class="TextRun SCXW252618073 BCX8" data-contrast="auto" lang="EN-US" xml:lang="EN-US"><span class="NormalTextRun SCXW252618073 BCX8">Provider: là mã của Provider. VD: "BKAV", "MOBI"</span></span>
+        - <span class="TextRun SCXW252618073 BCX8" data-contrast="auto" lang="EN-US" xml:lang="EN-US"><span class="NormalTextRun SCXW252618073 BCX8"><span class="TextRun SCXW241776031 BCX8" data-contrast="auto" lang="EN-US" xml:lang="EN-US"><span class="NormalTextRun SpellingErrorV2Themed SCXW241776031 BCX8">ProviderIn</span><span class="NormalTextRun SpellingErrorV2Themed SCXW241776031 BCX8">voiceID</span></span><span class="EOP SCXW241776031 BCX8" data-ccp-props="{"134233117":false,"134233118":false,"201341983":0,"335551550":1,"335551620":1,"335559685":270,"335559737":0,"335559738":0,"335559739":0,"335559740":240}"> : Là ID Hóa đơn của NCC HĐ</span></span></span>
+        - <span class="TextRun SCXW252618073 BCX8" data-contrast="auto" lang="EN-US" xml:lang="EN-US"><span class="NormalTextRun SCXW252618073 BCX8"><span class="EOP SCXW241776031 BCX8" data-ccp-props="{"134233117":false,"134233118":false,"201341983":0,"335551550":1,"335551620":1,"335559685":270,"335559737":0,"335559738":0,"335559739":0,"335559740":240}"><span class="TextRun SCXW261755675 BCX8" data-contrast="auto" lang="EN-US" xml:lang="EN-US"><span class="NormalTextRun SpellingErrorV2Themed SCXW261755675 BCX8">UrlLoo</span><span class="NormalTextRun SpellingErrorV2Themed SCXW261755675 BCX8">kup: là link tra cứu. Được kết hợp bởi dùng einv\_provider.url\_lookup + einv\_invoices.</span></span>invoice\_lookup\_code</span></span></span>
 
  **2.5.5 Validation nghiệp vụ**
 

@@ -22,15 +22,14 @@ sequenceDiagram
 
     %% Chi tiết mã lệnh dựa trên FAQ_WebServices_Bkav.docx
     alt Tác vụ Cấp số (Tạo hóa đơn)
-        Hub->>Prov: 6. Gọi API (CmdType: 101 - Bkav cấp số)
+        Hub->>Prov: 6. Gọi API (CmdType: 101 - Bkav cấp số | {{base_url}}/api/Invoice68/SaveListHoadon78MTT, Editmode:1 )
     else Tác vụ Ký số (HSM)
-        Hub->>Prov: 6. Gọi API (CmdType: 205 - Ký hóa đơn)
+        Hub->>Prov: 6. Gọi API (CmdType: 205 - Ký hóa đơn | https://hcm.mobifone.vn/gateway/mbfinv/api/Invoice68/SignInvoiceCertFile68 )
     else Tác vụ Điều chỉnh
-        Hub->>Prov: 6. Gọi API (CmdType: 124 - Điều chỉnh, Bkav cấp số)
+        Hub->>Prov: 6. Gọi API (CmdType: 124 - Điều chỉnh, Bkav cấp số |{{base_url}}/api/Invoice68/SaveListHoadon78MTT (Editmode: 2) hoặc {{base_url}}/api/Invoice68/SaveAndSignHoadon78 (Editmode: 2) )
     else Tác vụ Thay thế
-        Hub->>Prov: 6. Gọi API (CmdType: 123 - Thay thế, Bkav cấp số)
-    else Tác vụ Hủy hóa đơn
-        Hub->>Prov: 6. Gọi API (CmdType: 300 - Hủy hóa đơn)
+        Hub->>Prov: 6. Gọi API (CmdType: 123 - Thay thế, Bkav cấp số | )
+ 
     end
 
     activate Prov

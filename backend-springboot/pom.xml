@@ -242,8 +242,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.2</version>
+                <configuration>
+                    <argLine>
+                        -XX:+EnableDynamicAgentLoading
+                        -Dfile.encoding=UTF-8
+                    </argLine>
+                </configuration>
             </plugin>
         </plugins>
+
     </build>
     <profiles>
         <profile>
