@@ -2,24 +2,23 @@
 -- Database: MariaDB 11+ 
 
 SET NAMES utf8mb4;
-SET
-FOREIGN_KEY_CHECKS = 0;
+SET FOREIGN_KEY_CHECKS = 0;
 
 
 -- NHÓM 1: DANH MỤC HỆ THỐNG (System Catalogs)
--- 1.1. Danh mục Loại thuế
+-- 1.1. Danh mục Loại thuế (Theo bản công ty: category_tax_type)
 CREATE TABLE `category_tax_type`
 (
     `id`           VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID - Mã loại thuế',
-    `tax_name`     VARCHAR(100) NULL COMMENT 'Tên loại thuế (Tiếng Việt)',
-    `tax_name_en`  VARCHAR(100) NULL COMMENT 'Tên loại thuế (Tiếng Anh)',
-    `description`  VARCHAR(100) NULL COMMENT 'Mô tả',
-    `vat`          DECIMAL(15, 2) NULL COMMENT 'Tỷ lệ thuế (%)',
+    `tax_name`     VARCHAR(100)                          NULL COMMENT 'Tên loại thuế (Tiếng Việt)',
+    `tax_name_en`  VARCHAR(100)                          NULL COMMENT 'Tên loại thuế (Tiếng Anh)',
+    `description`  VARCHAR(100)                          NULL COMMENT 'Mô tả',
+    `vat`          DECIMAL(15, 2)                        NULL COMMENT 'Tỷ lệ thuế (%)',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `chk_tax_type_vat_valid`
@@ -29,22 +28,22 @@ CREATE TABLE `category_tax_type`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
-    COMMENT = 'Danh mục Loại thuế';
+    COMMENT = 'Danh mục Loại thuế ( Theo bản công ty)';
 
 -- 1.2. Nhà cung cấp HĐĐT (BKAV, VNPT, MISA, VIETTEL, MOBI ...)
 CREATE TABLE `einv_provider`
 (
     `id`              VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID của NCC',
     `provider_code`   VARCHAR(36)                           NOT NULL COMMENT 'Mã ngắn: BKAV, VNPT, MOBI, MISA, VIETTEL',
-    `provider_name`   VARCHAR(200) NULL COMMENT 'Tên đầy đủ nhà cung cấp',
-    `integration_url` VARCHAR(200) NULL COMMENT 'Endpoint tích hợp chính',
-    `lookup_url`      VARCHAR(200) NULL COMMENT 'Base URL tra cứu hóa đơn',
+    `provider_name`   VARCHAR(200)                          NULL COMMENT 'Tên đầy đủ nhà cung cấp',
+    `integration_url` VARCHAR(200)                          NULL COMMENT 'Endpoint tích hợp chính',
+    `lookup_url`      VARCHAR(200)                          NULL COMMENT 'Base URL tra cứu hóa đơn',
     `inactive`        TINYINT(1) DEFAULT 0 COMMENT '0: Hoạt động, 1: Tạm ngưng',
 
     `created_by`      VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`      VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date`    DATETIME NULL,
-    `updated_date`    DATETIME NULL,
+    `created_date`    DATETIME                              NULL,
+    `updated_date`    DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_provider_code` (`provider_code`)
@@ -56,15 +55,15 @@ CREATE TABLE `einv_provider`
 -- 1.3. Loại hình hóa đơn
 CREATE TABLE `einv_invoice_type`
 (
-    `id`           TINYINT      NOT NULL COMMENT 'ID loại hóa đơn',
-    `name`         VARCHAR(255) NOT NULL COMMENT 'Tên loại hóa đơn',
+    `id`           INT                                   NOT NULL COMMENT 'ID loại hóa đơn',
+    `name`         VARCHAR(255)                          NOT NULL COMMENT 'Tên loại hóa đơn',
     `sort_order`   INT DEFAULT 0,
-    `note`         VARCHAR(255) NULL COMMENT 'Ghi chú nghiệp vụ',
+    `note`         VARCHAR(255)                          NULL COMMENT 'Ghi chú nghiệp vụ',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `chk_inv_type_sort_order_positive`
@@ -78,15 +77,15 @@ CREATE TABLE `einv_invoice_type`
 -- 1.4. Trạng thái hóa đơn
 CREATE TABLE `einv_invoice_status`
 (
-    `id`           TINYINT      NOT NULL COMMENT 'Mã trạng thái hệ thống HUB',
-    `name`         VARCHAR(255) NOT NULL COMMENT 'Tên trạng thái',
-    `description`  VARCHAR(255) NOT NULL COMMENT 'Mô tả chi tiết',
-    `note`         VARCHAR(255) NULL COMMENT 'Ghi chú',
+    `id`           INT                                   NOT NULL COMMENT 'Mã trạng thái hệ thống HUB',
+    `name`         VARCHAR(255)                          NOT NULL COMMENT 'Tên trạng thái',
+    `description`  VARCHAR(255)                          NOT NULL COMMENT 'Mô tả chi tiết',
+    `note`         VARCHAR(255)                          NULL COMMENT 'Ghi chú',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_inv_status_name` (`name`)
@@ -98,13 +97,13 @@ CREATE TABLE `einv_invoice_status`
 -- 1.5. Trạng thái Cơ quan Thuế
 CREATE TABLE `einv_tax_status`
 (
-    `id`           TINYINT COMMENT 'Mã trạng thái CQT',
-    `name`         VARCHAR(100) NOT NULL COMMENT 'Tên trạng thái',
+    `id`           INT COMMENT 'Mã trạng thái CQT',
+    `name`         VARCHAR(100)                          NOT NULL COMMENT 'Tên trạng thái',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -114,14 +113,14 @@ CREATE TABLE `einv_tax_status`
 -- 1.6. Phương thức thanh toán
 CREATE TABLE `einv_payment_method`
 (
-    `id`           TINYINT      NOT NULL COMMENT 'Mã phương thức thanh toán HUB',
-    `name`         VARCHAR(255) NOT NULL COMMENT 'Tên phương thức',
-    `note`         VARCHAR(255) NULL COMMENT 'Ghi chú',
+    `id`           INT                                   NOT NULL COMMENT 'Mã phương thức thanh toán HUB',
+    `name`         VARCHAR(255)                          NOT NULL COMMENT 'Tên phương thức',
+    `note`         VARCHAR(255)                          NULL COMMENT 'Ghi chú',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_payment_method_name` (`name`)
@@ -133,13 +132,13 @@ CREATE TABLE `einv_payment_method`
 -- 1.7. Đơn vị tính
 CREATE TABLE `einv_unit`
 (
-    `code`         VARCHAR(50)  NOT NULL COMMENT 'Mã đơn vị tính (DVT01, DVT02...)',
-    `name`         VARCHAR(100) NOT NULL,
+    `code`         VARCHAR(50)                           NOT NULL COMMENT 'Mã đơn vị tính (DVT01, DVT02...)',
+    `name`         VARCHAR(100)                          NOT NULL,
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`code`)
 ) ENGINE = InnoDB
@@ -150,14 +149,14 @@ CREATE TABLE `einv_unit`
 -- 1.8. Loại hàng hóa
 CREATE TABLE `einv_item_type`
 (
-    `id`           TINYINT      NOT NULL COMMENT 'ID loại hàng hóa',
-    `name`         VARCHAR(255) NOT NULL COMMENT 'Tên loại hàng hóa',
-    `note`         VARCHAR(255) NULL COMMENT 'Ghi chú',
+    `id`           INT                                   NOT NULL COMMENT 'ID loại hàng hóa',
+    `name`         VARCHAR(255)                          NOT NULL COMMENT 'Tên loại hàng hóa',
+    `note`         VARCHAR(255)                          NULL COMMENT 'Ghi chú',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_item_type_name` (`name`)
@@ -169,13 +168,13 @@ CREATE TABLE `einv_item_type`
 -- 1.9. Danh mục Hình thức nhận hóa đơn
 CREATE TABLE `einv_receive_type`
 (
-    `id`           TINYINT COMMENT 'ID hình thức nhận',
-    `name`         VARCHAR(255) NOT NULL COMMENT 'Tên hình thức nhận',
+    `id`           INT COMMENT 'ID hình thức nhận',
+    `name`         VARCHAR(255)                          NOT NULL COMMENT 'Tên hình thức nhận',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -183,17 +182,17 @@ CREATE TABLE `einv_receive_type`
   COLLATE = utf8mb4_unicode_ci
     COMMENT = 'Danh mục Hình thức nhận hóa đơn';
 
--- 1.10. Danh mục Loại tham chiếu
+-- 1.10. Danh mục Loại tham chiếu (ReferenceType)
 CREATE TABLE `einv_reference_type`
 (
-    `id`           TINYINT      NOT NULL COMMENT 'ID loại tham chiếu',
-    `name`         VARCHAR(255) NOT NULL COMMENT 'Tên loại tham chiếu',
-    `note`         VARCHAR(255) NULL COMMENT 'Ghi chú',
+    `id`           INT                                   NOT NULL COMMENT 'ID loại tham chiếu',
+    `name`         VARCHAR(255)                          NOT NULL COMMENT 'Tên loại tham chiếu',
+    `note`         VARCHAR(255)                          NULL COMMENT 'Ghi chú',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_reference_type_name` (`name`)
@@ -205,14 +204,14 @@ CREATE TABLE `einv_reference_type`
 -- 1.11. Loại nghiệp vụ Submit
 CREATE TABLE `einv_submit_invoice_type`
 (
-    `id`           VARCHAR(3)   NOT NULL COMMENT 'Mã SubmitInvoiceType (100, 120, 121...)',
-    `name`         VARCHAR(255) NOT NULL COMMENT 'Tên nghiệp vụ',
-    `description`  VARCHAR(255) NULL,
+    `id`           VARCHAR(3)                            NOT NULL COMMENT 'Mã SubmitInvoiceType (100, 120, 121...)',
+    `name`         VARCHAR(255)                          NOT NULL COMMENT 'Tên nghiệp vụ',
+    `description`  VARCHAR(255)                          NULL,
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -223,7 +222,9 @@ CREATE TABLE `einv_submit_invoice_type`
 
 
 -- NHÓM 2: QUẢN LÝ ĐƠN VỊ KINH DOANH
--- 2.1. Tenant / Merchant
+
+
+-- 2.1. Tenant / Merchant (Theo bản công ty: tenant_id là VARCHAR(36))
 CREATE TABLE `merchants`
 (
     `id`           BIGINT                                NOT NULL AUTO_INCREMENT COMMENT 'Surrogate PK',
@@ -234,8 +235,8 @@ CREATE TABLE `merchants`
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_tenant_id` (`tenant_id`)
@@ -255,14 +256,15 @@ CREATE TABLE `einv_stores`
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date` DATETIME NULL,
-    `updated_date` DATETIME NULL,
+    `created_date` DATETIME                              NULL,
+    `updated_date` DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_store_merchant`
         FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`tenant_id`)
-            ON DELETE NO ACTION
-            ON UPDATE CASCADE
+            ON DELETE RESTRICT
+            ON UPDATE CASCADE,
+    INDEX `idx_store_tenant_fk` (`tenant_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -270,8 +272,10 @@ CREATE TABLE `einv_stores`
 
 
 
--- NHÓM 3: CẤU HÌNH TÍCH HỢP
--- 3.1. Liên kết Store ↔ Provider
+-- NHÓM 3: CẤU HÌNH TÍCH HỢP (Integration Config)
+
+
+-- 3.1. Liên kết Store ↔ Provider (Theo bản công ty)
 CREATE TABLE `einv_store_provider`
 (
     `id`                  VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
@@ -290,7 +294,7 @@ CREATE TABLE `einv_store_provider`
     `tax_code`            VARCHAR(200) COMMENT 'Mã số thuế',
 
     -- Các trường bổ sung từ project (không có trong bản công ty)
-    `sign_type`           TINYINT  DEFAULT 0 COMMENT '0:Token, 1:HSM, 2:SmartCA',
+    `sign_type`           INT        DEFAULT 0 COMMENT '0:Token, 1:HSM, 2:SmartCA',
     `is_two_step_signing` TINYINT(1) DEFAULT 0 COMMENT 'Ký 2 bước',
     `app_id`              VARCHAR(100) COMMENT 'Dành riêng cho MISA',
     `fkey_prefix`         VARCHAR(50) COMMENT 'Tiền tố Fkey cho VNPT',
@@ -299,45 +303,45 @@ CREATE TABLE `einv_store_provider`
 
     `created_by`          VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`          VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date`        DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_date`        DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created_date`        DATETIME   DEFAULT CURRENT_TIMESTAMP,
+    `updated_date`        DATETIME   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_sp_merchant`
         FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`tenant_id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_sp_store`
         FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_sp_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `chk_sp_sign_type_valid`
         CHECK (`sign_type` IS NULL OR `sign_type` IN (0, 1, 2)),
     CONSTRAINT `chk_sp_status_valid`
         CHECK (`status` IS NULL OR `status` IN (0, 1, 8)),
-    INDEX                 `idx_sp_tenant` (`tenant_id`),
-    INDEX                 `idx_sp_store` (`store_id`),
-    INDEX                 `idx_sp_provider` (`provider_id`),
-    INDEX                 `idx_sp_status` (`status`)
+    INDEX `idx_sp_tenant` (`tenant_id`),
+    INDEX `idx_sp_store` (`store_id`),
+    INDEX `idx_sp_provider` (`provider_id`),
+    INDEX `idx_sp_status` (`status`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
     COMMENT = 'Cấu hình tích hợp Store ↔ NCC HĐĐT';
 
--- 3.2. Lịch sử thay đổi Store Provider
+-- 3.2. Lịch sử thay đổi Store Provider (BẢNG MỚI - Theo bản công ty)
 CREATE TABLE `einv_store_provider_history`
 (
     `id`           VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `tenant_id`    VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → merchants.tenant_id',
     `store_id`     VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_stores.id',
     `provider_id`  VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
-    `action_type`  VARCHAR(50) NULL COMMENT 'Loại hành động: CREATE, UPDATE, DELETE',
-    `status`       BOOLEAN                           NULL COMMENT 'Trạng thái sau thay đổi',
-    `notes`        VARCHAR(100) NULL COMMENT 'Ghi chú',
+    `action_type`  VARCHAR(50)                           NULL COMMENT 'Loại hành động: CREATE, UPDATE, DELETE',
+    `status`       TINYINT                               NULL COMMENT 'Trạng thái sau thay đổi',
+    `notes`        VARCHAR(100)                          NULL COMMENT 'Ghi chú',
 
     `created_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`   VARCHAR(36) COLLATE latin1_general_ci NULL,
@@ -347,17 +351,17 @@ CREATE TABLE `einv_store_provider_history`
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_sph_merchant`
         FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`tenant_id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_sph_store`
         FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_sph_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX          `idx_sph_store_provider` (`store_id`, `provider_id`)
+    INDEX `idx_sph_store_provider` (`store_id`, `provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -370,42 +374,42 @@ CREATE TABLE `einv_store_serial`
     `tenant_id`          VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → merchants.tenant_id',
     `store_id`           VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_stores.id ( Theo bản công ty)',
     `provider_id`        VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id ( Theo bản công ty)',
-    `invoice_type_id`    TINYINT NULL COMMENT 'FK → einv_invoice_type.id',
+    `invoice_type_id`    INT                                   NULL COMMENT 'FK → einv_invoice_type.id',
 
     `provider_serial_id` VARCHAR(50) COMMENT 'ID dải ký hiệu bên NCC cấp',
     `invoice_form`       VARCHAR(20) COMMENT 'Mẫu số hóa đơn (VD: 1/001)',
     `invoice_serial`     VARCHAR(20) COMMENT 'Ký hiệu hóa đơn (VD: C25TAA)',
 
     `start_date`         DATETIME COMMENT 'Ngày bắt đầu hiệu lực',
-    `status`             TINYINT DEFAULT 1 COMMENT '0: Chờ duyệt; 1: Đã duyệt; 8: Ngưng sử dụng',
+    `status`             INT DEFAULT 1 COMMENT '0: Chờ duyệt; 1: Đã duyệt; 8: Ngưng sử dụng',
 
     `created_by`         VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`         VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date`       DATETIME NULL,
-    `updated_date`       DATETIME NULL,
+    `created_date`       DATETIME                              NULL,
+    `updated_date`       DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_ss_merchant`
         FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`tenant_id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_ss_store`
         FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_ss_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_ss_invoice_type`
         FOREIGN KEY (`invoice_type_id`) REFERENCES `einv_invoice_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `chk_ss_status_valid`
         CHECK (`status` IS NULL OR `status` IN (0, 1, 8)),
-    INDEX                `idx_ss_tenant` (`tenant_id`),
-    INDEX                `idx_ss_store` (`store_id`),
-    INDEX                `idx_ss_status` (`status`)
+    INDEX `idx_ss_tenant` (`tenant_id`),
+    INDEX `idx_ss_store` (`store_id`),
+    INDEX `idx_ss_status` (`status`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -419,26 +423,26 @@ CREATE TABLE `einv_mapping_invoice_status`
 (
     `id`                         VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `provider_id`                VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
-    `invoice_status_id`          TINYINT NULL COMMENT 'FK → einv_invoice_status.id',
-    `provider_invoice_status_id` VARCHAR(36) NULL COMMENT 'ID trạng thái bên NCC',
+    `invoice_status_id`          INT                                   NULL COMMENT 'FK → einv_invoice_status.id',
+    `provider_invoice_status_id` VARCHAR(36)                           NULL COMMENT 'ID trạng thái bên NCC',
     `inactive`                   TINYINT(1) DEFAULT 0 COMMENT '0: Mặc định; 1: Disable',
-    `note`                       VARCHAR(200) NULL COMMENT 'Ghi chú',
+    `note`                       VARCHAR(200)                          NULL COMMENT 'Ghi chú',
 
     `created_by`                 VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`                 VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date`               DATETIME NULL,
-    `updated_date`               DATETIME NULL,
+    `created_date`               DATETIME                              NULL,
+    `updated_date`               DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_mis_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_mis_invoice_status`
         FOREIGN KEY (`invoice_status_id`) REFERENCES `einv_invoice_status` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX                        `idx_mis_provider` (`provider_id`)
+    INDEX `idx_mis_provider` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -449,26 +453,26 @@ CREATE TABLE `einv_mapping_invoice_type`
 (
     `id`                       VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `provider_id`              VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
-    `invoice_type_id`          TINYINT NULL COMMENT 'FK → einv_invoice_type.id',
-    `provider_invoice_type_id` VARCHAR(36) NULL COMMENT 'ID loại hóa đơn bên NCC',
+    `invoice_type_id`          INT                                   NULL COMMENT 'FK → einv_invoice_type.id',
+    `provider_invoice_type_id` VARCHAR(36)                           NULL COMMENT 'ID loại hóa đơn bên NCC',
     `inactive`                 TINYINT(1) DEFAULT 0 COMMENT '0: Mặc định; 1: Disable',
-    `note`                     VARCHAR(200) NULL COMMENT 'Ghi chú',
+    `note`                     VARCHAR(200)                          NULL COMMENT 'Ghi chú',
 
     `created_by`               VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`               VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date`             DATETIME NULL,
-    `updated_date`             DATETIME NULL,
+    `created_date`             DATETIME                              NULL,
+    `updated_date`             DATETIME                              NULL,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_mit_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_mit_invoice_type`
         FOREIGN KEY (`invoice_type_id`) REFERENCES `einv_invoice_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX                      `idx_mit_provider` (`provider_id`)
+    INDEX `idx_mit_provider` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -479,26 +483,26 @@ CREATE TABLE `einv_mapping_payment_method`
 (
     `id`                         VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `provider_id`                VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
-    `payment_method_id`          TINYINT NULL COMMENT 'FK → einv_payment_method.id',
-    `provider_payment_method_id` VARCHAR(36) NULL COMMENT 'ID phương thức thanh toán bên NCC',
+    `payment_method_id`          INT                                   NULL COMMENT 'FK → einv_payment_method.id',
+    `provider_payment_method_id` VARCHAR(36)                           NULL COMMENT 'ID phương thức thanh toán bên NCC',
     `inactive`                   TINYINT(1) DEFAULT 0 COMMENT '0: Mặc định; 1: Disable',
-    `note`                       VARCHAR(200) NULL COMMENT 'Ghi chú',
+    `note`                       VARCHAR(200)                          NULL COMMENT 'Ghi chú',
 
     `created_by`                 VARCHAR(100),
-    `created_date`               TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `created_date`               TIMESTAMP  DEFAULT CURRENT_TIMESTAMP,
     `updated_by`                 VARCHAR(100),
-    `updated_date`               TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_date`               TIMESTAMP  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_mpm_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_mpm_payment_method`
         FOREIGN KEY (`payment_method_id`) REFERENCES `einv_payment_method` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX                        `idx_mpm_provider` (`provider_id`)
+    INDEX `idx_mpm_provider` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -509,26 +513,26 @@ CREATE TABLE `einv_mapping_item_type`
 (
     `id`                    VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `provider_id`           VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
-    `item_type_id`          TINYINT NULL COMMENT 'FK → einv_item_type.id',
-    `provider_item_type_id` VARCHAR(36) NULL COMMENT 'ID loại hàng hóa bên NCC',
+    `item_type_id`          INT                                   NULL COMMENT 'FK → einv_item_type.id',
+    `provider_item_type_id` VARCHAR(36)                           NULL COMMENT 'ID loại hàng hóa bên NCC',
     `inactive`              TINYINT(1) DEFAULT 0 COMMENT '0: Mặc định; 1: Disable',
-    `note`                  VARCHAR(200) NULL COMMENT 'Ghi chú',
+    `note`                  VARCHAR(200)                          NULL COMMENT 'Ghi chú',
 
     `created_by`            VARCHAR(100),
-    `created_date`          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `created_date`          TIMESTAMP  DEFAULT CURRENT_TIMESTAMP,
     `updated_by`            VARCHAR(100),
-    `updated_date`          TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_date`          TIMESTAMP  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_mit_item_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_mit_item_type`
         FOREIGN KEY (`item_type_id`) REFERENCES `einv_item_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX                   `idx_mit_item_provider` (`provider_id`)
+    INDEX `idx_mit_item_provider` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -540,26 +544,26 @@ CREATE TABLE `einv_mapping_tax_type`
     `id`                   VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `provider_id`          VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
     `tax_type_id`          VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → category_tax_type.id',
-    `provider_tax_type_id` VARCHAR(36) NULL COMMENT 'ID loại thuế bên NCC',
-    `provider_tax_rate`    VARCHAR(36) NULL COMMENT 'Tỷ lệ thuế bên NCC',
+    `provider_tax_type_id` VARCHAR(36)                           NULL COMMENT 'ID loại thuế bên NCC',
+    `provider_tax_rate`    VARCHAR(36)                           NULL COMMENT 'Tỷ lệ thuế bên NCC',
     `inactive`             TINYINT(1) DEFAULT 0 COMMENT '0: Mặc định; 1: Disable',
-    `note`                 VARCHAR(200) NULL COMMENT 'Ghi chú',
+    `note`                 VARCHAR(200)                          NULL COMMENT 'Ghi chú',
 
     `created_by`           VARCHAR(100),
-    `created_date`         TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `created_date`         TIMESTAMP  DEFAULT CURRENT_TIMESTAMP,
     `updated_by`           VARCHAR(100),
-    `updated_date`         TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_date`         TIMESTAMP  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_mtt_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_mtt_tax_type`
         FOREIGN KEY (`tax_type_id`) REFERENCES `category_tax_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX                  `idx_mtt_provider` (`provider_id`)
+    INDEX `idx_mtt_provider` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -570,26 +574,26 @@ CREATE TABLE `einv_mapping_reference_type`
 (
     `id`                         VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `provider_id`                VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
-    `reference_type_id`          TINYINT NULL COMMENT 'FK → einv_reference_type.id',
-    `provider_reference_type_id` VARCHAR(36) NULL COMMENT 'ID loại tham chiếu bên NCC',
-    `inactive`                   TINYINT(1) DEFAULT 0 COMMENT '0: Mặc định, 1: Disable',
-    `note`                       VARCHAR(200) NULL COMMENT 'Ghi chú',
+    `reference_type_id`          INT                                   NULL COMMENT 'FK → einv_reference_type.id',
+    `provider_reference_type_id` VARCHAR(36)                           NULL COMMENT 'ID loại tham chiếu bên NCC',
+    `inactive`                   TINYINT(1) DEFAULT 0 COMMENT '0: Mặc định; 1: Disable',
+    `note`                       VARCHAR(200)                          NULL COMMENT 'Ghi chú',
 
     `created_by`                 VARCHAR(100),
-    `created_date`               TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `created_date`               TIMESTAMP  DEFAULT CURRENT_TIMESTAMP,
     `updated_by`                 VARCHAR(100),
-    `updated_date`               TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_date`               TIMESTAMP  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_mrt_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_mrt_reference_type`
         FOREIGN KEY (`reference_type_id`) REFERENCES `einv_reference_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX                        `idx_mrt_provider` (`provider_id`)
+    INDEX `idx_mrt_provider` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -600,32 +604,32 @@ CREATE TABLE `einv_mapping_unit`
 (
     `id`                 VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `provider_id`        VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
-    `unit_code`          VARCHAR(50) NULL COMMENT 'FK → einv_unit.code',
-    `provider_unit_code` VARCHAR(100) NULL COMMENT 'Mã đơn vị tính bên NCC',
+    `unit_code`          VARCHAR(50)                           NULL COMMENT 'FK → einv_unit.code',
+    `provider_unit_code` VARCHAR(100)                          NULL COMMENT 'Mã đơn vị tính bên NCC',
     `inactive`           TINYINT(1) DEFAULT 0 COMMENT '0: Mặc định; 1: Disable',
-    `note`               VARCHAR(200) NULL COMMENT 'Ghi chú',
+    `note`               VARCHAR(200)                          NULL COMMENT 'Ghi chú',
 
     `created_by`         VARCHAR(100),
-    `created_date`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `created_date`       TIMESTAMP  DEFAULT CURRENT_TIMESTAMP,
     `updated_by`         VARCHAR(100),
-    `updated_date`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `updated_date`       TIMESTAMP  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_mu_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_mu_unit`
         FOREIGN KEY (`unit_code`) REFERENCES `einv_unit` (`code`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX                `idx_mu_provider` (`provider_id`)
+    INDEX `idx_mu_provider` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
     COMMENT = 'Mapping đơn vị tính HUB ↔ NCC';
 
--- 4.8. Mapping Lệnh Nghiệp vụ
+-- 4.8. Mapping Lệnh Nghiệp vụ (GIỮ LẠI từ project vì không có trong bản công ty)
 CREATE TABLE `einv_mapping_action`
 (
     `id`           BIGINT                                NOT NULL AUTO_INCREMENT COMMENT 'ID mapping',
@@ -642,9 +646,9 @@ CREATE TABLE `einv_mapping_action`
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_ma_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
-    INDEX          `idx_ma_provider` (`provider_id`)
+    INDEX `idx_ma_provider` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -653,65 +657,66 @@ CREATE TABLE `einv_mapping_action`
 
 
 -- NHÓM 5: NGHIỆP VỤ HÓA ĐƠN
--- 5.1. Hóa đơn
+
+
+-- 5.1. Hóa đơn (THEO BẢN CÔNG TY: dùng VARCHAR(36) UUID, tenant_id VARCHAR(36))
 CREATE TABLE `einv_invoices`
 (
     `id`                   VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID Primary Key',
-    `tenant_id`            VARCHAR(36) COLLATE latin1_general_ci NULL 
-        COMMENT 'FK → merchants.tenant_id | Denormalized for future sharding/partitioning by tenant',
+    `tenant_id`            VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → merchants.tenant_id',
     `store_id`             VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_stores.id',
     `provider_id`          VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_provider.id',
 
     `partner_invoice_id`   VARCHAR(50) COLLATE latin1_general_ci NULL COMMENT 'ID hóa đơn gốc từ POS',
-    `provider_invoice_id`  VARCHAR(50) NULL COMMENT 'ID hóa đơn do NCC cấp',
+    `provider_invoice_id`  VARCHAR(50)                           NULL COMMENT 'ID hóa đơn do NCC cấp',
 
-    `invoice_type_id`      TINYINT NULL COMMENT 'FK → einv_invoice_type.id',
-    `reference_type_id`    TINYINT NULL COMMENT '0: Gốc, 2: Điều chỉnh, 3: Thay thế',
-    `status_id`            TINYINT NULL COMMENT 'FK → einv_invoice_status.id',
+    `invoice_type_id`      INT                                   NULL COMMENT 'FK → einv_invoice_type.id',
+    `reference_type_id`    INT                                   NULL COMMENT '0: Gốc, 2: Điều chỉnh, 3: Thay thế',
+    `status_id`            INT                                   NULL COMMENT 'FK → einv_invoice_status.id',
 
-    `invoice_form`         VARCHAR(50) NULL COMMENT 'Mẫu số (VD: 1/001)',
-    `invoice_series`       VARCHAR(50) NULL COMMENT 'Ký hiệu (VD: C25TAA)',
-    `invoice_no`           VARCHAR(50) NULL COMMENT 'Số hóa đơn',
-    `invoice_date`         DATETIME NULL COMMENT 'Ngày hóa đơn',
-    `signed_date`          DATETIME NULL COMMENT 'Ngày ký số',
+    `invoice_form`         VARCHAR(50)                           NULL COMMENT 'Mẫu số (VD: 1/001)',
+    `invoice_series`       VARCHAR(50)                           NULL COMMENT 'Ký hiệu (VD: C25TAA)',
+    `invoice_no`           VARCHAR(50)                           NULL COMMENT 'Số hóa đơn',
+    `invoice_date`         DATETIME                              NULL COMMENT 'Ngày hóa đơn',
+    `signed_date`          DATETIME                              NULL COMMENT 'Ngày ký số',
 
-    `payment_method_id`    TINYINT NULL COMMENT 'FK → einv_payment_method.id',
-    `buyer_tax_code`       VARCHAR(50) NULL COMMENT 'Mã số thuế người mua',
-    `buyer_company`        VARCHAR(300) NULL COMMENT 'Tên đơn vị người mua',
+    `payment_method_id`    INT                                   NULL COMMENT 'FK → einv_payment_method.id',
+    `buyer_tax_code`       VARCHAR(50)                           NULL COMMENT 'Mã số thuế người mua',
+    `buyer_company`        VARCHAR(300)                          NULL COMMENT 'Tên đơn vị người mua',
     `buyer_id_no`          VARCHAR(20) COLLATE latin1_general_ci NULL COMMENT 'CCCD/Hộ chiếu',
-    `buyer_full_name`      VARCHAR(200) NULL COMMENT 'Tên người mua',
-    `buyer_address`        VARCHAR(300) NULL COMMENT 'Địa chỉ người mua',
-    `buyer_mobile`         VARCHAR(50) NULL COMMENT 'Số điện thoại người mua',
-    `buyer_bank_account`   VARCHAR(50) NULL COMMENT 'Số tài khoản người mua',
-    `buyer_bank_name`      VARCHAR(200) NULL COMMENT 'Tên ngân hàng người mua',
-    `buyer_budget_code`    VARCHAR(20) NULL COMMENT 'Mã số đơn vị quan hệ ngân sách',
+    `buyer_full_name`      VARCHAR(200)                          NULL COMMENT 'Tên người mua',
+    `buyer_address`        VARCHAR(300)                          NULL COMMENT 'Địa chỉ người mua',
+    `buyer_mobile`         VARCHAR(50)                           NULL COMMENT 'Số điện thoại người mua',
+    `buyer_bank_account`   VARCHAR(50)                           NULL COMMENT 'Số tài khoản người mua',
+    `buyer_bank_name`      VARCHAR(200)                          NULL COMMENT 'Tên ngân hàng người mua',
+    `buyer_budget_code`    VARCHAR(20)                           NULL COMMENT 'Mã số đơn vị quan hệ ngân sách',
 
-    `receive_type_id`      TINYINT NULL COMMENT 'FK → einv_receive_type.id',
-    `receiver_email`       VARCHAR(300) NULL COMMENT 'Email nhận hóa đơn',
+    `receive_type_id`      INT                                   NULL COMMENT 'FK → einv_receive_type.id',
+    `receiver_email`       VARCHAR(300)                          NULL COMMENT 'Email nhận hóa đơn',
 
-    `currency_code`        VARCHAR(20) NULL DEFAULT 'VND' COMMENT 'Mã tiền tệ',
-    `exchange_rate`        DECIMAL(10, 2) NULL DEFAULT 1.0 COMMENT 'Tỷ giá',
+    `currency_code`        VARCHAR(20)                           NULL DEFAULT 'VND' COMMENT 'Mã tiền tệ',
+    `exchange_rate`        DECIMAL(10, 2)                        NULL DEFAULT 1.0 COMMENT 'Tỷ giá',
 
-    `tax_authority_code`   VARCHAR(50) NULL COMMENT 'Mã CQT cấp',
-    `invoice_lookup_code`  VARCHAR(50) NULL COMMENT 'Mã tra cứu HĐ',
+    `tax_authority_code`   VARCHAR(50)                           NULL COMMENT 'Mã CQT cấp',
+    `invoice_lookup_code`  VARCHAR(50)                           NULL COMMENT 'Mã tra cứu HĐ',
 
     -- Thông tin hóa đơn gốc (điều chỉnh/thay thế)
     `org_invoice_id`       VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'ID HĐ gốc',
-    `org_invoice_form`     VARCHAR(50) NULL COMMENT 'Mẫu số HĐ gốc',
-    `org_invoice_series`   VARCHAR(50) NULL COMMENT 'Ký hiệu HĐ gốc',
-    `org_invoice_no`       VARCHAR(50) NULL COMMENT 'Số HĐ gốc',
-    `org_invoice_date`     DATETIME NULL COMMENT 'Ngày HĐ gốc',
-    `org_invoice_reason`   VARCHAR(500) NULL COMMENT 'Lý do điều chỉnh/thay thế',
+    `org_invoice_form`     VARCHAR(50)                           NULL COMMENT 'Mẫu số HĐ gốc',
+    `org_invoice_series`   VARCHAR(50)                           NULL COMMENT 'Ký hiệu HĐ gốc',
+    `org_invoice_no`       VARCHAR(50)                           NULL COMMENT 'Số HĐ gốc',
+    `org_invoice_date`     DATETIME                              NULL COMMENT 'Ngày HĐ gốc',
+    `org_invoice_reason`   VARCHAR(500)                          NULL COMMENT 'Lý do điều chỉnh/thay thế',
 
     -- Các trường tiền tệ
-    `gross_amount`         DECIMAL(15, 2) NULL COMMENT 'Thành tiền hàng hóa',
-    `discount_amount`      DECIMAL(15, 2) NULL COMMENT 'Số tiền chiết khấu',
-    `net_amount`           DECIMAL(15, 2) NULL COMMENT 'Thành tiền trước thuế',
-    `tax_amount`           DECIMAL(15, 2) NULL COMMENT 'Số tiền thuế',
-    `total_amount`         DECIMAL(15, 2) NULL COMMENT 'Trị giá thanh toán',
+    `gross_amount`         DECIMAL(15, 2)                        NULL COMMENT 'Thành tiền hàng hóa',
+    `discount_amount`      DECIMAL(15, 2)                        NULL COMMENT 'Số tiền chiết khấu',
+    `net_amount`           DECIMAL(15, 2)                        NULL COMMENT 'Thành tiền trước thuế',
+    `tax_amount`           DECIMAL(15, 2)                        NULL COMMENT 'Số tiền thuế',
+    `total_amount`         DECIMAL(15, 2)                        NULL COMMENT 'Trị giá thanh toán',
 
     -- Các trường bổ sung từ project (không có trong bản công ty)
-    `tax_status_id`        TINYINT  DEFAULT 0 COMMENT 'FK → einv_tax_status.id',
+    `tax_status_id`        INT                                        DEFAULT 0 COMMENT 'FK → einv_tax_status.id',
     `cqt_response_code`    VARCHAR(10) COMMENT 'Mã phản hồi từ CQT',
     `provider_response_id` VARCHAR(100) COMMENT 'ID bản tin của NCC',
     `is_draft`             TINYINT(1)                                 DEFAULT 0 COMMENT 'Hóa đơn nháp',
@@ -719,7 +724,7 @@ CREATE TABLE `einv_invoices`
     `is_petrol`            TINYINT(1)                                 DEFAULT 0 COMMENT 'Hóa đơn Xăng dầu',
     `is_locked`            TINYINT(1)                                 DEFAULT 0 COMMENT 'Hóa đơn bị khóa',
     `is_deleted`           TINYINT(1)                                 DEFAULT 0 COMMENT 'Hóa đơn bị xóa',
-    `sign_type`            TINYINT COMMENT '0: Token, 1: HSM',
+    `sign_type`            INT COMMENT '0: Token, 1: HSM',
     `submit_invoice_type`  VARCHAR(3) COMMENT 'FK → einv_submit_invoice_type.id',
     `response_message`     VARCHAR(500) COMMENT 'Thông báo từ NCC',
     `error_code`           VARCHAR(50) COMMENT 'Mã lỗi từ NCC',
@@ -733,53 +738,53 @@ CREATE TABLE `einv_invoices`
 
     `created_by`           VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`           VARCHAR(36) COLLATE latin1_general_ci NULL,
-    `created_date`         DATETIME DEFAULT CURRENT_TIMESTAMP,
-    `updated_date`         DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `created_date`         DATETIME                                   DEFAULT CURRENT_TIMESTAMP,
+    `updated_date`         DATETIME                                   DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
     CONSTRAINT `fk_inv_merchant`
         FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`tenant_id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_store`
         FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_invoice_type`
         FOREIGN KEY (`invoice_type_id`) REFERENCES `einv_invoice_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_reference_type`
         FOREIGN KEY (`reference_type_id`) REFERENCES `einv_reference_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_status`
         FOREIGN KEY (`status_id`) REFERENCES `einv_invoice_status` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_payment_method`
         FOREIGN KEY (`payment_method_id`) REFERENCES `einv_payment_method` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_receive_type`
         FOREIGN KEY (`receive_type_id`) REFERENCES `einv_receive_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_tax_status`
         FOREIGN KEY (`tax_status_id`) REFERENCES `einv_tax_status` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_submit_type`
         FOREIGN KEY (`submit_invoice_type`) REFERENCES `einv_submit_invoice_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_org_invoice`
         FOREIGN KEY (`org_invoice_id`) REFERENCES `einv_invoices` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `chk_inv_total_amount_positive`
         CHECK (`total_amount` IS NULL OR `total_amount` >= 0),
@@ -793,56 +798,63 @@ CREATE TABLE `einv_invoices`
         CHECK (`gross_amount` IS NULL OR `gross_amount` >= 0),
     CONSTRAINT `chk_inv_exchange_rate_positive`
         CHECK (`exchange_rate` IS NULL OR `exchange_rate` > 0),
-    -- NOTE: invoice_date range validation enforced at application layer
     UNIQUE INDEX `uq_inv_tenant_partner` (`tenant_id`, `partner_invoice_id`),
-    INDEX                  `idx_inv_lookup_code` (`invoice_lookup_code`),
-    INDEX                  `idx_inv_buyer_tax` (`buyer_tax_code`),
-    INDEX                  `idx_inv_date` (`invoice_date`),
-    INDEX                  `idx_inv_provider_date` (`provider_id`, `invoice_date`),
-    INDEX                  `idx_inv_tenant_status` (`tenant_id`, `status_id`),
-    INDEX                  `idx_inv_store_status` (`store_id`, `status_id`),
-    INDEX                  `idx_inv_provider_status` (`provider_id`, `status_id`),
-    INDEX                  `idx_inv_tenant` (`tenant_id`),
-    INDEX                  `idx_inv_status` (`status_id`),
-    INDEX                  `idx_inv_created_date` (`created_date`)
+    INDEX `idx_inv_lookup_code` (`invoice_lookup_code`),
+    INDEX `idx_inv_buyer_tax` (`buyer_tax_code`),
+    INDEX `idx_inv_date` (`invoice_date`),
+    INDEX `idx_inv_provider_date` (`provider_id`, `invoice_date`),
+    INDEX `idx_inv_tenant_status` (`tenant_id`, `status_id`),
+    INDEX `idx_inv_store_status` (`store_id`, `status_id`),
+    INDEX `idx_inv_provider_status` (`provider_id`, `status_id`),
+    INDEX `idx_inv_tenant` (`tenant_id`),
+    INDEX `idx_inv_status` (`status_id`),
+    INDEX `idx_inv_invoice_type_fk` (`invoice_type_id`),
+    INDEX `idx_inv_reference_type_fk` (`reference_type_id`),
+    INDEX `idx_inv_payment_method_fk` (`payment_method_id`),
+    INDEX `idx_inv_receive_type_fk` (`receive_type_id`),
+    INDEX `idx_inv_tax_status_fk` (`tax_status_id`),
+    INDEX `idx_inv_submit_type_fk` (`submit_invoice_type`),
+    INDEX `idx_inv_org_invoice_fk` (`org_invoice_id`),
+    INDEX `idx_inv_created_date` (`created_date`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
     COMMENT = 'Hóa đơn điện tử (Header) - HUB Central';
 
--- 5.2. Dòng hàng hóa trên hóa đơn
+-- 5.2. Dòng hàng hóa trên hóa đơn (THEO BẢN CÔNG TY)
 CREATE TABLE `einv_invoices_detail`
 (
     `id`              VARCHAR(36) COLLATE latin1_general_ci NOT NULL COMMENT 'UUID',
     `tenant_id`       VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → merchants.tenant_id',
     `store_id`        VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_stores.id',
     `doc_id`          VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → einv_invoices.id',
-    `line_no`         INT NULL COMMENT 'Số thứ tự dòng',
+    `line_no`         INT                                   NULL COMMENT 'Số thứ tự dòng',
     `is_free`         TINYINT(1)                            NULL COMMENT '1: Hàng tặng, đơn giá = 0',
 
-    `item_type_id`    TINYINT NULL COMMENT 'FK → einv_item_type.id',
+    `item_type_id`    INT                                   NULL COMMENT 'FK → einv_item_type.id',
     `item_id`         VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'Mã hàng hóa',
-    `item_name`       VARCHAR(500) NULL COMMENT 'Tên hàng hóa, dịch vụ',
-    `unit`            VARCHAR(50) NULL COMMENT 'Đơn vị tính',
+    `item_name`       VARCHAR(500)                          NULL COMMENT 'Tên hàng hóa, dịch vụ',
+    `unit`            VARCHAR(50)                           NULL COMMENT 'Đơn vị tính',
 
-    `quantity`        DECIMAL(15, 2) NULL COMMENT 'Số lượng',
-    `price`           DECIMAL(15, 2) NULL COMMENT 'Đơn giá',
-    `gross_amount`    DECIMAL(15, 2) NULL COMMENT 'Thành tiền = quantity*price',
-    `discount_rate`   DECIMAL(15, 2) NULL COMMENT 'Tỷ lệ chiết khấu (%)',
-    `discount_amount` DECIMAL(15, 2) NULL COMMENT 'Số tiền chiết khấu',
+    `quantity`        DECIMAL(15, 2)                        NULL COMMENT 'Số lượng',
+    `price`           DECIMAL(15, 2)                        NULL COMMENT 'Đơn giá',
+    `gross_amount`    DECIMAL(15, 2)                        NULL COMMENT 'Thành tiền = quantity*price',
+    `discount_rate`   DECIMAL(15, 2)                        NULL COMMENT 'Tỷ lệ chiết khấu (%)',
+    `discount_amount` DECIMAL(15, 2)                        NULL COMMENT 'Số tiền chiết khấu',
 
-    `net_price_vat`   DECIMAL(15, 2) NULL COMMENT 'Đơn giá có VAT = Thanh toán / Số lượng',
-    `net_price`       DECIMAL(15, 2) NULL COMMENT 'Đơn giá sau CK',
-    `net_amount`      DECIMAL(15, 2) NULL COMMENT 'Thành tiền sau CK',
+    `net_price_vat`   DECIMAL(15, 2)                        NULL COMMENT 'Đơn giá có VAT = Thanh toán / Số lượng',
+    `net_price`       DECIMAL(15, 2)                        NULL COMMENT 'Đơn giá sau CK',
+    `net_amount`      DECIMAL(15, 2)                        NULL COMMENT 'Thành tiền sau CK',
 
     `tax_type_id`     VARCHAR(36) COLLATE latin1_general_ci NULL COMMENT 'FK → category_tax_type.id',
-    `tax_rate`        DECIMAL(15, 2) NULL COMMENT 'Thuế suất (%)',
-    `tax_amount`      DECIMAL(15, 2) NULL COMMENT 'Số tiền thuế',
-    `total_amount`    DECIMAL(15, 2) NULL COMMENT 'Tổng thanh toán dòng',
+    `tax_rate`        DECIMAL(15, 2)                        NULL COMMENT 'Thuế suất (%)',
+    `tax_amount`      DECIMAL(15, 2)                        NULL COMMENT 'Số tiền thuế',
+    `total_amount`    DECIMAL(15, 2)                        NULL COMMENT 'Tổng thanh toán dòng',
 
-    `notes`           VARCHAR(500) NULL COMMENT 'Ghi chú',
+    `notes`           VARCHAR(500)                          NULL COMMENT 'Ghi chú',
 
-    `adjustment_type` TINYINT  DEFAULT 0 COMMENT 'Dành cho HĐ Điều chỉnh: 1: Thông tin, 2: Tăng, 3: Giảm',
+    -- Trường bổ sung từ project (không có trong bản công ty)
+    `adjustment_type` INT      DEFAULT 0 COMMENT 'Dành cho HĐ Điều chỉnh: 1: Thông tin, 2: Tăng, 3: Giảm',
 
     `created_by`      VARCHAR(36) COLLATE latin1_general_ci NULL,
     `updated_by`      VARCHAR(36) COLLATE latin1_general_ci NULL,
@@ -856,19 +868,19 @@ CREATE TABLE `einv_invoices_detail`
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_det_merchant`
         FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`tenant_id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_det_store`
         FOREIGN KEY (`store_id`) REFERENCES `einv_stores` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_det_item_type`
         FOREIGN KEY (`item_type_id`) REFERENCES `einv_item_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_inv_det_tax_type`
         FOREIGN KEY (`tax_type_id`) REFERENCES `category_tax_type` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `chk_inv_det_adjustment_type_valid`
         CHECK (`adjustment_type` IS NULL OR `adjustment_type` IN (0, 1, 2, 3)),
@@ -894,10 +906,12 @@ CREATE TABLE `einv_invoices_detail`
         CHECK (`net_price` IS NULL OR `net_price` >= 0),
     CONSTRAINT `chk_inv_det_line_no_positive`
         CHECK (`line_no` IS NULL OR `line_no` > 0),
-    INDEX             `idx_inv_det_doc_line` (`doc_id`, `line_no`),
-    INDEX             `idx_inv_det_tenant` (`tenant_id`),
-    INDEX             `idx_inv_det_item_type_fk` (`item_type_id`),
-    INDEX             `idx_inv_det_tax_type_fk` (`tax_type_id`)
+    INDEX `idx_inv_det_doc_line` (`doc_id`, `line_no`),
+    INDEX `idx_inv_det_tenant` (`tenant_id`),
+    INDEX `biz_retail_detail_biz_retail_FK` (`doc_id`),
+    INDEX `biz_retail_detail_tenant_id_IDX` (`tenant_id`),
+    INDEX `idx_inv_det_item_type_fk` (`item_type_id`),
+    INDEX `idx_inv_det_tax_type_fk` (`tax_type_id`)
 
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -940,8 +954,8 @@ CREATE TABLE `einv_sync_queue`
     `cqt_message_id` VARCHAR(100) COMMENT 'ID thông điệp truyền nhận với Cơ quan Thuế',
     `sync_type`      VARCHAR(50)                           NOT NULL COMMENT 'SUBMIT | SIGN | GET_STATUS | GET_INVOICE',
     `status`         VARCHAR(20)                           NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING | PROCESSING | SUCCESS | FAILED',
-    `attempt_count`  TINYINT                               NOT NULL DEFAULT 0 COMMENT 'Số lần đã retry',
-    `max_attempts`   TINYINT                               NOT NULL DEFAULT 3 COMMENT 'Giới hạn retry',
+    `attempt_count`  INT                                   NOT NULL DEFAULT 0 COMMENT 'Số lần đã retry',
+    `max_attempts`   INT                                   NOT NULL DEFAULT 3 COMMENT 'Giới hạn retry',
     `last_error`     TEXT COMMENT 'Thông báo lỗi lần cuối',
     `error_code`     VARCHAR(50) COMMENT 'Mã lỗi từ NCC',
     `next_retry_at`  DATETIME COMMENT 'Thời điểm retry tiếp theo',
@@ -958,11 +972,11 @@ CREATE TABLE `einv_sync_queue`
             ON UPDATE CASCADE,
     CONSTRAINT `fk_queue_merchant`
         FOREIGN KEY (`tenant_id`) REFERENCES `merchants` (`tenant_id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `fk_queue_provider`
         FOREIGN KEY (`provider_id`) REFERENCES `einv_provider` (`id`)
-            ON DELETE NO ACTION
+            ON DELETE RESTRICT
             ON UPDATE CASCADE,
     CONSTRAINT `chk_queue_attempt_count_positive`
         CHECK (`attempt_count` >= 0),
@@ -972,10 +986,12 @@ CREATE TABLE `einv_sync_queue`
         CHECK (`attempt_count` <= `max_attempts`),
     CONSTRAINT `chk_queue_status_valid`
         CHECK (`status` IN ('PENDING', 'PROCESSING', 'SUCCESS', 'FAILED')),
-    INDEX            `idx_queue_tenant_status` (`tenant_id`, `status`),
-    INDEX            `idx_queue_provider_status` (`provider_id`, `status`),
-    INDEX            `idx_queue_status_retry` (`status`, `next_retry_at`),
-    INDEX            `idx_queue_invoice` (`invoice_id`)
+    INDEX `idx_queue_tenant_status` (`tenant_id`, `status`),
+    INDEX `idx_queue_provider_status` (`provider_id`, `status`),
+    INDEX `idx_queue_status_retry` (`status`, `next_retry_at`),
+    INDEX `idx_queue_invoice` (`invoice_id`),
+    INDEX `idx_queue_tenant_fk` (`tenant_id`),
+    INDEX `idx_queue_provider_fk` (`provider_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -984,8 +1000,8 @@ CREATE TABLE `einv_sync_queue`
 -- 6.3. Nhật ký kiểm toán
 CREATE TABLE `einv_audit_logs`
 (
-    `id`           BIGINT       NOT NULL AUTO_INCREMENT COMMENT 'Audit log ID',
-    `action`       VARCHAR(100) NOT NULL COMMENT 'VD: SUBMIT_INVOICE, SIGN_INVOICE, GET_STATUS',
+    `id`           BIGINT AUTO_INCREMENT                 NOT NULL COMMENT ' log',
+    `action`       VARCHAR(100)                          NOT NULL COMMENT 'VD: SUBMIT_INVOICE, SIGN_INVOICE, GET_STATUS',
     `entity_name`  VARCHAR(100) COMMENT 'Tên bảng liên quan',
     `entity_id`    VARCHAR(100) COMMENT 'ID bản ghi bị tác động',
     `payload`      JSON COMMENT 'Dữ liệu tại thời điểm action',
@@ -998,10 +1014,10 @@ CREATE TABLE `einv_audit_logs`
     `updated_date` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (`id`),
-    INDEX          `idx_audit_created_by` (`created_by`),
-    INDEX          `idx_audit_entity` (`entity_name`, `entity_id`),
-    INDEX          `idx_audit_action` (`action`),
-    INDEX          `idx_audit_created` (`created_date`)
+    INDEX `idx_audit_created_by` (`created_by`),
+    INDEX `idx_audit_entity` (`entity_name`, `entity_id`),
+    INDEX `idx_audit_action` (`action`),
+    INDEX `idx_audit_created` (`created_date`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -1009,6 +1025,7 @@ CREATE TABLE `einv_audit_logs`
 
 -- NHÓM 7: DỮ LIỆU MẪU (MASTER DATA)
 -- 7.1. Danh sách Nhà cung cấp (Provider)
+-- Lưu ý: Giữ integration_url và lookup_url từ file V2 vì tài liệu không có các trường này
 INSERT INTO `einv_provider` (`id`, `provider_code`, `provider_name`, `integration_url`, `lookup_url`, `inactive`)
 VALUES ('550e8400-e29b-41d4-a716-446655440001', 'BKAV', 'Công ty cổ phần Bkav', 'https://einvoicebkav.com.vn/api',
         'https://einvoicebkav.com.vn/invoice/api', 0),
@@ -1019,11 +1036,10 @@ VALUES ('550e8400-e29b-41d4-a716-446655440001', 'BKAV', 'Công ty cổ phần Bk
        ('550e8400-e29b-41d4-a716-446655440004', 'MOBI', 'Mobifone Invoice', 'https://m-invoice.mobifone.com.vn/api',
         'https://m-invoice.mobifone.com.vn', 0),
        ('550e8400-e29b-41d4-a716-446655440005', 'VIETTEL', 'Viettel Invoice',
-        'https://einvoice.viettelgroup.com.vn/api', 'https://einvoice.viettelgroup.com.vn', 0) ON DUPLICATE KEY
-UPDATE `provider_name` =
-VALUES (`provider_name`);
+        'https://einvoice.viettelgroup.com.vn/api', 'https://einvoice.viettelgroup.com.vn', 0)
+ON DUPLICATE KEY UPDATE `provider_name` = VALUES(`provider_name`);
 
--- 7.2. Danh mục Loại thuế
+-- 7.2. Danh mục Loại thuế (THEO BẢN CÔNG TY: category_tax_type)
 INSERT INTO `category_tax_type` (`id`, `tax_name`, `tax_name_en`, `description`, `vat`)
 VALUES ('550e8400-e29b-41d4-a716-446655440010', 'Thuế suất 0%', 'VAT 0%',
         'Hàng hóa, dịch vụ không chịu thuế GTGT (áp dụng tỷ lệ 0%)', 0.00),
@@ -1040,10 +1056,9 @@ VALUES ('550e8400-e29b-41d4-a716-446655440010', 'Thuế suất 0%', 'VAT 0%',
        ('550e8400-e29b-41d4-a716-446655440016', 'Thuế suất 5%x70%', 'VAT 5%x70%',
         'Hàng hóa, dịch vụ chịu thuế GTGT với tỷ lệ 3.5%', 3.50),
        ('550e8400-e29b-41d4-a716-446655440017', 'Thuế suất 10%x70%', 'VAT 10%x70%',
-        'Hàng hóa, dịch vụ chịu thuế GTGT với tỷ lệ 7%', 7.00) ON DUPLICATE KEY
-UPDATE `tax_name` =
-VALUES (`tax_name`), `vat` =
-VALUES (`vat`);
+        'Hàng hóa, dịch vụ chịu thuế GTGT với tỷ lệ 7%', 7.00)
+ON DUPLICATE KEY UPDATE `tax_name` = VALUES(`tax_name`),
+                        `vat`      = VALUES(`vat`);
 
 -- 7.3. Danh mục Loại hóa đơn
 INSERT INTO `einv_invoice_type` (`id`, `name`, `note`)
@@ -1056,9 +1071,8 @@ VALUES (1, 'Hóa đơn Giá trị gia tăng', 'Hóa đơn GTGT (VAT)'),
        (8, 'Biên lai thu phí điền sẵn mệnh giá', 'Biên lai thu phí'),
        (9, 'Hóa đơn bán tài sản công', 'Hóa đơn đặc biệt'),
        (10, 'Tem, vé, thẻ điện tử là Hóa đơn GTGT', 'Tem, vé điện tử'),
-       (11, 'Tem, vé, thẻ điện tử là Hóa đơn BH', 'Tem, vé điện tử') ON DUPLICATE KEY
-UPDATE `name` =
-VALUES (`name`);
+       (11, 'Tem, vé, thẻ điện tử là Hóa đơn BH', 'Tem, vé điện tử')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- 7.4. Danh mục Trạng thái hóa đơn
 INSERT INTO `einv_invoice_status` (`id`, `name`, `description`, `note`)
@@ -1076,10 +1090,9 @@ VALUES (1, 'Mới tạo', 'Hóa đơn mới tạo chưa có số hóa đơn', 'T
        (12, 'Không sử dụng', 'Hoá đơn bị xoá từ trạng thái mới tạo', 'Không dùng nữa'),
        (13, 'Chờ hủy', 'Hóa đơn đã được chuyển trạng thái chờ hủy và cần ký để hủy', 'Chờ ký hủy'),
        (14, 'Chờ điều chỉnh chiết khấu', 'Hóa đơn điều chỉnh chiết khấu chưa ký', 'Chờ ký số'),
-       (15, 'Điều chỉnh chiết khấu', 'Hóa đơn điều chỉnh chiết khấu đã ký', 'Hoàn tất điều chỉnh') ON DUPLICATE KEY
-UPDATE `name` =
-VALUES (`name`), `description` =
-VALUES (`description`);
+       (15, 'Điều chỉnh chiết khấu', 'Hóa đơn điều chỉnh chiết khấu đã ký', 'Hoàn tất điều chỉnh')
+ON DUPLICATE KEY UPDATE `name`        = VALUES(`name`),
+                        `description` = VALUES(`description`);
 
 -- 7.5. Danh mục Trạng thái Cơ quan Thuế
 INSERT INTO `einv_tax_status` (`id`, `name`)
@@ -1091,9 +1104,8 @@ VALUES (0, 'Chưa có trạng thái của CQT'),
        (36, 'Chờ cấp mã'),
        (37, 'Có sai sót'),
        (38, 'Lỗi được CQT trả về'),
-       (39, 'Lỗi khi đẩy vào Queue của Thuế') ON DUPLICATE KEY
-UPDATE `name` =
-VALUES (`name`);
+       (39, 'Lỗi khi đẩy vào Queue của Thuế')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- 7.6. Danh mục Phương thức thanh toán
 INSERT INTO `einv_payment_method` (`id`, `name`, `note`)
@@ -1139,10 +1151,9 @@ VALUES (1, 'TM', 'Tiền mặt'),
        (41, 'Cho vay/Cho mượn', 'Cho vay/Cho mượn'),
        (42, 'Ví điện tử', 'Ví điện tử'),
        (43, 'Điểm', 'Điểm'),
-       (44, 'Voucher', 'Voucher') ON DUPLICATE KEY
-UPDATE `name` =
-VALUES (`name`), `note` =
-VALUES (`note`);
+       (44, 'Voucher', 'Voucher')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`),
+                        `note` = VALUES(`note`);
 
 -- 7.7. Danh mục Đơn vị tính
 INSERT INTO `einv_unit` (`code`, `name`)
@@ -1155,9 +1166,8 @@ VALUES ('DVT01', 'Cái'),
        ('DVT07', 'Lít'),
        ('DVT08', 'Thùng'),
        ('DVT09', 'Hộp'),
-       ('DVT10', 'Bộ') ON DUPLICATE KEY
-UPDATE `name` =
-VALUES (`name`);
+       ('DVT10', 'Bộ')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- 7.8. Danh mục Loại hàng hóa
 INSERT INTO `einv_item_type` (`id`, `name`, `note`)
@@ -1178,26 +1188,23 @@ VALUES (0, 'Hàng hoá dịch vụ (mặc định)', 'Mặc định'),
        (14, 'Phí dịch vụ cho hóa đơn hoàn vé', 'Phí dịch vụ hoàn vé'),
        (15, 'Hàng hoá khuyến mãi', 'Hàng khuyến mãi'),
        (16, 'Giảm 20% mức tỷ lệ % trên doanh thu', 'Giảm 20%'),
-       (17, 'Thuế tiêu thụ đặc biệt', 'Thuế tiêu thụ đặc biệt') ON DUPLICATE KEY
-UPDATE `name` =
-VALUES (`name`);
+       (17, 'Thuế tiêu thụ đặc biệt', 'Thuế tiêu thụ đặc biệt')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- 7.9. Danh mục Hình thức nhận hóa đơn
 INSERT INTO `einv_receive_type` (`id`, `name`)
 VALUES (1, 'Email'),
        (2, 'SMS'),
        (3, 'Email & SMS'),
-       (4, 'Chuyển phát nhanh') ON DUPLICATE KEY
-UPDATE `name` =
-VALUES (`name`);
+       (4, 'Chuyển phát nhanh')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- 7.10. Danh mục Loại tham chiếu
 INSERT INTO `einv_reference_type` (`id`, `name`, `note`)
 VALUES (0, 'Hóa đơn gốc', 'Hóa đơn ban đầu'),
        (2, 'Hóa đơn điều chỉnh', 'Hóa đơn điều chỉnh thông tin'),
-       (3, 'Hóa đơn thay thế', 'Hóa đơn thay thế hóa đơn sai sót') ON DUPLICATE KEY
-UPDATE `name` =
-VALUES (`name`);
+       (3, 'Hóa đơn thay thế', 'Hóa đơn thay thế hóa đơn sai sót')
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
 -- 7.11. Danh mục Loại nghiệp vụ Submit
 INSERT INTO `einv_submit_invoice_type` (`id`, `name`, `description`)
@@ -1240,5 +1247,4 @@ VALUES ('550e8400-e29b-41d4-a716-446655440001', 'SUBMIT_NEW', '100', 'Tạo hóa
        ('550e8400-e29b-41d4-a716-446655440001', 'SIGN_HSM', '205', 'Ký hóa đơn bằng HSM'),
        ('550e8400-e29b-41d4-a716-446655440001', 'SIGN_MULTI_HSM', '206', 'Ký nhiều hóa đơn bằng HSM');
 
-SET
-FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 1;
