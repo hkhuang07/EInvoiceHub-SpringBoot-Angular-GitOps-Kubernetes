@@ -1,0 +1,22 @@
+package com.einvoicehub.server.domain.mapper;
+
+import com.einvoicehub.server.domain.dto.EinvInvoiceDetailDto;
+import com.einvoicehub.server.domain.entity.EinvInvoiceDetail;
+import org.mapstruct.*;
+
+/**
+ * Mapper cho bảng EinvInvoiceDetail - Chi tiết hóa đơn điện tử
+ */
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface EinvInvoiceDetailMapper extends EntityMapper<EinvInvoiceDetailDto, EinvInvoiceDetail> {
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    EinvInvoiceDetail toEntity(EinvInvoiceDetailDto dto);
+
+    @Override
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void partialUpdate(@MappingTarget EinvInvoiceDetail entity, EinvInvoiceDetailDto dto);
+}

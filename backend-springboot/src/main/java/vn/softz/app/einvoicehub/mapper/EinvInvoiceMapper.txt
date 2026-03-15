@@ -1,0 +1,35 @@
+package com.einvoicehub.server.domain.mapper;
+
+import com.einvoicehub.server.domain.dto.EinvInvoiceDto;
+import com.einvoicehub.server.domain.entity.EinvInvoice;
+import org.mapstruct.*;
+
+/**
+ * Mapper cho bảng EinvInvoice - Hóa đơn điện tử
+ */
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {EinvInvoiceDetailMapper.class})
+public interface EinvInvoiceMapper extends EntityMapper<EinvInvoiceDto, EinvInvoice> {
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "details", ignore = true)
+    EinvInvoice toEntity(EinvInvoiceDto dto);
+
+    @Override
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "details", ignore = true)
+    void partialUpdate(@MappingTarget EinvInvoice entity, EinvInvoiceDto dto);
+
+    /**
+     * Chuyển đổi Entity sang DTO với thông tin chi tiết
+     */
+    @Named("toDtoWithDetails")
+    default EinvInvoiceDto toDtoWithDetails(EinvInvoice entity) {
+        if (entity == null) {
+            return null;
+        }
+        return toDto(entity);
+    }
+}
