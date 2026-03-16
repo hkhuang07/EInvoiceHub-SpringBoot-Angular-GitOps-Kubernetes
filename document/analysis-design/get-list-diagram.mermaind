@@ -1,9 +1,0 @@
-sequenceDiagram
-    autonumber
-    participant Pos as Chứng từ (PosORA)
-    participant Hub as eInvoice Hub
-
-    Note over Pos, Hub: Tác vụ: Lấy danh sách hóa đơn
-    Pos->>Hub: 1. Yêu cầu danh sách (Filter, Page,...)
-    Hub->>Hub: 2. Truy vấn Database (einv_invoices, einv_invoices_detail)
-    Hub-->>Pos: 3. Trả về dữ liệu danh sách hóa đơn

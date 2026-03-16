@@ -1,6 +1,0 @@
-INSERT INTO PosORA_Pro.einv_mapping_reference_type (id, provider_id, reference_type_id, provider_reference_type_id, inactive, note) VALUES ('019bb760-d617-7bf8-93f0-60e818c3fa63', 'BKAV', 0, null, 0, null);
-INSERT INTO PosORA_Pro.einv_mapping_reference_type (id, provider_id, reference_type_id, provider_reference_type_id, inactive, note) VALUES ('019bb760-e176-76ec-829e-80bb6ca77acd', 'BKAV', 2, null, 0, null);
-INSERT INTO PosORA_Pro.einv_mapping_reference_type (id, provider_id, reference_type_id, provider_reference_type_id, inactive, note) VALUES ('019bb760-ea71-7a90-a404-9f7163e26e02', 'BKAV', 3, null, 0, null);
-INSERT INTO PosORA_Pro.einv_mapping_reference_type (id, provider_id, reference_type_id, provider_reference_type_id, inactive, note) VALUES ('019bc6f6-de92-7ad8-9cd1-ada0af7aaa20', 'MOBI', 0, '0', 0, null);
-INSERT INTO PosORA_Pro.einv_mapping_reference_type (id, provider_id, reference_type_id, provider_reference_type_id, inactive, note) VALUES ('019bc6f7-0bd1-7e04-a7bd-c2086640beb2', 'MOBI', 2, '2', 0, null);
-INSERT INTO PosORA_Pro.einv_mapping_reference_type (id, provider_id, reference_type_id, provider_reference_type_id, inactive, note) VALUES ('019bc6f7-1ee7-7828-bc0e-5909858c8013', 'MOBI', 21, null, 0, null);
