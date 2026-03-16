@@ -1,0 +1,3 @@
+[submodule "libs/sz-core-java"]
+	path = libs/sz-core-java
+	url = https://github.com/softz-org/sz-core-java.git
