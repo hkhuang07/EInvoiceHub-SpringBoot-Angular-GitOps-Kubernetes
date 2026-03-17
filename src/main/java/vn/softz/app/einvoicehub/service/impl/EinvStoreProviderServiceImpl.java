@@ -17,12 +17,12 @@ import vn.softz.app.einvoicehub.mapper.EinvStoreProviderMapper;
 import vn.softz.app.einvoicehub.provider.bkav.BkavSoapClient;
 import vn.softz.app.einvoicehub.provider.bkav.constant.BkavCommandType;
 import vn.softz.app.einvoicehub.provider.bkav.model.BkavResponse;
-import vn.softz.app.einvoicehub.provider.mobifone.MobifoneHttpClient;
-import vn.softz.app.einvoicehub.provider.mobifone.model.MobifoneLoginResponse;
+//import vn.softz.app.einvoicehub.provider.mobifone.MobifoneHttpClient;
+//import vn.softz.app.einvoicehub.provider.mobifone.model.MobifoneLoginResponse;
 import vn.softz.app.einvoicehub.service.EinvStoreProviderService;
-import vn.softz.core.audit.TenantAware;
-import vn.softz.core.common.Common;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.audit.TenantAware;
+import vn.softz.app.einvoicehub.common.Common;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,13 +39,12 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
 
     private final EinvStoreProviderMapper               mapper;
 
-    private final BkavSoapClient                        bkavSoapClient;
-    private final MobifoneHttpClient                    mobifoneHttpClient;
-
-    private final BCryptPasswordEncoder                 passwordEncoder;
+    private final BkavSoapClient                          bkavSoapClient;
+    //private final MobifoneHttpClient                    mobifoneHttpClient;
+    //private final BCryptPasswordEncoder                 passwordEncoder;
 
     private static final String PROVIDER_BKAV     = "BKAV";
-    private static final String PROVIDER_MOBIFONE = "MOBI";
+    //private static final String PROVIDER_MOBIFONE = "MOBI";
 
     private static final byte STATUS_PENDING     = 0;
     private static final byte STATUS_ACTIVE      = 1;
@@ -57,8 +56,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
     @Transactional(readOnly = true)
     public Optional<EinvStoreProviderDto> getConfig() {
         String storeId = resolveCurrentStoreId();
-        return repository.findByStoreId(storeId)
-                         .map(this::toDtoMasked);
+        return repository.findByStoreId(storeId).map(this::toDtoMasked);
     }
 
     @Override
@@ -96,7 +94,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
                 });
 
         mapper.updateEntity(request, entity);
-        if (hasValue(request.getPartnerPwd())) {
+        /*if (hasValue(request.getPartnerPwd())) {
             String encoded = passwordEncoder.encode(request.getPartnerPwd());
             entity.setPartnerPwd(encoded);
             log.info("[saveConfig] partner_pwd re-encoded for storeId={}", storeId);
@@ -110,7 +108,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
         if ("VNPT".equalsIgnoreCase(request.getProviderId())
                 && hasValue(request.getIntegrationUrl())) {
             entity.setIntegrationUrl(request.getIntegrationUrl());
-        }
+        }*/
 
         entity.setStatus(STATUS_PENDING);
         entity.setIntegratedDate(null);
@@ -134,9 +132,8 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
         try {
             EinvValidationResult result = switch (providerId.toUpperCase()) {
                 case PROVIDER_BKAV     -> validateBkav();
-                case PROVIDER_MOBIFONE -> validateMobifone();
-                default -> EinvValidationResult.fail(
-                    "einv.error.provider_not_supported: " + providerId);
+                //case PROVIDER_MOBIFONE -> validateMobifone();
+                default -> EinvValidationResult.error(providerId,"einv.error.provider_not_supported!");
             };
 
             if (result.isSuccess()) {
@@ -154,7 +151,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
 
         } catch (Exception e) {
             log.error("[validateConfig] Unexpected error for provider={}: {}", providerId, e.getMessage(), e);
-            return EinvValidationResult.fail("einv.error.connection: " + e.getMessage());
+            return EinvValidationResult.error("einv.error.connection: " , e.getMessage());
         }
     }
 
@@ -166,7 +163,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
 
         if (serialRepository.existsByStoreIdAndStatus(storeId, STATUS_ACTIVE)) {
             log.warn("[deactivate] Cannot deactivate: storeId={} has active serials", storeId);
-            return EinvValidationResult.fail("einv.error.cannot_cancel_has_approved");
+            return EinvValidationResult.error("storeId","einv.error.cannot_cancel_has_approved");
         }
 
         repository.findByStoreId(storeId).ifPresent(entity -> {
@@ -177,7 +174,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
             log.info("[deactivate] Deactivated config id={} for storeId={}", entity.getId(), storeId);
         });
 
-        return EinvValidationResult.ok("einv_config.msg.cancelled");
+        return EinvValidationResult.success("einv_config.msg.cancelled");
     }
 
     @Override
@@ -188,13 +185,6 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
                          .orElse(false);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Private: Provider Validation Helpers
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Xác thực BKAV: gọi lệnh GET_UNIT_INFO_BY_TAXCODE để kiểm tra tài khoản.
-     */
     private EinvValidationResult validateBkav() {
         String storeId = resolveCurrentStoreId();
         EinvStoreProviderEntity entity = repository.findByStoreId(storeId)
@@ -202,7 +192,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
 
         String taxCode = entity.getTaxCode();
         if (!hasValue(taxCode)) {
-            return EinvValidationResult.fail("einv.error.missing_tax_code");
+            return EinvValidationResult.error("taxCode","einv.error.missing_tax_code");
         }
 
         try {
@@ -212,32 +202,19 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
                     taxCode);
 
             if (result.isSuccess()) {
-                log.info("[validateBkav] BKAV connection OK for taxCode={}", taxCode);
-                return EinvValidationResult.ok("einv.success.bkav_connected");
+                log.info("[validateBkav] BKAV connection success for taxCode={}", taxCode);
+                return EinvValidationResult.success("einv.success.bkav_connected");
             } else {
                 log.warn("[validateBkav] BKAV returned error: {}", result.getErrorMessage());
-                return EinvValidationResult.fail("einv.error.validation_failed");
+                return EinvValidationResult.error("provider","einv.error.validation_errored");
             }
         } catch (Exception e) {
-            log.error("[validateBkav] SOAP call failed: {}", e.getMessage());
-            return EinvValidationResult.fail("einv.error.validation_failed");
+            log.error("[validateBkav] SOAP call errored: {}", e.getMessage());
+            return EinvValidationResult.error("provider","einv.error.validation_errored");
         }
     }
 
-    /**
-     * Xác thực MobiFone: đăng nhập bằng username/password để lấy token.
-     *
-     * <p><b>Lưu ý về BCrypt:</b> {@code partnerPwd} trong DB là hash BCrypt.
-     * MobiFone API yêu cầu mật khẩu gốc → mật khẩu thực cần được lấy từ
-     * request tại thời điểm validate, KHÔNG lấy từ DB (vì đã hash).
-     * Nếu client không gửi lại password trong request này, cần cơ chế
-     * secure vault (future work). Hiện tại: raise error nếu thiếu.
-     *
-     * @implNote Để giải quyết vấn đề BCrypt-vs-plaintext, hệ thống có thể
-     *     bổ sung cột {@code partner_pwd_encrypted} lưu bằng AES (2-way)
-     *     thay vì BCrypt (1-way) cho các trường cần gửi đi plaintext.
-     *     BCrypt phù hợp cho xác thực nội bộ, AES/KMS cho secrets gửi đến bên ngoài.
-     */
+
     private EinvValidationResult validateMobifone() {
         String storeId = resolveCurrentStoreId();
         EinvStoreProviderEntity entity = repository.findByStoreId(storeId)
@@ -247,7 +224,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
         String taxCode  = entity.getTaxCode();
 
         if (!hasValue(username)) {
-            return EinvValidationResult.fail("einv.error.missing_credentials");
+            return EinvValidationResult.error("store","einv.error.missing_credentials");
         }
 
         // DESIGN NOTE: partner_pwd trong DB là BCrypt hash → không thể gửi thẳng.
@@ -255,7 +232,7 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
         // Tạm thời: yêu cầu endpoint validate nhận lại password trong body.
         // TODO: Replace với AES-encrypted secret vault (phase 2).
         log.warn("[validateMobifone] password strategy: plaintext required from client for API call");
-        return EinvValidationResult.fail("einv.error.mobifone_resubmit_password_required");
+        return EinvValidationResult.error("provider","einv.error.mobifone_resubmit_password_required");
     }
 
     // Private: History Helper
@@ -273,8 +250,8 @@ public class EinvStoreProviderServiceImpl implements EinvStoreProviderService {
             history.setNotes(notes);
             historyRepository.save(history);
         } catch (Exception ex) {
-            // History failure KHÔNG được rollback transaction chính
-            log.warn("[saveHistory] Failed to record history for storeId={}: {}",
+            // History errorure KHÔNG được rollback transaction chính
+            log.warn("[saveHistory] errored to record history for storeId={}: {}",
                      entity.getStoreId(), ex.getMessage());
         }
     }

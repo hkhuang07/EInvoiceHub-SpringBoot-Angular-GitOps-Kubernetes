@@ -14,6 +14,13 @@ public interface EinvMappingUnitRepository extends JpaRepository<EinvMappingUnit
     /**
      * Tìm mapping theo provider ID
      */
+    default List<EinvMappingUnitEntity> findByProviderId() {
+        return findByProviderId(null);
+    }
+
+    /**
+     * Tìm mapping theo provider ID
+     */
     List<EinvMappingUnitEntity> findByProviderId(String providerId);
 
     /**

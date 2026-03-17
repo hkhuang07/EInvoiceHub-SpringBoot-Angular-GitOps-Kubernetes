@@ -1,5 +1,6 @@
 package vn.softz.app.einvoicehub.domain.repository;
 
+import org.hibernate.boot.cfgxml.spi.MappingReference;
 import vn.softz.app.einvoicehub.domain.entity.EinvMappingReferenceTypeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -20,6 +21,8 @@ public interface EinvMappingReferenceTypeRepository extends JpaRepository<EinvMa
     Optional<EinvMappingReferenceTypeEntity> findByProviderIdAndProviderReferenceTypeId(String providerId, String providerReferenceTypeId);
 
     List<EinvMappingReferenceTypeEntity> findByProviderIdAndInactiveFalse(String providerId);
+
+    List<EinvMappingReferenceTypeEntity> findAllByProviderIdAndInactiveFalse(String providerId);
 
     boolean existsByProviderIdAndReferenceTypeId(String providerId, Byte referenceTypeId);
 }

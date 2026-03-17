@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.softz.app.einvoicehub.domain.entity.EinvSyncQueueEntity;
 import vn.softz.app.einvoicehub.domain.repository.EinvSyncQueueRepository;
 import vn.softz.app.einvoicehub.service.core.EinvSyncQueueService;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.time.LocalDateTime;
 import java.util.List;

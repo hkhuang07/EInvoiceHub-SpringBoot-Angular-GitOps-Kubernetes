@@ -14,9 +14,11 @@ import java.util.Optional;
 public interface EinvStoreProviderRepository extends JpaRepository<EinvStoreProviderEntity, String>, JpaSpecificationExecutor<EinvStoreProviderEntity> {
     List<EinvStoreProviderEntity> findByTenantId(String tenantId);
 
-    List<EinvStoreProviderEntity> findByStoreId(String storeId);
+    Optional<EinvStoreProviderEntity> findByStoreId(String storeId);
 
     List<EinvStoreProviderEntity> findByProviderId(String providerId);
+
+    List<EinvStoreProviderEntity> findByProviderIdAndStatus(String providerId, Byte status);
 
     Optional<EinvStoreProviderEntity> findByStoreIdAndProviderId(String storeId, String providerId);
 
@@ -31,4 +33,9 @@ public interface EinvStoreProviderRepository extends JpaRepository<EinvStoreProv
     long countByStoreId(String storeId);
 
     long countByProviderId(String providerId);
+
+
+
+
+
 }

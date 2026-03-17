@@ -33,6 +33,8 @@ public interface EinvStoreSerialRepository extends JpaRepository<EinvStoreSerial
 
     List<EinvStoreSerialEntity> findByTenantIdAndStatus(String tenantId, Byte status);
 
+    boolean existsByStoreIdAndStatus(String storeId, Byte status);
+
     boolean existsByStoreIdAndProviderIdAndInvoiceTypeId(String storeId, String providerId, Byte invoiceTypeId);
 
     long countByStoreId(String storeId);

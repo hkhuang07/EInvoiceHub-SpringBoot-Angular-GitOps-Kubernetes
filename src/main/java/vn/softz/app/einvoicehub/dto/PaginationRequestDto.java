@@ -1,42 +1,63 @@
 package vn.softz.app.einvoicehub.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaginationRequestDto {
 
     @Builder.Default
-    @Min(value = 0, message = "Offset không được âm")
-    @JsonProperty("offset")
-    private Integer offset = 0;
+    @JsonProperty("page")
+    private int page = 1;
 
     @Builder.Default
-    @Min(value = 1, message = "Limit tối thiểu là 1")
-    @Max(value = 500, message = "Limit tối đa là 500 để đảm bảo hiệu năng")
-    @JsonProperty("limit")
-    private Integer limit = 20;
-
-    @Builder.Default
-    @JsonProperty("filters")
-    private Map<String, Object> filters = new HashMap<>();
+    @JsonProperty("size")
+    private int size = 20;
 
     @JsonProperty("sort_field")
     private String sortField;
 
     @Builder.Default
     @JsonProperty("sort_direction")
-    private String sortDirection = "desc";
+    private String sortDirection = "DESC";
 
-    public int getPageNumber() {
-        return (limit == null || limit <= 0) ? 0 : (offset / limit);
+    @JsonProperty("filters")
+    private Map<String, Object> filters;
+
+    public Object getFilter(String key) {
+        return filters != null ? filters.get(key) : null;
+    }
+
+    public String getFilterAsString(String key) {
+        Object value = getFilter(key);
+        return value != null ? value.toString() : null;
+    }
+
+    public Integer getFilterAsInteger(String key) {
+        Object value = getFilter(key);
+        if (value == null) return null;
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    public int getZeroBasedPage() {
+        return Math.max(0, page - 1);
+    }
+
+    public int getSafeSize() {
+        return Math.min(Math.max(1, size), 200);
     }
 }

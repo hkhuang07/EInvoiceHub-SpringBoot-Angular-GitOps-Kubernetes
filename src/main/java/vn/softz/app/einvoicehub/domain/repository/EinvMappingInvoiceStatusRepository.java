@@ -22,4 +22,7 @@ public interface EinvMappingInvoiceStatusRepository extends JpaRepository<EinvMa
     List<EinvMappingInvoiceStatusEntity> findByProviderIdAndInactiveFalse(String providerId);
 
     boolean existsByProviderIdAndInvoiceStatusId(String providerId, Byte invoiceStatusId);
+
+    List<EinvMappingInvoiceStatusEntity> findAllByProviderIdAndInactiveFalse(String providerId);
+
 }

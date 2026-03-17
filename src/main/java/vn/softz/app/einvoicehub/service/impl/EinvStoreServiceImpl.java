@@ -10,7 +10,7 @@ import vn.softz.app.einvoicehub.domain.entity.EinvStoreEntity;
 import vn.softz.app.einvoicehub.domain.repository.EinvStoreRepository;
 import vn.softz.app.einvoicehub.domain.repository.MerchantRepository;
 import vn.softz.app.einvoicehub.service.integration.EinvStoreService;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.util.List;
 import java.util.Optional;

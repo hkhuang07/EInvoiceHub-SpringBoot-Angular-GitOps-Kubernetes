@@ -4,6 +4,8 @@ import vn.softz.app.einvoicehub.dto.EinvMappingPaymentMethodDto;
 import vn.softz.app.einvoicehub.domain.entity.EinvMappingPaymentMethodEntity;
 import org.mapstruct.*;
 
+import java.util.List;
+
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EinvMappingPaymentMethodMapper extends EntityMapper<EinvMappingPaymentMethodDto, EinvMappingPaymentMethodEntity> {
@@ -20,6 +22,8 @@ public interface EinvMappingPaymentMethodMapper extends EntityMapper<EinvMapping
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "updatedDate", ignore = true)
     EinvMappingPaymentMethodEntity toEntity(EinvMappingPaymentMethodDto dto);
+
+    List<EinvMappingPaymentMethodDto> toDtoList(List<EinvMappingPaymentMethodEntity> list);
 
     @Override
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

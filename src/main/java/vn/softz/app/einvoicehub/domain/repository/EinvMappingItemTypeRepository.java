@@ -21,5 +21,7 @@ public interface EinvMappingItemTypeRepository extends JpaRepository<EinvMapping
 
     List<EinvMappingItemTypeEntity> findByProviderIdAndInactiveFalse(String providerId);
 
+    List<EinvMappingItemTypeEntity> findAllByProviderIdAndInactiveFalse(String providerId);
+
     boolean existsByProviderIdAndItemTypeId(String providerId, Byte itemTypeId);
 }

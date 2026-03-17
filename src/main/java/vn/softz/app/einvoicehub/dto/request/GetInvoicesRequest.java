@@ -41,6 +41,9 @@ public class GetInvoicesRequest {
     @JsonProperty("invoice_ids")
     private List<String> invoiceIds;
 
+    @JsonProperty("invoice_id")
+    private String invoiceId;
+
     /**Bắt buộc đồng bộ trạng thái từ CQT/Provider về HUB.
      *   true  = luôn gọi Provider để cập nhật trạng thái mới nhất.
      *   false = trả kết quả từ DB nội bộ nếu status đã ổn định (∈ {2,6,8,9,10}).*/
@@ -97,4 +100,6 @@ public class GetInvoicesRequest {
     public boolean isBatchLookup() {
         return invoiceIds != null && !invoiceIds.isEmpty();
     }
+
+
 }

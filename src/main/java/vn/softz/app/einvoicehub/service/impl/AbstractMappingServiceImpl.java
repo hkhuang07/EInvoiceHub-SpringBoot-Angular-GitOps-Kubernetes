@@ -2,7 +2,7 @@ package vn.softz.app.einvoicehub.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +80,6 @@ public abstract class AbstractMappingServiceImpl<D, HID> {
         return result.orElse(fallback);
     }
 
-    // ── Shared helper ─────────────────────────────────────────────────────────
 
     protected BusinessException notFound(String id) {
         return new BusinessException(

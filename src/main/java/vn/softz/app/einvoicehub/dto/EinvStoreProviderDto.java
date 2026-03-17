@@ -102,4 +102,5 @@ public class EinvStoreProviderDto {
 
     @JsonProperty("updated_date")
     private LocalDateTime updatedDate;
+
 }

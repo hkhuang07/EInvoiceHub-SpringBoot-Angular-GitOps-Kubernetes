@@ -32,6 +32,8 @@ public interface EinvAuditLogRepository extends JpaRepository<EinvAuditLogEntity
     @Query("SELECT l FROM EinvAuditLogEntity l WHERE l.entityName = :entityName AND l.entityId = :entityId AND l.result = 'FAILURE' ORDER BY l.createdDate DESC")
     List<EinvAuditLogEntity> findFailedLogsByEntity(@Param("entityName") String entityName, @Param("entityId") String entityId);
 
+
+    long countByActionAndResultAndCreatedDateBetween(String action, String result, LocalDateTime from, LocalDateTime to);
     long countByAction(String action);
     long countByActionAndResult(String action, String result);
 

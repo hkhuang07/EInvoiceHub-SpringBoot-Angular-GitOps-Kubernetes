@@ -27,7 +27,7 @@ import vn.softz.app.einvoicehub.dto.response.SubmitInvoiceResponse;
 import vn.softz.app.einvoicehub.mapper.EinvInvoiceMapper;
 import vn.softz.app.einvoicehub.service.EinvInvoiceService;
 import vn.softz.app.einvoicehub.service.EinvMappingInvoiceStatusService;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -286,7 +286,6 @@ public class EinvInvoiceServiceImpl implements EinvInvoiceService {
                 "einv.error.duplicate_partner_invoice_id: " + request.getPartnerInvoiceId());
         }
 
-        // [2] Store phải đã tích hợp NCC
         boolean isIntegrated = storeProviderRepository
                 .findByStoreId(request.getStoreId())
                 .map(e -> e.getStatus() != null && e.getStatus() == 1)

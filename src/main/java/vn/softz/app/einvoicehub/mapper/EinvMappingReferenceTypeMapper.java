@@ -4,6 +4,8 @@ import vn.softz.app.einvoicehub.dto.EinvMappingReferenceTypeDto;
 import vn.softz.app.einvoicehub.domain.entity.EinvMappingReferenceTypeEntity;
 import org.mapstruct.*;
 
+import java.util.List;
+
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EinvMappingReferenceTypeMapper extends EntityMapper<EinvMappingReferenceTypeDto, EinvMappingReferenceTypeEntity> {
@@ -20,6 +22,8 @@ public interface EinvMappingReferenceTypeMapper extends EntityMapper<EinvMapping
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "updatedDate", ignore = true)
     EinvMappingReferenceTypeEntity toEntity(EinvMappingReferenceTypeDto dto);
+
+    List<EinvMappingReferenceTypeDto> toDtoList(List<EinvMappingReferenceTypeEntity> list);
 
     @Override
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

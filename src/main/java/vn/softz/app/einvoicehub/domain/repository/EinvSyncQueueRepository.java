@@ -23,6 +23,7 @@ public interface EinvSyncQueueRepository extends JpaRepository<EinvSyncQueueEnti
 
     List<EinvSyncQueueEntity> findByStatus(String status);
 
+    List<EinvSyncQueueEntity> findPendingReadyForRetry(LocalDateTime dateTime, Pageable pageable);
 
     Page<EinvSyncQueueEntity> findByStatus(String status, Pageable pageable);
 

@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vn.softz.app.einvoicehub.domain.entity.EinvAuditLogEntity;
 import vn.softz.app.einvoicehub.domain.repository.EinvAuditLogRepository;
-import vn.softz.app.einvoicehub.service.core.EinvAuditLogService;
+import vn.softz.app.einvoicehub.service.catalog.EinvAuditLogService;
 
 import java.time.LocalDateTime;
 import java.util.List;

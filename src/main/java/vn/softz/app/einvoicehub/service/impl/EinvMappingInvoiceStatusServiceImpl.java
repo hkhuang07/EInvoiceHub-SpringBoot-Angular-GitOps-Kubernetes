@@ -2,6 +2,7 @@ package vn.softz.app.einvoicehub.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.Named;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.softz.app.einvoicehub.domain.entity.EinvMappingInvoiceStatusEntity;
@@ -9,7 +10,7 @@ import vn.softz.app.einvoicehub.domain.repository.EinvMappingInvoiceStatusReposi
 import vn.softz.app.einvoicehub.dto.EinvMappingInvoiceStatusDto;
 import vn.softz.app.einvoicehub.mapper.EinvMappingInvoiceStatusMapper;
 import vn.softz.app.einvoicehub.service.EinvMappingInvoiceStatusService;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,9 +26,8 @@ public class EinvMappingInvoiceStatusServiceImpl implements EinvMappingInvoiceSt
     @Override
     @Transactional
     public EinvMappingInvoiceStatusDto create(EinvMappingInvoiceStatusDto dto) {
-        // Validate: Không trùng (providerId, hubStatusId)
-        Byte hubStatusId = dto.getInvoiceStatusId() != null
-                ? dto.getInvoiceStatusId().byteValue() : null;
+        Boolean hubStatus = dto.getInvoiceStatusId() ;
+        Byte hubStatusId = booleanToByte(hubStatus);
 
         if (hubStatusId != null
                 && repository.existsByProviderIdAndInvoiceStatusId(dto.getProviderId(), hubStatusId)) {
@@ -142,5 +142,11 @@ public class EinvMappingInvoiceStatusServiceImpl implements EinvMappingInvoiceSt
         return repository.findById(id)
                          .orElseThrow(() -> new BusinessException(
                              "einv.error.mapping_status_not_found: id=" + id));
+    }
+
+    @Named("booleanToByte")
+    private Byte booleanToByte(Boolean value) {
+        if (value == null) return null;
+        return value ? (byte) 1 : (byte) 0;
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vn.softz.app.einvoicehub.domain.entity.CategoryTaxType;
 import vn.softz.app.einvoicehub.domain.repository.CategoryTaxTypeRepository;
 import vn.softz.app.einvoicehub.service.catalog.CategoryTaxTypeService;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.math.BigDecimal;
 import java.util.List;

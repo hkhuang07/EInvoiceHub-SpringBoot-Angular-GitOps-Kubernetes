@@ -10,7 +10,7 @@ import vn.softz.app.einvoicehub.domain.entity.EinvProviderEntity;
 import vn.softz.app.einvoicehub.domain.repository.EinvProviderRepository;
 import vn.softz.app.einvoicehub.domain.repository.EinvStoreProviderRepository;
 import vn.softz.app.einvoicehub.service.catalog.EinvProviderService;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,5 +1,6 @@
 package vn.softz.app.einvoicehub.domain.repository;
 
+import vn.softz.app.einvoicehub.domain.entity.EinvMappingInvoiceStatusEntity;
 import vn.softz.app.einvoicehub.domain.entity.EinvMappingInvoiceTypeEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -21,5 +22,8 @@ public interface EinvMappingInvoiceTypeRepository extends JpaRepository<EinvMapp
 
     List<EinvMappingInvoiceTypeEntity> findByProviderIdAndInactiveFalse(String providerId);
 
+    List<EinvMappingInvoiceTypeEntity> findAllByProviderIdAndInactiveFalse(String provderId);
+
     boolean existsByProviderIdAndInvoiceTypeId(String providerId, Byte invoiceTypeId);
+
 }

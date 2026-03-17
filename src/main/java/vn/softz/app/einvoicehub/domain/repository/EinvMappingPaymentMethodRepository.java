@@ -21,5 +21,8 @@ public interface EinvMappingPaymentMethodRepository extends JpaRepository<EinvMa
 
     List<EinvMappingPaymentMethodEntity> findByProviderIdAndInactiveFalse(String providerId);
 
+    List<EinvMappingPaymentMethodEntity> findAllByProviderIdAndInactiveFalse(String providerId);
+
+
     boolean existsByProviderIdAndPaymentMethodId(String providerId, Byte paymentMethodId);
 }

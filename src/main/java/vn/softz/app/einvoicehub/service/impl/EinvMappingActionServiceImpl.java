@@ -9,7 +9,7 @@ import vn.softz.app.einvoicehub.domain.repository.EinvMappingActionRepository;
 import vn.softz.app.einvoicehub.dto.EinvMappingActionDto;
 import vn.softz.app.einvoicehub.mapper.EinvMappingActionMapper;
 import vn.softz.app.einvoicehub.service.mapping.EinvMappingActionService;
-import vn.softz.core.exception.BusinessException;
+import vn.softz.app.einvoicehub.exception.BusinessException;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +21,6 @@ public class EinvMappingActionServiceImpl implements EinvMappingActionService {
 
     private final EinvMappingActionRepository repository;
     private final EinvMappingActionMapper      mapper;
-
-    // ── Lookup ────────────────────────────────────────────────────────────────
 
     @Override
     @Transactional(readOnly = true)

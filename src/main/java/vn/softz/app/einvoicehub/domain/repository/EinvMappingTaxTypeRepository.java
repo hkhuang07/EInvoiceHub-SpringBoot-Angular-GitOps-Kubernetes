@@ -21,5 +21,7 @@ public interface EinvMappingTaxTypeRepository extends JpaRepository<EinvMappingT
 
     List<EinvMappingTaxTypeEntity> findByProviderIdAndInactiveFalse(String providerId);
 
+    List<EinvMappingTaxTypeEntity> findAllByProviderIdAndInactiveFalse(String providerId);
+
     boolean existsByProviderIdAndTaxTypeId(String providerId, String taxTypeId);
 }

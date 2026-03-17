@@ -23,22 +23,25 @@ public class EinvValidationResult {
     private Boolean valid;
 
     @JsonProperty("errors")
-    private List<ValidationError> errors;
+    @Builder.Default
+    private List<ValidationError> errors = new ArrayList<>();
 
     public static EinvValidationResult success() {
-        return EinvValidationResult.builder()
-                .valid(true)
-                .errors(new ArrayList<>())
-                .build();
+        return EinvValidationResult.builder().valid(true).build();
+    }
+
+    public static EinvValidationResult success(String message) {
+        return EinvValidationResult.builder().valid(true).build();
+    }
+
+    public boolean isSuccess() {
+        return Boolean.TRUE.equals(this.valid);
     }
 
     public static EinvValidationResult error(String field, String message) {
-        List<ValidationError> errors = new ArrayList<>();
-        errors.add(new ValidationError(field, message));
-        return EinvValidationResult.builder()
-                .valid(false)
-                .errors(errors)
-                .build();
+        EinvValidationResult result = EinvValidationResult.builder().valid(false).errors(new ArrayList<>()).build();
+        result.addError(field, message);
+        return result;
     }
 
     public static EinvValidationResult errors(List<ValidationError> errors) {
@@ -49,9 +52,7 @@ public class EinvValidationResult {
     }
 
     public void addError(String field, String message) {
-        if (this.errors == null) {
-            this.errors = new ArrayList<>();
-        }
+        if (this.errors == null) this.errors = new ArrayList<>();
         this.errors.add(new ValidationError(field, message));
         this.valid = false;
     }
